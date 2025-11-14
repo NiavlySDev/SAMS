@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "name": "Formations",
+        "color": "#ef4444",
+        "visible": true
+    },
+    {
+        "id": 2,
+        "name": "Spécialités",
+        "color": "#05f3f7",
+        "visible": true
+    },
+    {
+        "id": 3,
+        "name": "Procédures",
+        "color": "#22c55e",
+        "visible": true
+    },
+    {
+        "id": 4,
+        "name": "Guides",
+        "color": "#3b82f6",
+        "visible": true
+    },
+    {
+        "id": 5,
+        "name": "Administration",
+        "color": "#8b5cf6",
+        "visible": true
+    }
+]

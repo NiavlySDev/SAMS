@@ -1,0 +1,24 @@
+[
+  {
+    "version": "v1.1",
+    "date": "30/07/2025 - 07:10",
+    "changes": [
+      "Ajout de la possibilité d'ajouter des questions personnalisées pour les codes radios.",
+      "Ajout de la possibilité d'ajouter des questions personnalisées pour savoir faire un rapport.",
+      "Ajout de la possibilité d'ajouter des questions personnalisées pour la mise en situation.",
+      "Ajout de la possibilité d'ajouter des questions personnalisées pour la connaissance de l'hôpital.",
+      "Ajout de la possibilité d'ajouter des questions personnalisées pour les types de blessures.",
+      "Ajout de la possibilité d'exporter les questions personnalisées.",
+      "Ajout de la possibilité d'importer les questions personnalisées."
+    ]
+  },
+  {
+    "version": "v1.0",
+    "date": "30/07/2025 - 06:50",
+    "changes": [
+      "Première version du site Examens Prof.",
+      "Pages : Prof, Informations.",
+      "Ajout de la possibilité de corriger les examens des élèves."      
+    ]
+  }
+]

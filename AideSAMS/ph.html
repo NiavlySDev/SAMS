@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PH - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="ph-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-ph-btn" onclick="addPh()" style="margin-left:16px; white-space:nowrap;">➕ Ajouter
+            une fiche</button>
+        <button class="btn" onclick="resetPh()" style="margin-left:8px;background:#ef4444;color:#fff;">🗑️ Réinitialiser la fiche</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+    </div>
+
+    <script>
+        const defaultPh = () => ({
+            pilotName: "",
+            pilotId: "",
+            copilot1: "",
+            copilot2: "",
+            reason: "",
+            day: "",
+            month: "",
+            year: "",
+            hour: "",
+            minute: "",
+            collapsed: [false, false],
+        });
+
+        let phs = [];
+        let currentPh = 0;
+
+        function savePhs() {
+            localStorage.setItem('sams_phs', JSON.stringify({ phs, currentPh }));
+        }
+        function loadPhs() {
+            const data = localStorage.getItem('sams_phs');
+            if (data) {
+                const obj = JSON.parse(data);
+                phs = obj.phs;
+                currentPh = obj.currentPh;
+            } else {
+                phs = [defaultPh()];
+                currentPh = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('ph-tabs');
+            tabs.innerHTML = "";
+            phs.forEach((r, i) => {
+                let label = "Fiche n°" + (i + 1);
+                if (r.pilotName.trim()) label = "PH [" + r.pilotName.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentPh ? ' active' : ''}" onclick="switchPh(${i})">
+                    ${label}
+                    ${phs.length > 1 ? '<button class="delete-rapport" onclick="deletePh(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const r = phs[currentPh];
+            const cards = [
+                {
+                    title: "👤 Équipage",
+                    content: `
+    <div class="form-group">
+        <label>Prénom et Nom du pilote</label>
+        <input type="text" id="samsName" value="${r.pilotName}" oninput="updateField('pilotName',this.value)">
+    </div>
+    <div class="form-group">
+        <label>ID du pilote</label>
+        <input type="text" id="samsId" value="${r.pilotId}" oninput="updateField('pilotId',this.value)">
+    </div>
+    <div class="form-group">
+        <label>Copilote 1</label>
+        <input type="text" value="${r.copilot1 || ''}" oninput="updateField('copilot1',this.value)" placeholder="Ex: John Doe 2309">
+    </div>
+    <div class="form-group">
+        <label>Copilote 2</label>
+        <input type="text" value="${r.copilot2 || ''}" oninput="updateField('copilot2',this.value)" placeholder="Ex: John Doe 2309">
+    </div>
+                `
+                },
+                {
+                    title: "📝 Intervention",
+                    content: `
+                    <div class="form-group">
+                        <label>Raison de l'intervention</label>
+                        <input type="text" value="${r.reason || ''}" oninput="updateField('reason',this.value)" placeholder="Ex: Intervention Aéroport Sandy">
+                    </div>
+                    <div class="form-group">
+                        <label>Date et Heure du vol</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="1" max="31" placeholder="JJ" style="width:65px" value="${r.day || ''}" oninput="updateField('day',this.value)">
+                            <input type="number" min="1" max="12" placeholder="MM" style="width:65px" value="${r.month || ''}" oninput="updateField('month',this.value)">
+                            <input type="number" min="1900" max="2100" placeholder="AAAA" style="width:90px" value="${r.year || ''}" oninput="updateField('year',this.value)">
+                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${r.hour || ''}" oninput="updateField('hour',this.value)">
+                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${r.minute || ''}" oninput="updateField('minute',this.value)">
+                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow()">Maintenant</button>
+                        </div>
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const r = phs[currentPh];
+            let equipage = "";
+            if (r.pilotName || r.pilotId) equipage += `- ${r.pilotName || ""} | ${r.pilotId || ""}<br>`;
+            if (r.copilot1) equipage += `- ${r.copilot1}<br>`;
+            if (r.copilot2) equipage += `- ${r.copilot2}<br>`;
+            const dateStr = (r.day && r.month && r.year) ? `${String(r.day).padStart(2, '0')}/${String(r.month).padStart(2, '0')}/${r.year}` : "";
+            const timeStr = (r.hour !== "" && r.minute !== "") ? `${String(r.hour).padStart(2, '0')}h${String(r.minute).padStart(2, '0')}` : "";
+            document.getElementById('template-content').innerHTML = `
+Prénom Nom | ID de l’équipage présent dans l’appareil :<br><br>
+${equipage}
+<br>
+Raison du départ : ${r.reason || ""}<br>
+<br>
+Date et Heure du Vol : ${dateStr && timeStr ? `Le ${dateStr} à ${timeStr}` : ""}
+        `;
+        }
+
+        function updateField(field, value) {
+            phs[currentPh][field] = value;
+            savePhs();
+            renderTemplate();
+            if (field === "pilotName") renderTabs();
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            phs[currentPh].collapsed[idx] = !phs[currentPh].collapsed[idx];
+            savePhs();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            phs[currentPh].collapsed[idx] = true;
+            savePhs();
+            renderCards();
+        }
+        function addPh() {
+            phs.push(defaultPh());
+            currentPh = phs.length - 1;
+            savePhs();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchPh(idx) {
+            currentPh = idx;
+            savePhs();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deletePh(e, idx) {
+            e.stopPropagation();
+            if (phs.length <= 1) return;
+            phs.splice(idx, 1);
+            if (currentPh >= phs.length) currentPh = phs.length - 1;
+            savePhs();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function() {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                document.body.removeChild(textarea);
+            }
+        }
+        function setNow() {
+            const now = new Date();
+            const r = phs[currentPh];
+            r.day = now.getDate();
+            r.month = now.getMonth() + 1;
+            r.year = now.getFullYear();
+            r.hour = now.getHours();
+            r.minute = now.getMinutes();
+            savePhs();
+            renderCards();
+            renderTemplate();
+        }
+        function resetPh() {
+            phs[currentPh] = defaultPh();
+            savePhs();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+
+        loadPhs();
+        renderTabs();
+        renderCards();
+        fillSamsFields('samsName', 'samsId');
+        const samsNameInput = document.getElementById('samsName');
+        const samsIdInput = document.getElementById('samsId');
+        if (samsNameInput && samsNameInput.value && !phs[currentPh].pilotName) {
+            phs[currentPh].pilotName = samsNameInput.value;
+        }
+        if (samsIdInput && samsIdInput.value && !phs[currentPh].pilotId) {
+            phs[currentPh].pilotId = samsIdInput.value;
+        }
+        renderTemplate();
+
+        function fillSamsFields(nameFieldId, idFieldId) {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName && document.getElementById(nameFieldId)) {
+                document.getElementById(nameFieldId).value = params.samsName;
+            }
+            if (params.samsId && document.getElementById(idFieldId)) {
+                document.getElementById(idFieldId).value = params.samsId;
+            }
+        }
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+        
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

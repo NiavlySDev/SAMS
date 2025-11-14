@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/documents.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <div id="navbar-placeholder"></div>
+
+    <div class="main-container" style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+        <div class="card"
+            style="margin-top:32px; width:100%; max-width:500px; min-width:350px; padding:40px 32px; box-sizing:border-box;">
+            <h2 style="text-align:center;">Paramètres personnels</h2>
+            <div class="form-group">
+                <label for="samsName">Votre Prénom et Nom :</label>
+                <input type="text" id="samsName" placeholder="Ex: Jason Parker">
+            </div>
+            <div class="form-group">
+                <label for="samsId">Votre ID :</label>
+                <input type="text" id="samsId" placeholder="Ex: 37833">
+            </div>
+            <div class="form-group">
+                <label for="samsGrade">Votre Grade :</label>
+                <select id="samsGrade" onchange="updateEchelonOptions()">
+                    <option value="">-- Sélectionnez votre grade --</option>
+                    <option value="emt">EMT</option>
+                    <option value="infirmier-clinique">Infirmier Clinique</option>
+                    <option value="paramedic">Paramédic</option>
+                    <option value="paramedic-chef">Paramédic Chef</option>
+                    <option value="medecin">Médecin</option>
+                    <option value="medecin-urgentiste">Médecin Urgentiste</option>
+                    <option value="secretaire">Secrétaire</option>
+                    <option value="chef-service-infirmier">Chef de Service Infirmier</option>
+                    <option value="chef-service-paramedic">Chef de Service Paramédic</option>
+                    <option value="chef-service-medecin">Chef de Service Médecin</option>
+                    <option value="superviseur">Superviseur</option>
+                    <option value="directeur-adjoint">Directeur Adjoint</option>
+                    <option value="directeur">Directeur</option>
+                </select>
+            </div>
+            <div class="form-group" id="echelonGroup" style="display:none;">
+                <label for="samsEchelon">Échelon :</label>
+                <select id="samsEchelon">
+                    <option value="">-- Sélectionnez l'échelon --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Spécialités :</label>
+                <div style="margin-top:8px;">
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-ph" value="Pilote Héliporté">
+                        <label for="spec-ph" style="margin-left:8px;">Pilote Héliporté</label>
+                    </div>
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-prof" value="Professeur">
+                        <label for="spec-prof" style="margin-left:8px;">Professeur</label>
+                    </div>
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-legiste" value="Médecin Légiste">
+                        <label for="spec-legiste" style="margin-left:8px;">Médecin Légiste</label>
+                    </div>
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-psychologue" value="Psychologue">
+                        <label for="spec-psychologue" style="margin-left:8px;">Psychologue</label>
+                    </div>
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-assistant" value="Assistant Direction">
+                        <label for="spec-assistant" style="margin-left:8px;">Assistant Direction</label>
+                    </div>
+                    <div style="margin:6px 0;">
+                        <input type="checkbox" id="spec-strapz" value="STRAPZ">
+                        <label for="spec-strapz" style="margin-left:8px;">STRAPZ</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="saveParams()"
+                style="margin-top:24px;display:block;margin-left:auto;margin-right:auto;">💾 Enregistrer</button>
+            <span id="save-status" style="margin-left:16px;color:#22c55e;display:none;">Enregistré !</span>
+        </div>
+        
+        <!-- Section Signatures -->
+        <div class="card" id="signatures" style="margin-top:32px; width:100%; max-width:800px; min-width:350px; padding:40px 32px; box-sizing:border-box;">
+            <h2 style="text-align:center;">✍️ Gestion des Signatures</h2>
+            <p style="text-align:center; color:#aaa; margin-bottom:30px;">
+                Créez et gérez vos signatures personnelles pour les documents médicaux
+            </p>
+            
+            <div class="signature-manager">
+                <div class="signature-creation">
+                    <h3>Créer une nouvelle signature</h3>
+                    
+                    <div class="signature-tabs">
+                        <button class="signature-tab active" onclick="switchSignatureMode('draw')">
+                            🖊️ Dessiner
+                        </button>
+                        <button class="signature-tab" onclick="switchSignatureMode('text')">
+                            📝 Texte stylisé
+                        </button>
+                    </div>
+                    
+                    <div id="signature-draw-mode" class="signature-mode">
+                        <div class="signature-canvas-container">
+                            <canvas id="signature-canvas" width="400" height="150" class="signature-canvas"></canvas>
+                        </div>
+                        <div class="signature-controls">
+                            <button class="btn-sm" onclick="clearSignature()">🗑️ Effacer</button>
+                            <button class="btn-sm" onclick="undoSignature()">↶ Annuler</button>
+                        </div>
+                    </div>
+                    
+                    <div id="signature-text-mode" class="signature-mode" style="display:none;">
+                        <div class="form-group">
+                            <label for="signature-text-input">Votre nom :</label>
+                            <input type="text" id="signature-text-input" placeholder="Tapez votre nom" oninput="updateSignaturePreview()">
+                        </div>
+                        
+                        <div class="font-selector">
+                            <div class="font-option selected" data-font="script" onclick="selectSignatureFont('script')">
+                                <div class="font-preview signature-font-script">Signature</div>
+                                <div class="font-name">Script</div>
+                            </div>
+                            <div class="font-option" data-font="elegant" onclick="selectSignatureFont('elegant')">
+                                <div class="font-preview signature-font-elegant">Signature</div>
+                                <div class="font-name">Élégant</div>
+                            </div>
+                            <div class="font-option" data-font="formal" onclick="selectSignatureFont('formal')">
+                                <div class="font-preview signature-font-formal">Signature</div>
+                                <div class="font-name">Formel</div>
+                            </div>
+                            <div class="font-option" data-font="modern" onclick="selectSignatureFont('modern')">
+                                <div class="font-preview signature-font-modern">Signature</div>
+                                <div class="font-name">Moderne</div>
+                            </div>
+                        </div>
+                        
+                        <div class="signature-preview-container">
+                            <h4>Aperçu :</h4>
+                            <div id="signature-text-preview" class="signature-preview signature-font-script"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="signature-save">
+                        <button class="btn" onclick="saveNewSignature()" style="background: #22c55e; font-size: 1.1em; padding: 12px 20px;">
+                            💾 Sauvegarder comme signature principale
+                        </button>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 10px; text-align: center;">
+                            Cette signature sera automatiquement utilisée dans tous vos documents médicaux
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="saved-signatures">
+                    <h3>Ma signature principale</h3>
+                    <div id="signatures-list" class="signatures-grid">
+                        <!-- La signature principale apparaîtra ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateEchelonOptions() {
+            const grade = document.getElementById('samsGrade').value;
+            const echelonGroup = document.getElementById('echelonGroup');
+            const echelonSelect = document.getElementById('samsEchelon');
+            
+            // Efface les options actuelles
+            echelonSelect.innerHTML = '<option value="">-- Sélectionnez l\'échelon --</option>';
+            
+            if (grade === 'paramedic' || grade === 'paramedic-chef') {
+                echelonGroup.style.display = 'block';
+                echelonSelect.innerHTML += '<option value="1">Échelon 1</option>';
+                echelonSelect.innerHTML += '<option value="2">Échelon 2</option>';
+                echelonSelect.innerHTML += '<option value="3">Échelon 3</option>';
+                echelonSelect.innerHTML += '<option value="superieur">Supérieur</option>';
+            } else if (grade === 'medecin') {
+                echelonGroup.style.display = 'block';
+                echelonSelect.innerHTML += '<option value="1">Échelon 1</option>';
+                echelonSelect.innerHTML += '<option value="2">Échelon 2</option>';
+                echelonSelect.innerHTML += '<option value="3">Échelon 3</option>';
+            } else if (grade === 'medecin-urgentiste') {
+                echelonGroup.style.display = 'block';
+                echelonSelect.innerHTML += '<option value="1">Échelon 1</option>';
+                echelonSelect.innerHTML += '<option value="2">Échelon 2</option>';
+            } else {
+                echelonGroup.style.display = 'none';
+            }
+        }
+
+        function loadParams() {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName) document.getElementById('samsName').value = params.samsName;
+            if (params.samsId) document.getElementById('samsId').value = params.samsId;
+            if (params.samsGrade) {
+                document.getElementById('samsGrade').value = params.samsGrade;
+                updateEchelonOptions();
+                if (params.samsEchelon) {
+                    document.getElementById('samsEchelon').value = params.samsEchelon;
+                }
+            }
+            if (params.specialities) {
+                params.specialities.forEach(spec => {
+                    const checkbox = document.querySelector(`input[value="${spec}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        }
+
+        function saveParams() {
+            const samsName = document.getElementById('samsName').value.trim();
+            const samsId = document.getElementById('samsId').value.trim();
+            const samsGrade = document.getElementById('samsGrade').value;
+            const samsEchelon = document.getElementById('samsEchelon').value;
+            
+            // Récupère les spécialités cochées
+            const specialities = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                specialities.push(checkbox.value);
+            });
+            
+            const params = {
+                samsName,
+                samsId,
+                samsGrade,
+                samsEchelon,
+                specialities
+            };
+            
+            localStorage.setItem('sams_params', JSON.stringify(params));
+            
+            // Affiche confirmation
+            const status = document.getElementById('save-status');
+            status.style.display = 'inline';
+            setTimeout(() => { status.style.display = 'none'; }, 2000);
+            
+            // Met à jour la visibilité de l'onglet PH
+            updateNavigation();
+        }
+        
+        function updateNavigation() {
+            // Cette fonction sera appelée pour mettre à jour la navigation selon les spécialités
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            
+            const hasPH = params.specialities && params.specialities.includes('Pilote Héliporté');
+            const hasProf = params.specialities && params.specialities.includes('Professeur');
+            
+            const phTab = document.getElementById('ph-tab');
+            const profTab = document.getElementById('prof-tab');
+            
+            if (phTab) phTab.style.display = hasPH ? 'block' : 'none';
+            if (profTab) profTab.style.display = hasProf ? 'block' : 'none';
+        }
+
+        // Gestion de l'affichage de l'onglet PH selon les spécialités
+        function updatePHTabVisibility() {
+            const hasPH = localStorage.getItem('has_ph_speciality') === '1';
+            const phTab = document.getElementById('ph-tab');
+            if (phTab) {
+                phTab.style.display = hasPH ? 'block' : 'none';
+            }
+        }
+        
+        // Appel au chargement de la page
+        document.addEventListener('DOMContentLoaded', updatePHTabVisibility);
+
+        loadParams();
+        updateNavigation();
+    </script>
+    
+    <script>
+        // ===== GESTION DES SIGNATURES =====
+        let signatureCanvas, signatureCtx;
+        let isDrawing = false;
+        let signatureHistory = [];
+        let currentSignatureMode = 'draw';
+        let currentFont = 'script';
+
+        // Définir les fonctions en global pour les onclick
+        window.switchSignatureMode = switchSignatureMode;
+        window.selectSignatureFont = selectSignatureFont;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier les includes
+            const header = document.getElementById('header-placeholder');
+            const navbar = document.getElementById('navbar-placeholder');
+            
+            // Vérifier que les éléments existent
+            const canvas = document.getElementById('signature-canvas');
+            const tabs = document.querySelectorAll('.signature-tab');
+            
+            // Si les éléments ne sont pas trouvés, attendre plus longtemps
+            const maxWait = tabs.length === 0 ? 1000 : 200;
+            
+            // Attendre que les includes soient chargés
+            setTimeout(() => {
+                const canvasAfter = document.getElementById('signature-canvas');
+                const tabsAfter = document.querySelectorAll('.signature-tab');
+                
+                initSignatureCanvas();
+                loadSavedSignatures();
+                attachEventHandlers();
+            }, maxWait);
+        });
+
+        function switchSignatureMode(mode) {
+            currentSignatureMode = mode;
+            
+            // Mettre à jour les onglets
+            document.querySelectorAll('.signature-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Trouver et activer le bon onglet
+            const activeTab = Array.from(document.querySelectorAll('.signature-tab')).find(tab => 
+                (mode === 'draw' && tab.textContent.includes('Dessiner')) ||
+                (mode === 'text' && tab.textContent.includes('Texte'))
+            );
+            if (activeTab) activeTab.classList.add('active');
+            
+            // Afficher le bon mode
+            const drawMode = document.getElementById('signature-draw-mode');
+            const textMode = document.getElementById('signature-text-mode');
+            if (drawMode) drawMode.style.display = mode === 'draw' ? 'block' : 'none';
+            if (textMode) textMode.style.display = mode === 'text' ? 'block' : 'none';
+        }
+
+        function selectSignatureFont(font) {
+            currentFont = font;
+            
+            // Mettre à jour la sélection
+            document.querySelectorAll('.font-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Ajouter selected à l'option cliquée
+            const selectedOption = document.querySelector(`[data-font="${font}"]`);
+            if (selectedOption) selectedOption.classList.add('selected');
+            
+            // Mettre à jour l'aperçu
+            updateSignaturePreview();
+        }
+
+        function clearSignature() {
+            if (signatureCtx && signatureCanvas) {
+                signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+                signatureHistory = [];
+            }
+        }
+
+        function undoSignature() {
+            if (signatureHistory.length > 0 && signatureCtx) {
+                const previousState = signatureHistory.pop();
+                signatureCtx.putImageData(previousState, 0, 0);
+            }
+        }
+
+        function updateSignaturePreview() {
+            const textInput = document.getElementById('signature-text-input');
+            const preview = document.getElementById('signature-text-preview');
+            
+            if (textInput && preview) {
+                const text = textInput.value || 'Votre signature';
+                preview.textContent = text;
+                preview.className = `signature-preview signature-font-${currentFont}`;
+            }
+        }
+
+        function saveNewSignature() {
+            let signatureData = null;
+            
+            if (currentSignatureMode === 'draw') {
+                if (isCanvasEmpty()) {
+                    alert('Veuillez dessiner une signature avant de la sauvegarder.');
+                    return;
+                }
+                signatureData = {
+                    type: 'draw',
+                    data: signatureCanvas.toDataURL()
+                };
+            } else {
+                const textInput = document.getElementById('signature-text-input');
+                if (!textInput || !textInput.value) {
+                    alert('Veuillez saisir un texte pour la signature.');
+                    return;
+                }
+                signatureData = {
+                    type: 'text',
+                    text: textInput.value,
+                    font: currentFont
+                };
+            }
+            
+            // Vérifier s'il y a déjà une signature
+            const signatures = JSON.parse(localStorage.getItem('savedSignatures') || '{}');
+            if (signatures.personal && Object.keys(signatures.personal).length > 0) {
+                const confirmReplace = confirm('Vous avez déjà une signature sauvegardée. Voulez-vous la remplacer ?');
+                if (!confirmReplace) {
+                    return;
+                }
+            }
+            
+            // Sauvegarder une seule signature principale
+            const newSignatures = {
+                personal: {
+                    'signature_principale': signatureData
+                }
+            };
+            localStorage.setItem('savedSignatures', JSON.stringify(newSignatures));
+            
+            // Réinitialiser les formulaires
+            clearSignature();
+            const textInput = document.getElementById('signature-text-input');
+            if (textInput) textInput.value = '';
+            updateSignaturePreview();
+            
+            // Recharger la liste
+            loadSavedSignatures();
+            
+            alert('✅ Signature principale sauvegardée avec succès !\nElle sera automatiquement utilisée dans tous vos documents.');
+        }
+
+        function editSignature(name) {
+            const signatures = JSON.parse(localStorage.getItem('savedSignatures') || '{}');
+            const signature = signatures.personal[name];
+            
+            if (!signature) {
+                console.error('Signature non trouvée:', name);
+                return;
+            }
+            
+            
+            // Remplir les champs avec la signature existante
+            const nameInput = document.getElementById('signature-name');
+            if (nameInput) {
+                nameInput.value = name + '_copie'; // Nouveau nom pour éviter l'écrasement
+            }
+            
+            if (signature.type === 'draw') {
+                switchSignatureMode('draw');
+                const img = new Image();
+                img.onload = function() {
+                    clearSignature();
+                    if (signatureCtx) {
+                        signatureCtx.drawImage(img, 0, 0);
+                    }
+                };
+                img.src = signature.data;
+            } else {
+                switchSignatureMode('text');
+                const textInput = document.getElementById('signature-text-input');
+                if (textInput) {
+                    textInput.value = signature.text;
+                }
+                selectSignatureFont(signature.font);
+                updateSignaturePreview();
+            }
+            
+        }
+
+        function deleteSignature(name) {
+            
+            const confirmDelete = confirm(`Êtes-vous sûr de vouloir supprimer définitivement la signature "${name}" ?`);
+            
+            if (!confirmDelete) {
+                return;
+            }
+            
+            const signatures = JSON.parse(localStorage.getItem('savedSignatures') || '{}');
+            if (signatures.personal && signatures.personal[name]) {
+                delete signatures.personal[name];
+                localStorage.setItem('savedSignatures', JSON.stringify(signatures));
+                loadSavedSignatures();
+            } else {
+                console.error('❌ Signature non trouvée dans le localStorage:', name);
+            }
+        }
+
+        function initSignatureCanvas() {
+            signatureCanvas = document.getElementById('signature-canvas');
+            if (!signatureCanvas) {
+                console.error('Canvas signature introuvable');
+                return;
+            }
+            
+            signatureCtx = signatureCanvas.getContext('2d');
+            
+            // Configuration du canvas
+            signatureCtx.lineCap = 'round';
+            signatureCtx.lineJoin = 'round';
+            signatureCtx.lineWidth = 2;
+            signatureCtx.strokeStyle = '#000';
+            
+            // Style du canvas pour s'assurer qu'il est cliquable
+            signatureCanvas.style.border = '2px solid cyan';
+            signatureCanvas.style.zIndex = '9998';
+            signatureCanvas.style.position = 'relative';
+            signatureCanvas.style.cursor = 'crosshair';
+            
+            // Supprimer tous les anciens événements
+            signatureCanvas.removeEventListener('mousedown', startDrawing);
+            signatureCanvas.removeEventListener('mousemove', draw);
+            signatureCanvas.removeEventListener('mouseup', stopDrawing);
+            signatureCanvas.removeEventListener('mouseout', stopDrawing);
+            
+            // Réattacher les événements souris
+            signatureCanvas.addEventListener('mousedown', function(e) {
+                startDrawing(e);
+            });
+            signatureCanvas.addEventListener('mousemove', function(e) {
+                draw(e);
+            });
+            signatureCanvas.addEventListener('mouseup', function(e) {
+                stopDrawing(e);
+            });
+            signatureCanvas.addEventListener('mouseout', stopDrawing);
+            
+            // Événements tactiles
+            signatureCanvas.addEventListener('touchstart', handleTouch);
+            signatureCanvas.addEventListener('touchmove', handleTouch);
+            signatureCanvas.addEventListener('touchend', stopDrawing);
+            
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            saveCanvasState();
+            
+            const rect = signatureCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            signatureCtx.beginPath();
+            signatureCtx.moveTo(x, y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const rect = signatureCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            signatureCtx.lineTo(x, y);
+            signatureCtx.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
+                                            e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            signatureCanvas.dispatchEvent(mouseEvent);
+        }
+
+        function clearSignature() {
+            signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+            signatureHistory = [];
+        }
+
+        function saveCanvasState() {
+            signatureHistory.push(signatureCtx.getImageData(0, 0, signatureCanvas.width, signatureCanvas.height));
+            if (signatureHistory.length > 10) {
+                signatureHistory.shift();
+            }
+        }
+
+        function undoSignature() {
+            if (signatureHistory.length > 0) {
+                const previousState = signatureHistory.pop();
+                signatureCtx.putImageData(previousState, 0, 0);
+            }
+        }
+
+        function isCanvasEmpty() {
+            if (!signatureCtx || !signatureCanvas) return true;
+            const imageData = signatureCtx.getImageData(0, 0, signatureCanvas.width, signatureCanvas.height);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                if (imageData.data[i + 3] !== 0) return false;
+            }
+            return true;
+        }
+
+        function loadSavedSignatures() {
+            const signatures = JSON.parse(localStorage.getItem('savedSignatures') || '{}');
+            const container = document.getElementById('signatures-list');
+            
+            if (!container) return;
+            
+            if (!signatures.personal || Object.keys(signatures.personal).length === 0) {
+                container.innerHTML = '<p style="color:#666;text-align:center;">Aucune signature sauvegardée</p>';
+                return;
+            }
+            
+            container.innerHTML = Object.entries(signatures.personal).map(([name, sig]) => `
+                <div class="signature-item">
+                    <div class="signature-preview-item">
+                        ${sig.type === 'draw' ? 
+                            `<img src="${sig.data}" alt="Signature ${name}" style="max-width:200px;height:60px;object-fit:contain;">` :
+                            `<div class="signature-font-${sig.font}" style="font-size:20px;">${sig.text}</div>`
+                        }
+                    </div>
+                    <div class="signature-name">${name}</div>
+                    <div class="signature-actions">
+                        <button class="btn-sm edit-signature-btn" data-name="${name}">✏️</button>
+                        <button class="btn-sm delete-signature-btn" data-name="${name}">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Attacher les événements après création du HTML
+            setTimeout(() => {
+                
+                // Boutons modifier
+                const editBtns = container.querySelectorAll('.edit-signature-btn');
+                editBtns.forEach(btn => {
+                    const name = btn.dataset.name;
+                    btn.style.zIndex = '9999';
+                    btn.style.position = 'relative';
+                    btn.onclick = function() {
+                        editSignature(name);
+                    };
+                });
+                
+                // Boutons supprimer
+                const deleteBtns = container.querySelectorAll('.delete-signature-btn');
+                deleteBtns.forEach(btn => {
+                    const name = btn.dataset.name;
+                        btn.style.zIndex = '9999';
+                    btn.style.position = 'relative';
+                    btn.onclick = function() {
+                        deleteSignature(name);
+                    };
+                });
+            }, 100);
+        }
+
+        function attachEventHandlers() {
+            
+            // Attacher les événements aux onglets de signature avec délégation
+            const tabs = document.querySelectorAll('.signature-tab');
+            
+            // Gestionnaire de clic unique avec délégation pour tous les éléments
+            document.addEventListener('click', function(e) {
+                
+                // Afficher le chemin des parents pour déboguer
+                let path = [];
+                let element = e.target;
+                while (element && element !== document.body) {
+                    path.push(`${element.tagName}.${element.className || 'no-class'}`);
+                    element = element.parentElement;
+                }
+                
+                // Vérifier onglets signature
+                let target = e.target;
+                while (target && !target.classList.contains('signature-tab')) {
+                    target = target.parentElement;
+                    if (!target || target === document.body) break;
+                }
+                
+                if (target && target.classList.contains('signature-tab')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const mode = target.textContent.includes('Dessiner') ? 'draw' : 'text';
+                    switchSignatureMode(mode);
+                    return;
+                }
+                
+                // Vérifier options de police
+                target = e.target;
+                while (target && !target.classList.contains('font-option')) {
+                    target = target.parentElement;
+                    if (!target || target === document.body) break;
+                }
+                
+                if (target && target.classList.contains('font-option') && target.dataset.font) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectSignatureFont(target.dataset.font);
+                    return;
+                }
+            });
+            
+            // Supprimer tous les anciens onclick
+            tabs.forEach(tab => {
+                tab.removeAttribute('onclick');
+            });
+            
+            const fontOptions = document.querySelectorAll('.font-option');
+            fontOptions.forEach(option => {
+                option.removeAttribute('onclick');
+            });
+            
+            // Attacher les événements aux boutons d'action
+            const clearBtn = document.querySelector('[onclick="clearSignature()"]');
+            if (clearBtn) {
+                clearBtn.removeAttribute('onclick');
+                clearBtn.addEventListener('click', clearSignature);
+            }
+            
+            const undoBtn = document.querySelector('[onclick="undoSignature()"]');
+            if (undoBtn) {
+                undoBtn.removeAttribute('onclick');
+                undoBtn.addEventListener('click', undoSignature);
+            }
+            
+            const saveBtn = document.querySelector('[onclick="saveNewSignature()"]');
+            if (saveBtn) {
+                saveBtn.removeAttribute('onclick');
+                saveBtn.addEventListener('click', saveNewSignature);
+            }
+            
+            // Input texte signature
+            const textInput = document.getElementById('signature-text-input');
+            if (textInput) {
+                textInput.addEventListener('input', updateSignaturePreview);
+            }
+            
+            // Test alternatif : forcer les événements sur les éléments spécifiques
+            setTimeout(() => {
+                
+                // Vérifier tous les éléments signature-tab dans la page
+                const allTabs = document.querySelectorAll('.signature-tab');
+                allTabs.forEach((tab, i) => {
+                });
+                
+                const tab1 = document.querySelector('.signature-tab');
+                const tab2 = document.querySelectorAll('.signature-tab')[1];
+                
+                if (tab1) {
+                    const rect1 = tab1.getBoundingClientRect();
+                    tab1.style.zIndex = '9999'; // S'assurer qu'il est au-dessus
+                    tab1.style.position = 'relative'; // Position pour z-index
+                    tab1.onclick = function() {
+                        switchSignatureMode('draw');
+                    };
+                }
+                
+                if (tab2) {
+                    const rect2 = tab2.getBoundingClientRect();
+                    tab2.style.zIndex = '9999'; // S'assurer qu'il est au-dessus
+                    tab2.style.position = 'relative'; // Position pour z-index
+                    tab2.onclick = function() {
+                        switchSignatureMode('text');
+                    };
+                }
+                
+                // Corriger les options de police/styles
+                const fontOptions = document.querySelectorAll('.font-option');
+                fontOptions.forEach((option, index) => {
+                    
+                    // Style visuel et z-index
+                    option.style.zIndex = '9999';
+                    option.style.position = 'relative';
+                    
+                    // Onclick direct
+                    option.onclick = function() {
+                        selectSignatureFont(this.dataset.font);
+                    };
+                });
+                
+                // Corriger les boutons Effacer et Annuler
+                const allButtons = document.querySelectorAll('button');
+                
+                allButtons.forEach((btn, index) => {
+                    const text = btn.textContent.trim();
+                    
+                    if (text.includes('Effacer') || text.includes('🗑️') || btn.onclick?.toString().includes('clearSignature')) {
+                        btn.style.zIndex = '9999';
+                        btn.style.position = 'relative';
+                        btn.onclick = function() {
+                            clearSignature();
+                        };
+                    }
+                    
+                    if (text.includes('Annuler') || text.includes('↶') || btn.onclick?.toString().includes('undoSignature')) {
+                        btn.style.zIndex = '9999';
+                        btn.style.position = 'relative';
+                        btn.onclick = function() {
+                            undoSignature();
+                        };
+                    }
+                    
+                    if (text.includes('Sauvegarder') || text.includes('💾') || btn.onclick?.toString().includes('saveNewSignature')) {
+                        btn.style.zIndex = '9999';
+                        btn.style.position = 'relative';
+                        btn.onclick = function() {
+                            saveNewSignature();
+                        };
+                    }
+                });
+                
+            }, 500);
+            
+        }
+
+        window.switchSignatureMode = switchSignatureMode;
+        window.selectSignatureFont = selectSignatureFont;
+        window.clearSignature = clearSignature;
+        window.undoSignature = undoSignature;
+        window.updateSignaturePreview = updateSignaturePreview;
+        window.saveNewSignature = saveNewSignature;
+        window.editSignature = editSignature;
+        window.deleteSignature = deleteSignature;
+    </script>
+</body>
+
+</html>

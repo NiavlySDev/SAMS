@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professeur - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+    
+    
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div style="flex:1; display:flex; gap:4px;">
+            <button class="sub-nav-btn active" id="tab-rapport-note" onclick="switchReportType('rapport-note')">Rapport de Note</button>
+            <button class="sub-nav-btn" id="tab-demande-points" onclick="switchReportType('demande-points')">Demande de Points</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn" id="add-rapport-btn" onclick="addCurrentReport()" style="white-space:nowrap;">➕ Ajouter</button>
+            <button class="btn" onclick="resetCurrentReport()" style="background:#ef4444;color:#fff;">🗑️ Réinitialiser</button>
+        </div>
+    </div>
+
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        
+        <div class="cards-container">
+            <div class="card">
+                <h3>Formateurs</h3>
+                <div id="professeurs-note-container">
+                    <div class="professeur-row">
+                        <div class="form-group" style="flex:1;">
+                            <label for="prof1">Nom du 1er Professeur :</label>
+                            <input type="text" id="prof1" placeholder="Ex: Jason Parker" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" onclick="addProfesseurNote()" style="margin-top:10px;">➕ Ajouter un professeur</button>
+            </div>
+
+            <div class="card">
+                <h3>Élève</h3>
+                <div class="form-group">
+                    <label for="eleveNomPrenom">Nom prénom de l'élève :</label>
+                    <input type="text" id="eleveNomPrenom" placeholder="Ex: Jason Parker" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                </div>
+                <div class="form-group">
+                    <label for="eleveDiscord">Identifiant Discord de l'élève :</label>
+                    <input type="text" id="eleveDiscord" placeholder="Ex: 123456789012345678" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Manuel SAMS (/10)</h3>
+                <div class="form-group">
+                    <label for="notePiliers">Piliers (/2) :</label>
+                    <input type="number" id="notePiliers" min="0" max="2" step="0.5" oninput="limitAndCalculate(this, 2)">
+                </div>
+                <div class="form-group">
+                    <label for="noteHierarchie">Hiérarchie (/3) :</label>
+                    <input type="number" id="noteHierarchie" min="0" max="3" step="0.5" oninput="limitAndCalculate(this, 3)">
+                </div>
+                <div class="form-group">
+                    <label for="noteProtocole">Protocole (/1) :</label>
+                    <input type="number" id="noteProtocole" min="0" max="1" step="0.5" oninput="limitAndCalculate(this, 1)">
+                </div>
+                <div class="form-group">
+                    <label for="noteSpecialites">Spécialités (/1) :</label>
+                    <input type="number" id="noteSpecialites" min="0" max="1" step="0.5" oninput="limitAndCalculate(this, 1)">
+                </div>
+                <div class="form-group">
+                    <label for="noteCodesRadios">Code radio (/3) :</label>
+                    <input type="number" id="noteCodesRadios" min="0" max="3" step="0.5" oninput="limitAndCalculate(this, 3)">
+                </div>
+                <div class="form-group" style="font-weight:bold;margin-top:15px;">
+                    <span>Total Manuel SAMS : <span id="totalManuel">0</span>/10</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Mise en situation (/10)</h3>
+                <div class="form-group">
+                    <label for="noteTypeBlessures">Type de blessures (/2) :</label>
+                    <input type="number" id="noteTypeBlessures" min="0" max="2" step="0.5" oninput="limitAndCalculate(this, 2)">
+                </div>
+                <div class="form-group">
+                    <label for="noteRapport">Savoir faire le rapport (/3) :</label>
+                    <input type="number" id="noteRapport" min="0" max="3" step="0.5" oninput="limitAndCalculate(this, 3)">
+                </div>
+                <div class="form-group">
+                    <label for="noteMiseEnSituation">Mise en situation (/3) :</label>
+                    <input type="number" id="noteMiseEnSituation" min="0" max="3" step="0.5" oninput="limitAndCalculate(this, 3)">
+                </div>
+                <div class="form-group">
+                    <label for="noteConnaissanceHopital">Connaissance de l'hôpital (/2) :</label>
+                    <input type="number" id="noteConnaissanceHopital" min="0" max="2" step="0.5" oninput="limitAndCalculate(this, 2)">
+                </div>
+                <div class="form-group" style="font-weight:bold;margin-top:15px;">
+                    <span>Total Mise en situation : <span id="totalMiseEnSituation">0</span>/10</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Résultat final</h3>
+                <div class="form-group" style="font-weight:bold;font-size:1.2em;">
+                    <span>Note totale : <span id="noteFinale">0</span>/20</span>
+                </div>
+                <div class="form-group" style="font-weight:bold;margin-top:10px;">
+                    <span>Statut : <span id="statut" style="color:#ef4444;">Inapte</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // --- Data Models ---
+        const defaultNoteRapport = () => ({
+            professeurs: [""],
+            eleveDiscord: "",
+            eleveNomPrenom: "",
+            piliers: 0, hierarchie: 0, protocole: 0, specialites: 0, codesRadios: 0,
+            typeBlessures: 0, rapport: 0, miseEnSituation: 0, connaissanceHopital: 0
+        });
+
+        const defaultDemandePoints = () => ({
+            professeurs: [""],
+            participants: [""],
+            titreFormation: "",
+            date: "",
+            heure: "",
+            pointsAttribuer: 0
+        });
+
+        let currentReportType = 'rapport-note'; // 'rapport-note' ou 'demande-points'
+        let noteRapports = [];
+        let currentNoteIndex = 0;
+        let demandePointsRapports = [];
+        let currentDemandeIndex = 0;
+
+        function saveNoteRapports() {
+            localStorage.setItem('sams_professeur_notes', JSON.stringify({ rapports: noteRapports, current: currentNoteIndex }));
+        }
+
+        function loadNoteRapports() {
+            const data = localStorage.getItem('sams_professeur_notes');
+            if (data) {
+                const obj = JSON.parse(data);
+                noteRapports = obj.rapports || [defaultNoteRapport()];
+                currentNoteIndex = obj.current || 0;
+            } else {
+                noteRapports = [defaultNoteRapport()];
+                currentNoteIndex = 0;
+            }
+        }
+
+        function saveDemandePointsRapports() {
+            localStorage.setItem('sams_professeur_demandes', JSON.stringify({ rapports: demandePointsRapports, current: currentDemandeIndex }));
+        }
+
+        function loadDemandePointsRapports() {
+            const data = localStorage.getItem('sams_professeur_demandes');
+            if (data) {
+                const obj = JSON.parse(data);
+                demandePointsRapports = obj.rapports || [defaultDemandePoints()];
+                currentDemandeIndex = obj.current || 0;
+            } else {
+                demandePointsRapports = [defaultDemandePoints()];
+                currentDemandeIndex = 0;
+            }
+        }
+
+        function switchReportType(type) {
+            // Sauvegarder les données actuelles
+            if (currentReportType === 'rapport-note') {
+                saveCurrentNoteData();
+            } else {
+                saveCurrentDemandeData();
+            }
+            
+            currentReportType = type;
+            
+            // Mettre à jour l'interface
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+            
+            if (type === 'rapport-note') {
+                showNoteInterface();
+            } else {
+                showDemandeInterface();
+            }
+            
+            updateCurrentTemplate();
+        }
+
+        function addCurrentReport() {
+            if (currentReportType === 'rapport-note') {
+                addNoteRapport();
+            } else {
+                addDemandeReport();
+            }
+        }
+
+        function resetCurrentReport() {
+            if (currentReportType === 'rapport-note') {
+                resetNoteRapport();
+            } else {
+                resetDemandeReport();
+            }
+        }
+
+        function addNoteRapport() {
+            noteRapports.push(defaultNoteRapport());
+            currentNoteIndex = noteRapports.length - 1;
+            saveNoteRapports();
+            renderNoteTabs();
+            loadNoteData();
+            updateNoteTemplate();
+        }
+
+        function switchNoteRapport(index) {
+            saveCurrentNoteData();
+            currentNoteIndex = index;
+            saveNoteRapports();
+            loadNoteData();
+            renderNoteTabs();
+            updateNoteTemplate();
+        }
+
+        function resetNoteRapport() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser ce rapport ?')) {
+                noteRapports[currentNoteIndex] = defaultNoteRapport();
+                saveNoteRapports();
+                loadNoteData();
+                updateNoteTemplate();
+            }
+        }
+
+        function renderNoteTabs() {
+            const tabsContainer = document.getElementById('note-tabs');
+            tabsContainer.innerHTML = '';
+            noteRapports.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'sub-nav-btn' + (index === currentNoteIndex ? ' active' : '');
+                btn.textContent = `Rapport ${index + 1}`;
+                btn.onclick = () => switchNoteRapport(index);
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function saveCurrentNoteData() {
+            const rapport = noteRapports[currentNoteIndex];
+            if (!rapport) return;
+
+            // Sauvegarder les professeurs
+            rapport.professeurs = [];
+            document.querySelectorAll('#professeurs-note-container input[id^="prof"]').forEach(input => {
+                if (input.value.trim()) rapport.professeurs.push(input.value.trim());
+            });
+
+            // Sauvegarder les données de l'élève
+            rapport.eleveDiscord = document.getElementById('eleveDiscord')?.value || "";
+            rapport.eleveNomPrenom = document.getElementById('eleveNomPrenom')?.value || "";
+
+            // Sauvegarder les notes
+            rapport.piliers = parseFloat(document.getElementById('notePiliers')?.value) || 0;
+            rapport.hierarchie = parseFloat(document.getElementById('noteHierarchie')?.value) || 0;
+            rapport.protocole = parseFloat(document.getElementById('noteProtocole')?.value) || 0;
+            rapport.specialites = parseFloat(document.getElementById('noteSpecialites')?.value) || 0;
+            rapport.codesRadios = parseFloat(document.getElementById('noteCodesRadios')?.value) || 0;
+            rapport.typeBlessures = parseFloat(document.getElementById('noteTypeBlessures')?.value) || 0;
+            rapport.rapport = parseFloat(document.getElementById('noteRapport')?.value) || 0;
+            rapport.miseEnSituation = parseFloat(document.getElementById('noteMiseEnSituation')?.value) || 0;
+            rapport.connaissanceHopital = parseFloat(document.getElementById('noteConnaissanceHopital')?.value) || 0;
+
+            saveNoteRapports();
+        }
+
+        function loadNoteData() {
+            const rapport = noteRapports[currentNoteIndex];
+            if (!rapport) return;
+
+            // Charger les professeurs
+            const container = document.getElementById('professeurs-note-container');
+            container.innerHTML = '';
+            rapport.professeurs.forEach((prof, index) => {
+                addProfesseurNote();
+                document.getElementById(`prof${index + 1}`).value = prof;
+            });
+            if (rapport.professeurs.length === 0) {
+                addProfesseurNote();
+            }
+
+            // Charger les données de l'élève
+            document.getElementById('eleveDiscord').value = rapport.eleveDiscord || "";
+            document.getElementById('eleveNomPrenom').value = rapport.eleveNomPrenom || "";
+
+            // Charger les notes
+            document.getElementById('notePiliers').value = rapport.piliers || 0;
+            document.getElementById('noteHierarchie').value = rapport.hierarchie || 0;
+            document.getElementById('noteProtocole').value = rapport.protocole || 0;
+            document.getElementById('noteSpecialites').value = rapport.specialites || 0;
+            document.getElementById('noteCodesRadios').value = rapport.codesRadios || 0;
+            document.getElementById('noteTypeBlessures').value = rapport.typeBlessures || 0;
+            document.getElementById('noteRapport').value = rapport.rapport || 0;
+            document.getElementById('noteMiseEnSituation').value = rapport.miseEnSituation || 0;
+            document.getElementById('noteConnaissanceHopital').value = rapport.connaissanceHopital || 0;
+
+            calculateNotes();
+        }
+
+        // Fonctions pour les Demandes de Points
+        function addDemandeReport() {
+            demandePointsRapports.push(defaultDemandePoints());
+            currentDemandeIndex = demandePointsRapports.length - 1;
+            saveDemandePointsRapports();
+            showDemandeInterface();
+        }
+
+        function resetDemandeReport() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser cette demande ?')) {
+                demandePointsRapports[currentDemandeIndex] = defaultDemandePoints();
+                saveDemandePointsRapports();
+                loadDemandeData();
+                updateDemandeTemplate();
+            }
+        }
+
+        function saveCurrentDemandeData() {
+            const demande = demandePointsRapports[currentDemandeIndex];
+            if (!demande) return;
+
+            // Sauvegarder les professeurs
+            demande.professeurs = [];
+            document.querySelectorAll('#professeurs-demande-container input[id^="prof-demande"]').forEach(input => {
+                if (input.value.trim()) demande.professeurs.push(input.value.trim());
+            });
+
+            // Sauvegarder les participants
+            demande.participants = [];
+            document.querySelectorAll('#participants-demande-container input[id^="participant"]').forEach(input => {
+                if (input.value.trim()) demande.participants.push(input.value.trim());
+            });
+
+            // Sauvegarder les autres données
+            demande.titreFormation = document.getElementById('titreFormation')?.value || "";
+            demande.date = document.getElementById('dateFormation')?.value || "";
+            demande.heure = document.getElementById('heureFormation')?.value || "";
+            demande.pointsAttribuer = parseInt(document.getElementById('pointsAttribuer')?.value) || 0;
+
+            saveDemandePointsRapports();
+        }
+
+        function loadDemandeData() {
+            const demande = demandePointsRapports[currentDemandeIndex];
+            if (!demande) return;
+
+            // Charger les professeurs
+            const profContainer = document.getElementById('professeurs-demande-container');
+            if (profContainer) {
+                profContainer.innerHTML = '';
+                demande.professeurs.forEach((prof, index) => {
+                    addProfesseurDemande();
+                    const input = document.getElementById(`prof-demande${index + 1}`);
+                    if (input) input.value = prof;
+                });
+                if (demande.professeurs.length === 0) {
+                    addProfesseurDemande();
+                }
+            }
+
+            // Charger les participants
+            const partContainer = document.getElementById('participants-demande-container');
+            if (partContainer) {
+                partContainer.innerHTML = '';
+                demande.participants.forEach((part, index) => {
+                    addParticipantDemande();
+                    const input = document.getElementById(`participant${index + 1}`);
+                    if (input) input.value = part;
+                });
+                if (demande.participants.length === 0) {
+                    addParticipantDemande();
+                }
+            }
+
+            // Charger les autres données
+            if (document.getElementById('titreFormation')) document.getElementById('titreFormation').value = demande.titreFormation || "";
+            if (document.getElementById('dateFormation')) document.getElementById('dateFormation').value = demande.date || "";
+            if (document.getElementById('heureFormation')) document.getElementById('heureFormation').value = demande.heure || "";
+            if (document.getElementById('pointsAttribuer')) document.getElementById('pointsAttribuer').value = demande.pointsAttribuer || 0;
+        }
+
+        function limitAndCalculate(input, maxValue) {
+            let value = parseFloat(input.value);
+            if (value > maxValue) {
+                input.value = maxValue;
+            } else if (value < 0) {
+                input.value = 0;
+            }
+            calculateNotes();
+            saveCurrentNoteData();
+        }
+
+        function calculateNotes() {
+            // Vérifier que les éléments existent
+            const pilierInput = document.getElementById('notePiliers');
+            const hierarchieInput = document.getElementById('noteHierarchie');
+            const protocoleInput = document.getElementById('noteProtocole');
+            const specialitesInput = document.getElementById('noteSpecialites');
+            const codesRadiosInput = document.getElementById('noteCodesRadios');
+            const typeBlessuresInput = document.getElementById('noteTypeBlessures');
+            const rapportInput = document.getElementById('noteRapport');
+            const miseEnSituationInput = document.getElementById('noteMiseEnSituation');
+            const connaissanceHopitalInput = document.getElementById('noteConnaissanceHopital');
+
+            if (!pilierInput || !hierarchieInput || !protocoleInput || !specialitesInput || !codesRadiosInput || 
+                !typeBlessuresInput || !rapportInput || !miseEnSituationInput || !connaissanceHopitalInput) {
+                console.log('Éléments de notes non trouvés');
+                return;
+            }
+
+            const piliers = parseFloat(pilierInput.value) || 0;
+            const hierarchie = parseFloat(hierarchieInput.value) || 0;
+            const protocole = parseFloat(protocoleInput.value) || 0;
+            const specialites = parseFloat(specialitesInput.value) || 0;
+            const codesRadios = parseFloat(codesRadiosInput.value) || 0;
+
+            const typeBlessures = parseFloat(typeBlessuresInput.value) || 0;
+            const rapport = parseFloat(rapportInput.value) || 0;
+            const miseEnSituation = parseFloat(miseEnSituationInput.value) || 0;
+            const connaissanceHopital = parseFloat(connaissanceHopitalInput.value) || 0;
+
+            const totalManuel = piliers + hierarchie + protocole + specialites + codesRadios;
+            const totalMiseEnSituation = typeBlessures + rapport + miseEnSituation + connaissanceHopital;
+            const noteFinale = totalManuel + totalMiseEnSituation;
+
+            const totalManuelEl = document.getElementById('totalManuel');
+            const totalMiseEnSituationEl = document.getElementById('totalMiseEnSituation');
+            const noteFinaleEl = document.getElementById('noteFinale');
+            const statutEl = document.getElementById('statut');
+
+            if (totalManuelEl) totalManuelEl.textContent = totalManuel.toFixed(1);
+            if (totalMiseEnSituationEl) totalMiseEnSituationEl.textContent = totalMiseEnSituation.toFixed(1);
+            if (noteFinaleEl) noteFinaleEl.textContent = noteFinale.toFixed(1);
+
+            if (statutEl) {
+                if (noteFinale >= 12) {
+                    statutEl.textContent = 'Apte';
+                    statutEl.style.color = '#22c55e';
+                } else {
+                    statutEl.textContent = 'Inapte';
+                    statutEl.style.color = '#ef4444';
+                }
+            }
+
+            // Mettre à jour le template après le calcul
+            updateNoteTemplate();
+        }
+
+        function showNoteInterface() {
+            const container = document.querySelector('.main-container');
+            container.innerHTML = `
+                <div class="card template-box" style="position:relative;">
+                    <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                        📋 <span>Copier</span>
+                    </button>
+                    <div id="template-content"></div>
+                </div>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Formateurs</h3>
+                        <div id="professeurs-note-container">
+                            <div class="professeur-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="prof1">Nom du 1er Professeur :</label>
+                                    <input type="text" id="prof1" placeholder="Ex: Jason Parker" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addProfesseurNote()" style="margin-top:10px;">➕ Ajouter un professeur</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Élève</h3>
+                        <div class="form-group">
+                            <label for="eleveNomPrenom">Nom prénom de l'élève :</label>
+                            <input type="text" id="eleveNomPrenom" placeholder="Ex: Jason Parker" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                        </div>
+                        <div class="form-group">
+                            <label for="eleveDiscord">Identifiant Discord de l'élève :</label>
+                            <input type="text" id="eleveDiscord" placeholder="Ex: 123456789012345678" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Manuel SAMS (/10)</h3>
+                        <div class="form-group">
+                            <label for="notePiliers">Piliers (/2) :</label>
+                            <input type="number" id="notePiliers" min="0" max="2" step="0.1" value="0" oninput="limitAndCalculate(this, 2);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteHierarchie">Hiérarchie (/3) :</label>
+                            <input type="number" id="noteHierarchie" min="0" max="3" step="0.1" value="0" oninput="limitAndCalculate(this, 3);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteProtocole">Protocole (/1) :</label>
+                            <input type="number" id="noteProtocole" min="0" max="1" step="0.1" value="0" oninput="limitAndCalculate(this, 1);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteSpecialites">Spécialités (/1) :</label>
+                            <input type="number" id="noteSpecialites" min="0" max="1" step="0.1" value="0" oninput="limitAndCalculate(this, 1);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteCodesRadios">Code radio (/3) :</label>
+                            <input type="number" id="noteCodesRadios" min="0" max="3" step="0.1" value="0" oninput="limitAndCalculate(this, 3);">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Mise en situation (/10)</h3>
+                        <div class="form-group">
+                            <label for="noteTypeBlessures">Type de blessures (/2) :</label>
+                            <input type="number" id="noteTypeBlessures" min="0" max="2" step="0.1" value="0" oninput="limitAndCalculate(this, 2);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteRapport">Savoir faire le rapport (/3) :</label>
+                            <input type="number" id="noteRapport" min="0" max="3" step="0.1" value="0" oninput="limitAndCalculate(this, 3);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteMiseEnSituation">Mise en situation (/3) :</label>
+                            <input type="number" id="noteMiseEnSituation" min="0" max="3" step="0.1" value="0" oninput="limitAndCalculate(this, 3);">
+                        </div>
+                        <div class="form-group">
+                            <label for="noteConnaissanceHopital">Connaissance de l'hôpital (/2) :</label>
+                            <input type="number" id="noteConnaissanceHopital" min="0" max="2" step="0.1" value="0" oninput="limitAndCalculate(this, 2);">
+                        </div>
+                        <div class="form-group" style="font-weight:bold;margin-top:10px;">
+                            <span>Statut : <span id="statut" style="color:#ef4444;">Inapte</span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadNoteData();
+            updateNoteTemplate();
+        }
+
+        function showDemandeInterface() {
+            const container = document.querySelector('.main-container');
+            container.innerHTML = `
+                <div class="card template-box" style="position:relative;">
+                    <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                        📋 <span>Copier</span>
+                    </button>
+                    <div id="template-content"></div>
+                </div>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Professeurs</h3>
+                        <div id="professeurs-demande-container">
+                            <div class="professeur-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="prof-demande1">Nom du 1er Professeur :</label>
+                                    <input type="text" id="prof-demande1" placeholder="Ex: Jason Parker" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addProfesseurDemande()" style="margin-top:10px;">➕ Ajouter un professeur</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Participants</h3>
+                        <div id="participants-demande-container">
+                            <div class="participant-row">
+                                <div class="form-group" style="flex:1;">
+                                    <label for="participant1">Nom du 1er Participant :</label>
+                                    <input type="text" id="participant1" placeholder="Ex: Jason Parker (123456)" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="addParticipantDemande()" style="margin-top:10px;">➕ Ajouter un participant</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Détails de la Formation</h3>
+                        <div class="form-group">
+                            <label for="titreFormation">Titre de la Formation :</label>
+                            <input type="text" id="titreFormation" placeholder="Ex: Formation Avancée SAMS" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFormation">Date :</label>
+                            <input type="date" id="dateFormation" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                        </div>
+                        <div class="form-group">
+                            <label for="heureFormation">Heure :</label>
+                            <input type="time" id="heureFormation" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                        </div>
+                        <div class="form-group">
+                            <label for="pointsAttribuer">Points à Attribuer :</label>
+                            <input type="number" id="pointsAttribuer" min="0" value="0" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadDemandeData();
+            updateDemandeTemplate();
+        }
+
+        function updateCurrentTemplate() {
+            if (currentReportType === 'rapport-note') {
+                updateNoteTemplate();
+            } else {
+                updateDemandeTemplate();
+            }
+        }
+
+        function updateDemandeTemplate() {
+            let professeurs = [];
+            document.querySelectorAll('#professeurs-demande-container input[id^="prof-demande"]').forEach(input => {
+                if (input.value.trim()) professeurs.push(input.value.trim());
+            });
+            
+            let participants = [];
+            document.querySelectorAll('#participants-demande-container input[id^="participant"]').forEach(input => {
+                if (input.value.trim()) participants.push(input.value.trim());
+            });
+
+            const professeursText = professeurs.length > 0 ? professeurs.join(', ') : '[Nom Prénom ID du Professeur]';
+            const participantsText = participants.length > 0 ? participants.map(p => `> ${p}`).join('\\n') : '> [nom prénom id élève]';
+            
+            const titreFormation = document.getElementById('titreFormation')?.value || '[Nom formation]';
+            const dateFormation = document.getElementById('dateFormation')?.value || '[Date au format jj/mm/aaaa]';
+            const heureFormation = document.getElementById('heureFormation')?.value || '[Heure au format hh:mm]';
+            const pointsAttribuer = document.getElementById('pointsAttribuer')?.value || '[Nombre de points]';
+
+            // Formatage de la date
+            let dateFormatted = dateFormation;
+            if (dateFormation && dateFormation !== '[Date au format jj/mm/aaaa]') {
+                const dateObj = new Date(dateFormation);
+                dateFormatted = `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
+            }
+
+            const template = `**Prénom Nom ID du Professeur :** ${professeursText}
+**Liste des Participants :**
+${participantsText}
+**Titre de la Formation effectué :** ${titreFormation}
+**Date et Heure :** ${dateFormatted} à ${heureFormation}
+**Points à Attribuer :** ${pointsAttribuer}`;
+
+            const templateDiv = document.getElementById('template-content');
+            if (templateDiv) templateDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${template}</pre>`;
+        }
+
+        function updateNoteTemplate() {
+            let professeurs = [];
+            document.querySelectorAll('#professeurs-note-container input[id^="prof"]').forEach(input => {
+                if (input.value.trim()) professeurs.push(input.value.trim());
+            });
+            
+            const professeursText = professeurs.length > 0 ? professeurs.join(' / ') : '[Nom du Professeur]';
+
+            const eleveDiscord = document.getElementById('eleveDiscord')?.value || '[Identifiant discord de l\'élève]';
+            const eleveNomPrenom = document.getElementById('eleveNomPrenom')?.value || '[Nom prénom de l\'élève]';
+
+            const piliers = parseFloat(document.getElementById('notePiliers')?.value) || 0;
+            const hierarchie = parseFloat(document.getElementById('noteHierarchie')?.value) || 0;
+            const protocole = parseFloat(document.getElementById('noteProtocole')?.value) || 0;
+            const specialites = parseFloat(document.getElementById('noteSpecialites')?.value) || 0;
+            const codesRadios = parseFloat(document.getElementById('noteCodesRadios')?.value) || 0;
+
+            const typeBlessures = parseFloat(document.getElementById('noteTypeBlessures')?.value) || 0;
+            const rapport = parseFloat(document.getElementById('noteRapport')?.value) || 0;
+            const miseEnSituation = parseFloat(document.getElementById('noteMiseEnSituation')?.value) || 0;
+            const connaissanceHopital = parseFloat(document.getElementById('noteConnaissanceHopital')?.value) || 0;
+
+            const totalManuel = piliers + hierarchie + protocole + specialites + codesRadios;
+            const totalMiseEnSituation = typeBlessures + rapport + miseEnSituation + connaissanceHopital;
+            const noteFinale = totalManuel + totalMiseEnSituation;
+            const statut = noteFinale >= 12 ? 'Apte' : 'Inapte';
+
+            const template = `**__Nom des formateurs :__** ${professeursText}
+**__Noms de l'élève passant la formation :__** <@${eleveDiscord}>
+
+**__Manuel SAMS :__** ${totalManuel.toFixed(1)}/10
+> Piliers : ${piliers.toFixed(1)}/2
+> Hiérarchie : ${hierarchie.toFixed(1)}/3
+> Protocole : ${protocole.toFixed(1)}/1
+> Spécialités : ${specialites.toFixed(1)}/1
+> Code radio : ${codesRadios.toFixed(1)}/3
+
+**__Mise en situation :__** ${totalMiseEnSituation.toFixed(1)}/10
+> Type de blessures : ${typeBlessures.toFixed(1)}/2
+> Savoir faire le rapport : ${rapport.toFixed(1)}/3
+> Mise en situation : ${miseEnSituation.toFixed(1)}/3
+> Connaissance de l'hôpital : ${connaissanceHopital.toFixed(1)}/2
+
+**__Total :__** ${noteFinale.toFixed(1)}/20
+
+**__Conclusion :__** ${eleveNomPrenom} est **${statut}** a passé EMT`;
+
+            const templateDiv = document.getElementById('template-content');
+            if (templateDiv) templateDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${template}</pre>`;
+        }
+
+        let professeurNoteCount = 1;
+
+        function addProfesseurNote() {
+            professeurNoteCount++;
+            const container = document.getElementById('professeurs-note-container');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'professeur-row';
+            newRow.innerHTML = `
+                <div class="form-group" style="flex:1;">
+                    <label for="prof${professeurNoteCount}">Nom du ${getOrdinal(professeurNoteCount)} Professeur :</label>
+                    <input type="text" id="prof${professeurNoteCount}" placeholder="Ex: Jason Parker" oninput="updateNoteTemplate(); saveCurrentNoteData();">
+                </div>
+                <button class="btn" onclick="removeProfesseurNote(this)" style="background:#ef4444;color:#fff;margin-left:10px;align-self:end;margin-bottom:5px;">🗑️</button>
+            `;
+            
+            container.appendChild(newRow);
+            updateNoteTemplate();
+        }
+
+        function getOrdinal(num) {
+            const ordinals = ['', '1er', '2e', '3e', '4e', '5e', '6e', '7e', '8e', '9e', '10e'];
+            return ordinals[num] || `${num}e`;
+        }
+
+        // Fonctions pour les demandes de points
+        let professeurDemandeCount = 1;
+        let participantCount = 1;
+
+        function addProfesseurDemande() {
+            professeurDemandeCount++;
+            const container = document.getElementById('professeurs-demande-container');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'professeur-row';
+            newRow.innerHTML = `
+                <div class="form-group" style="flex:1;">
+                    <label for="prof-demande${professeurDemandeCount}">Nom du ${getOrdinal(professeurDemandeCount)} Professeur :</label>
+                    <input type="text" id="prof-demande${professeurDemandeCount}" placeholder="Ex: Jason Parker" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                </div>
+                <button class="btn" onclick="removeProfesseurDemande(this)" style="background:#ef4444;color:#fff;margin-left:10px;align-self:end;margin-bottom:5px;">🗑️</button>
+            `;
+            
+            container.appendChild(newRow);
+            updateDemandeTemplate();
+        }
+
+        function addParticipantDemande() {
+            participantCount++;
+            const container = document.getElementById('participants-demande-container');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'participant-row';
+            newRow.innerHTML = `
+                <div class="form-group" style="flex:1;">
+                    <label for="participant${participantCount}">Nom du ${getOrdinal(participantCount)} Participant :</label>
+                    <input type="text" id="participant${participantCount}" placeholder="Ex: Jason Parker (123456)" oninput="updateDemandeTemplate(); saveCurrentDemandeData();">
+                </div>
+                <button class="btn" onclick="removeParticipantDemande(this)" style="background:#ef4444;color:#fff;margin-left:10px;align-self:end;margin-bottom:5px;">🗑️</button>
+            `;
+            
+            container.appendChild(newRow);
+            updateDemandeTemplate();
+        }
+
+        function removeProfesseurDemande(button) {
+            if (document.querySelectorAll('#professeurs-demande-container .professeur-row').length > 1) {
+                button.parentElement.remove();
+                updateDemandeTemplate();
+                saveCurrentDemandeData();
+            }
+        }
+
+        function removeParticipantDemande(button) {
+            if (document.querySelectorAll('#participants-demande-container .participant-row').length > 1) {
+                button.parentElement.remove();
+                updateDemandeTemplate();
+                saveCurrentDemandeData();
+            }
+        }
+
+        function fillSamsFields(fieldId) {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName && document.getElementById(fieldId)) {
+                document.getElementById(fieldId).value = params.samsName;
+                updateNoteTemplate();
+            }
+        }
+
+        function selectAll(element) {
+            element.select();
+            element.setSelectionRange(0, 99999);
+        }
+
+        function copyTemplate() {
+            const templateDiv = document.getElementById('template-content');
+            const text = templateDiv.textContent || templateDiv.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.querySelector('.copy-btn span');
+                if (copyBtn) {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copié !';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                }
+            });
+        }
+
+        function getOrdinal(num) {
+            const ordinals = ['', '1er', '2e', '3e', '4e', '5e', '6e', '7e', '8e', '9e', '10e'];
+            return ordinals[num] || `${num}e`;
+        }
+
+        function removeProfesseurNote(button) {
+            if (document.querySelectorAll('#professeurs-note-container .professeur-row').length > 1) {
+                button.parentElement.remove();
+                updateNoteTemplate();
+                saveCurrentNoteData();
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNotifDisplay();
+            
+            loadNoteRapports();
+            loadDemandePointsRapports();
+            renderNoteTabs();
+            loadNoteData();
+            
+            // Remplir automatiquement les champs professeur avec les données des paramètres
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName) {
+                const prof1 = document.getElementById('prof1');
+                if (prof1 && !prof1.value) {
+                    prof1.value = params.samsName;
+                }
+            }
+            
+            updateNoteTemplate();
+            calculateNotes();
+            
+            // Afficher l'interface par défaut (rapport de note)
+            showNoteInterface();
+        });
+    </script>
+
+    <style>
+        .participant-row, .professeur-row {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .participant-row .form-group, .professeur-row .form-group {
+            margin-bottom: 0;
+        }
+        
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .cards-container .card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+
+        
+        .btn-fill {
+            background: #22c55e;
+            color: #181818;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-fill:hover {
+            background: #16a34a;
+        }
+    </style>
+    
+    <script>
+        // Chargement de la version depuis changelog.json
+
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNoteRapports();
+            updateNoteTemplate();
+        });
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

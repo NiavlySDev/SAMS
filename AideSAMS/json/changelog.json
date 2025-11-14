@@ -1,0 +1,1420 @@
+[ 
+  {
+    "version": "v1.14.18",
+    "date": "04/11/2025 - 18:00",
+    "changes": [
+      {
+        "text": "Document Arrêt de Travail -> Complètement Fonctionnel",
+        "type": "global"
+      },
+      {
+        "text": "Document Certificat de Naissance -> Fonctionnel (Signatures Parents Buggé encore, mais tout le reste marche)",
+        "type": "global"
+      },
+      {
+        "text": "Document Facture d'Hospitalisation -> Complètement Fonctionnel",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.17",
+    "date": "04/11/2025 - 17:55",
+    "changes": [
+      {
+        "text": "🖋️ FIX SIGNATURES PARENTS : Correction complète sauvegarde/restauration signatures parents dans brouillons certificat naissance.",
+        "type": "global"
+      },
+      {
+        "text": "🔄 RAFRAICHISSEMENT AUTO : Ajout fonction refreshSignatureDisplay pour mise à jour interface après chargement brouillon.",
+        "type": "global"
+      },
+      {
+        "text": "📊 LOGS DIAGNOSTICS : Ajout logs détaillés collecte et restauration signatures pour debugging avancé.",
+        "type": "secondaire"
+      },
+      {
+        "text": "✅ AFFICHAGE DYNAMIQUE : Signatures parents maintenant visibles immédiatement après chargement brouillon.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.16",
+    "date": "04/11/2025 - 17:50",
+    "changes": [
+      {
+        "text": "📄 CORRECTION PDF ÉCRASÉ : Augmentation hauteur lignes tableau facture (6px→8px) et taille police (7→8) pour éviter écrasement texte.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 FIX CHARGEMENT BROUILLONS : Correction erreur InvalidStateError lors chargement brouillons avec champs file - inputs fichiers ignorés.",
+        "type": "global"
+      },
+      {
+        "text": "💾 SIGNATURES PARENTS SAUVÉES : Signatures parents maintenant incluses dans sauvegarde automatique brouillons certificat naissance.",
+        "type": "global"
+      },
+      {
+        "text": "🛡️ ROBUSTESSE AUTO-SAVE : Fix erreur hasFormContent avec valeurs non-string, gestion types objets et nombres.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎯 ESPACEMENT PDF : Position texte tableau ajustée (yPos+5→yPos+6) pour meilleur alignement vertical.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.15",
+    "date": "04/11/2025 - 17:45",
+    "changes": [
+      {
+        "text": "📄 PDF FACTURE OPTIMISÉ : Réduction espacement et hauteur lignes pour éviter écrasement sur page A4.",
+        "type": "global"
+      },
+      {
+        "text": "✍️ SIGNATURES PARENTS AMÉLIORÉES : Message informatif avec lien direct vers création signatures si non existantes.",
+        "type": "global"
+      },
+      {
+        "text": "🎨 Interface Signatures : Amélioration UX avec message clair et redirection vers paramètres pour créer signatures parents.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📐 Optimisation A4 : Hauteur lignes tableau réduite à 6px, espacement signatures réduit pour garantir format A4.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.14",
+    "date": "04/11/2025 - 17:40",
+    "changes": [
+      {
+        "text": "📄 PDF = APERÇU FACTURE : PDF facture maintenant IDENTIQUE à l'aperçu - suppression sections inutiles, champs alignés parfaitement.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 CORRECTION FRAIS BROUILLONS : Fix type document facture-hospitalisation pour sauvegarde/restauration frais médicaux.",
+        "type": "global"
+      },
+      {
+        "text": "🏥 Format Facture Unifié : Patient/Médecin traitant seulement, suppression informations médicales et paiement du PDF.",
+        "type": "global"
+      },
+      {
+        "text": "🐛 Debug Signatures Parents : Ajout logs console pour diagnostiquer problème affichage signatures parents.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.13",
+    "date": "04/11/2025 - 17:35",
+    "changes": [
+      {
+        "text": "📊 FRAIS FIXES FACTURE : 5 catégories médicales fixes (soins, médicaments, radiologie, chirurgie, autres) avec calcul automatique totaux.",
+        "type": "global"
+      },
+      {
+        "text": "💾 SAUVEGARDE COMPLÈTE : Frais et signatures maintenant sauvegardés dans brouillons avec restauration automatique.",
+        "type": "global"
+      },
+      {
+        "text": "✍️ SIGNATURES PARENTS VISIBLES : Correction affichage signatures parents dans aperçu et PDF certificat naissance.",
+        "type": "global"
+      },
+      {
+        "text": "📄 APERÇU = PDF : Suppression champs Date/Numéro de l'aperçu facture pour correspondance exacte avec export PDF.",
+        "type": "global"
+      },
+      {
+        "text": "🔢 Calcul Temps Réel : Totaux frais calculés automatiquement lors saisie quantité/prix unitaire.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🚫 Suppression Bouton Ajout : Plus possible d'ajouter lignes frais, format standardisé 5 catégories fixes.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.12",
+    "date": "04/11/2025 - 17:15",
+    "changes": [
+      {
+        "text": "🏥 TEMPLATES UNIFIÉS : Certificat de naissance et facture hospitalisation redessinés format professionnel identique arrêt de travail.",
+        "type": "global"
+      },
+      {
+        "text": "🖼️ LOGO SAMS AUTHENTIQUE : Intégration logo PNG officiel dans tous exports PDF remplaçant logo simulé.",
+        "type": "global"
+      },
+      {
+        "text": "📄 OPTIMISATION A4 : Format PDF compact garantissant documents complets sur une seule page A4 sans coupure.",
+        "type": "global"
+      },
+      {
+        "text": "✍️ SIGNATURES PARENTS : Ajout signature des parents dans PDF certificat naissance avec gestion signatures texte et dessinées.",
+        "type": "global"
+      },
+      {
+        "text": "📅 DATE/HEURE AUTOMATIQUE : Remplissage automatique sections signatures avec date et heure génération document.",
+        "type": "global"
+      },
+      {
+        "text": "💾 BROUILLONS PERSISTANTS : Suppression auto-effacement brouillons après export, conservation jusqu'à suppression manuelle.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Optimisation Facture : Maximum 5 prestations, espacement réduit, taille police adaptée pour format A4 complet.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📋 Certificat Naissance : Sections compactées, espacement optimisé, correction champs médecin et validation améliorée.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.11",
+    "date": "04/11/2025 - 16:30",
+    "changes": [
+      {
+        "text": "📄 PDF TEMPLATE PROFESSIONNEL : Export PDF redessiné format officiel identique à l'aperçu avec logo SAMS et sections colorées.",
+        "type": "global"
+      },
+      {
+        "text": "🎨 Mise en Forme Authentique : Suppression emojis causant caractères corrompus, remplacement par design professionnel médical.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Sections Structurées : En-tête SAMS officiel, sections patient/médecin avec fond bleu, lignes pointillées pour champs.",
+        "type": "global"
+      },
+      {
+        "text": "📐 Format Standardisé : Tableaux alignés, dates formatées JJ/MM/AAAA, signatures intégrées et espacement optimal impression.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Fonction Lignes Pointillées : addDottedLine pour reproduire lignes de saisie style formulaire papier officiel.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.10",
+    "date": "04/11/2025 - 15:50",
+    "changes": [
+      {
+        "text": "🎯 PROBLÈME RÉSOLU : Export PDF fonctionnel après identification et suppression conflit export-utils.js écrasant exportToPDF.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Conflit Scripts Résolu : export-utils.js désactivé car redéfinissait DocumentManager.prototype.exportToPDF après chargement.",
+        "type": "global"
+      },
+      {
+        "text": "⚡ Export PDF Débloqué : Fonction exportToPDF de document-manager.js maintenant active sans écrasement par prototype externe.",
+        "type": "global"
+      },
+      {
+        "text": "🛠️ Architecture Nettoyée : Suppression scripts conflictuels pour garantir bon fonctionnement export PDF intégré.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.9",
+    "date": "04/11/2025 - 15:25",
+    "changes": [
+      {
+        "text": "🔍 DEBUG EXPORT APPROFONDI : Inspection type et contenu fonction exportToPDF pour identifier redéfinition silencieuse.",
+        "type": "global"
+      },
+      {
+        "text": "📅 Format Dates Corrigé : Fonction formatDate pour convertir AAAA-MM-JJ vers JJ/MM/AAAA dans aperçus documents.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Diagnostic Fonction : Logs typeof et toString de exportToPDF pour identifier si fonction écrasée par définition vide.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Dates Standardisées : Application formatage dates patient-naissance, arret-debut et arret-fin dans template aperçu.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.8",
+    "date": "04/11/2025 - 14:50",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION CRITIQUE : Protection appel exportToPDF avec try-catch pour capturer erreur silencieuse bloquant export.",
+        "type": "global"
+      },
+      {
+        "text": "💾 Sauvegarde Protégée : removeDraftIfExists déplacé après succès export pour éviter suppression brouillon si export échoue.",
+        "type": "global"
+      },
+      {
+        "text": "🔍 Debug Export Renforcé : Logs avant/après appel exportToPDF pour identifier point exact de blocage dans finalizeDocument.",
+        "type": "global"
+      },
+      {
+        "text": "🛡️ Logique Sauvegarde : Brouillons supprimés uniquement si export PDF réussit, préservation données si erreur export.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.7",
+    "date": "04/11/2025 - 14:30",
+    "changes": [
+      {
+        "text": "🔍 DEBUG EXPORT PDF : Logs détaillés ajoutés dans exportToPDF pour identifier point de blocage exact après validation.",
+        "type": "global"
+      },
+      {
+        "text": "🚀 Traçage Complet : Marqueurs debug début exportToPDF, collecte données et vérification jsPDF pour diagnostic précis.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🛠️ Correction Syntaxe : Résolution erreur try-catch imbriqués causant erreurs compilation JavaScript.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.6",
+    "date": "04/11/2025 - 12:20",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION CRITIQUE : Export PDF bloqué par validation formulaire résolue avec champs requis corrigés.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Validation Formulaire Corrigée : Champs requis alignés avec vrais IDs formulaire (medecin-prenom ajouté).",
+        "type": "global"
+      },
+      {
+        "text": "🔍 Debug Validation Complet : Logs détaillés finalizeDocument et validateForm pour diagnostiquer blocages export.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Export PDF Débloqué : Résolution incohérence IDs champs empêchant passage validation avant export PDF.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.5",
+    "date": "04/11/2025 - 12:10",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION MAJEURE : Résolution erreurs JavaScript et mise à jour template aperçu arrêt de travail style officiel.",
+        "type": "global"
+      },
+      {
+        "text": "🛡️ Protection Fonctions : loadRecentDocuments et loadDraftsOnStartup protégées contre éléments DOM inexistants.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Template Officiel : Aperçu arrêt de travail redessiné format professionnel avec tableau, lignes pointillées et sections colorées.",
+        "type": "global"
+      },
+      {
+        "text": "🔍 Debug Export PDF : Logs détaillés ajoutés dans exportToPDF pour identifier précisément les erreurs de génération.",
+        "type": "global"
+      },
+      {
+        "text": "🎨 Style Médical Authentique : Logo SAMS, en-tête officiel, sections patient/médecin avec code couleur bleu médical.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📐 Format Standardisé : Tableaux avec bordures pointillées, alignement professionnel et espacement optimal pour impression.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.4",
+    "date": "04/11/2025 - 12:00",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION CRITIQUE : Résolution complète des conflits JavaScript et erreurs aperçu/export.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Scripts Dédupliqués : Suppression double inclusion document-manager.js causant erreur 'DocumentManager already declared'.",
+        "type": "global"
+      },
+      {
+        "text": "👁️ Aperçus Réparés : Suppression fonction previewDocument conflictuelle dans document-templates.js cherchant mauvais conteneur.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Fonctions Nettoyées : Suppression generateArretTravailPreview dupliquée pour éviter conflits entre fichiers JS.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Architecture Clarifiée : Séparation nette des responsabilités - document-manager.js pour logique, document-templates.js pour extensions.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.3",
+    "date": "04/11/2025 - 11:45",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION CRITIQUE : Résolution complète des problèmes type de documents null et sauvegarde historique.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Types Documents Corrigés : Ajout script document-manager.js dans documents.html pour résoudre les types null.",
+        "type": "global"
+      },
+      {
+        "text": "💾 Sauvegarde Robuste : Protection automatique récupération type document depuis URL si non défini en mémoire.",
+        "type": "global"
+      },
+      {
+        "text": "📂 Noms Fichiers Intelligents : Génération noms PDF descriptifs avec type + nom patient + date au lieu timestamps.",
+        "type": "global"
+      },
+      {
+        "text": "🔍 Debugging Sauvegarde : Logs détaillés dans saveToHistory pour diagnostiquer problèmes de persistance documents.",
+        "type": "secondaire"
+      },
+      {
+        "text": "👁️ Aperçus Protégés : Récupération automatique type document pour aperçus si non défini lors navigation directe.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.2",
+    "date": "04/11/2025 - 11:30",
+    "changes": [
+      {
+        "text": "🚨 CORRECTION MAJEURE : Résolution complète des dysfonctionnements aperçu/export PDF et système de sauvegarde documents.",
+        "type": "global"
+      },
+      {
+        "text": "👁️ Aperçus Documents Réparés : Correction IDs conteneurs dupliqués causant échec aperçus certificat naissance et facture hospitalisation.",
+        "type": "global"
+      },
+      {
+        "text": "📄 Export PDF Fonctionnel : Correction accès jsPDF et gestion erreurs complète avec try-catch pour tous types documents.",
+        "type": "global"
+      },
+      {
+        "text": "💾 Sauvegarde Historique Corrigée : Correction mappage champs (filename/createdAt) pour affichage correct documents récents et historique.",
+        "type": "global"
+      },
+      {
+        "text": "🔄 Régénération PDF Implémentée : Fonction régénération documents depuis historique avec gestion erreurs et logs détaillés.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Collecte Données Améliorée : Correction méthode collectFormData pour éviter problèmes asynchrones avec FileReader.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🐛 Debug Système Ajouté : Logs console détaillés pour diagnose problèmes aperçu/export avec identification précise erreurs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "✍️ Signatures Automatiques Intégrées : Affichage signature principale dans tous formulaires avec indication visuelle si présente/manquante.",
+        "type": "secondaire"
+      },
+      {
+        "text": "⏰ Sauvegarde Auto 30s : Implémentation sauvegarde automatique toutes 30 secondes + sauvegarde lors retour pour éviter pertes données.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎨 Interface Signatures Simplifiée : Paramètres signatures limité à une signature principale unique avec remplacement intelligent.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.1",
+    "date": "04/11/2025 - 10:45",
+    "changes": [
+      {
+        "text": "🔧 CORRECTIFS CRITIQUES : Résolution complète des dysfonctionnements du système de documents v1.14.0.",
+        "type": "global"
+      },
+      {
+        "text": "🎨 Styles Signatures Paramètres : Ajout CSS documents.css manquant dans paramètres.html pour affichage correct de la gestion des signatures.",
+        "type": "global"
+      },
+      {
+        "text": "✍️ JavaScript Signatures Réparé : Correction gestion événements et sélection polices dans l'interface de création de signatures.",
+        "type": "global"
+      },
+      {
+        "text": "📄 Navigation Documents Fonctionnelle : Réparation boutons création documents et chargement correct des formulaires avec scripts nécessaires.",
+        "type": "global"
+      },
+      {
+        "text": "🔄 Gestionnaires Événements : Remplacement système onclick par addEventListener pour résoudre problèmes d'interaction avec boutons et canvas.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Initialisation DocumentManager : Ajout initialisation automatique du gestionnaire de documents pour fonctionnement des boutons de création.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Correction Modification Signatures : Le bouton modifier charge maintenant la signature pour édition au lieu de la supprimer directement.",
+        "type": "global"
+      },
+      {
+        "text": "🗑️ Amélioration Suppression Signatures : Ajout logs de débogage et confirmation renforcée pour la suppression des signatures sauvegardées.",
+        "type": "global"
+      },
+      {
+        "text": "📦 Export Groupé Implémenté : Fonctionnalité complète d'export de tous les documents en format JSON avec métadonnées.",
+        "type": "global"
+      },
+      {
+        "text": "📋 Historique Documents Complet : Interface modale avec liste complète, dates, types et possibilité de régénération PDF.",
+        "type": "global"
+      },
+      {
+        "text": "✏️ Édition Documents Récents : Possibilité d'éditer les documents depuis l'historique avec pré-remplissage des données.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📥 Téléchargement Documents : Export individuel des documents sauvegardés en format JSON pour sauvegarde externe.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔄 Régénération PDF Historique : Fonction de recréation des PDF depuis l'historique avec données d'origine conservées.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🚀 Optimisation Chargement : Ajout scripts document-templates.js et export-utils.js pour fonctionnement complet du système.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.14.0",
+    "date": "04/11/2025 - 10:30",
+    "changes": [
+      {
+        "text": "📄 SYSTÈME DE DOCUMENTS MÉDICAUX : Création complète de documents officiels avec templates professionnels et export PDF.",
+        "type": "global"
+      },
+      {
+        "text": "🩺 Template Avis d'Arrêt de Travail : Formulaire complet patient/médecin avec toutes les informations requises et justifications médicales.",
+        "type": "global"
+      },
+      {
+        "text": "👶 Template Certificat de Naissance : Document officiel enfant/parents avec données complètes de naissance et signatures multiples.",
+        "type": "global"
+      },
+      {
+        "text": "🏥 Template Facture d'Hospitalisation : Facturation détaillée avec calculs automatiques, services et tarification complète.",
+        "type": "global"
+      },
+      {
+        "text": "✍️ Système de Signatures Multiples : Création signatures dessinées ou texte stylisé avec 4 polices professionnelles disponibles.",
+        "type": "global"
+      },
+      {
+        "text": "💾 Gestion Signatures Personnelles : Interface paramètres.html pour créer, sauvegarder, modifier et supprimer ses signatures.",
+        "type": "global"
+      },
+      {
+        "text": "📥 Import Signatures Images : Upload fichiers images pour signatures parents sur certificats de naissance.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📋 Aperçu Temps Réel : Prévisualisation fidèle des documents avant export avec mise en page A4 professionnelle.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📄 Export PDF A4 : Génération automatique PDF format officiel avec logo SAMS, couleurs et mise en page respectant les standards.",
+        "type": "global"
+      },
+      {
+        "text": "🗂️ Historique Documents : Sauvegarde automatique et gestion des documents récents avec accès rapide.",
+        "type": "secondaire"
+      },
+      {
+        "text": "💰 Calculs Automatiques : Système intelligent de calcul des totaux sur factures avec ajout/suppression lignes dynamique.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎨 Interface Moderne : Design responsive avec navigation intuitive et sélection templates par cards visuelles.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.13.3",
+    "date": "04/11/2025 - 10:00",
+    "changes": [
+      {
+        "text": "🔧 CORRECTIONS POST-MIGRATION : Résolution complète des dysfonctionnements suite à l'implémentation du système d'includes.",
+        "type": "global"
+      },
+      {
+        "text": "🧹 Suppression commentaires JavaScript visibles : Élimination des commentaires d'insertion automatique apparaissant sur les pages.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🏢 Réparation hierarchie.html : Restauration complète de la gestion des grades et spécialités avec chargement JSON fonctionnel.",
+        "type": "global"
+      },
+      {
+        "text": "💬 Correction suggestions.html : Réparation du formulaire de suggestions et suppression des erreurs d'initialisation.",
+        "type": "secondaire"
+      },
+      {
+        "text": "👨‍⚕️ Nettoyage professeur.html : Consolidation des gestionnaires d'événements et suppression des accolades orphelines.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🏥 Simplification service.html : Suppression des champs PDS/FDS inutilisés et de leur logique de calcul d'horaires.",
+        "type": "secondaire"
+      },
+      {
+        "text": "👤 Correction admin.html : Élimination du double header et de la double navbar en supprimant les éléments statiques au profit des includes.",
+        "type": "global"
+      },
+      {
+        "text": "⚡ Optimisation DOMContentLoaded : Suppression des appels redondants updateSpecialityTabs() dans toutes les pages.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎯 Stabilisation système includes : Toutes les pages utilisent désormais correctement le système centralisé sans conflit.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.13.2",
+    "date": "04/11/2025 - 09:45",
+    "changes": [
+      {
+        "text": "🔄 SYSTÈME D'INCLUDES COMMUNS : Header et navbar centralisés pour toutes les pages avec maintenance unifiée.",
+        "type": "global"
+      },
+      {
+        "text": "📂 Fichiers includes/ : header.html et navbar.html partagés pour cohérence globale du design.",
+        "type": "global"
+      },
+      {
+        "text": "🚀 Script sams-common.js : Gestion automatique des includes, version, onglets spécialisés et fonctionnalités communes.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Détection automatique de page active : Mise en surbrillance automatique de l'onglet correspondant à la page courante.",
+        "type": "secondaire"
+      },
+      {
+        "text": "⚡ Chargement automatique de version : Affichage dynamique depuis changelog.json sans code redondant.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔧 Script de migration automatique : migrate-includes.sh pour conversion de toutes les pages existantes.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📋 Documentation complète : INCLUDES_README.md avec guide d'utilisation et de migration.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🛡️ Gestion d'erreur intégrée : Fallback et logs de développement pour robustesse du système.",
+        "type": "correctif"
+      },
+      {
+        "text": "🧹 Suppression code dupliqué : Élimination des fonctions updateSpecialityTabs et fetch redondants.",
+        "type": "correctif"
+      }
+    ]
+  },
+  {
+    "version": "v1.13.1",
+    "date": "04/11/2025 - 09:30",
+    "changes": [
+      {
+        "text": "⏰ Session persistante de 5 minutes : Connexion automatique maintenue avec indicateur temps réel et renouvellement sur activité.",
+        "type": "global"
+      },
+      {
+        "text": "🚪 Déconnexion manuelle : Bouton de déconnexion forcée accessible en permanence dans le header.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📚 Organisation des manuels par catégorie : Affichage structuré similaire aux grades avec sections déployables/masquables.",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Tri intelligent des manuels : Classement automatique par importance décroissante dans chaque catégorie.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔧 Correction du timer de session : Élimination de l'oscillation entre 4:59 et 5:00, affichage fluide et précis.",
+        "type": "correctif"
+      }
+    ]
+  },
+  {
+    "version": "v1.13.0",
+    "date": "04/11/2025 - 09:00",
+    "changes": [
+      {
+        "text": "🔥 CRÉATION DU PANEL D'ADMINISTRATION : Nouveau système complet de gestion des données SAMS.",
+        "type": "global"
+      },
+      {
+        "text": "🛡️ Système d'authentification : Connexion par mot de passe, protection anti-brute force (verrouillage 15min après 3 échecs).",
+        "type": "global"
+      },
+      {
+        "text": "🏷️ Badges d'importance visuels : Sélection intuitive de l'importance des manuels (1-10) avec badges colorés cliquables.",
+        "type": "global"
+      },
+      {
+        "text": "📂 Gestion complète des catégories : Création/modification/suppression avec palette de couleurs et contrôles de visibilité.",
+        "type": "global"
+      },
+      {
+        "text": "👥 Affichage moderne des membres : Interface en cartes individuelles avec nom/ID séparés et compteurs en temps réel.",
+        "type": "global"
+      },
+      {
+        "text": "👁️ Contrôles de visibilité avancés : Toggles modernes pour masquer/afficher catégories et éléments.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📊 Statistiques dynamiques : Compteurs temps réel des manuels, catégories, grades, spécialités et membres totaux.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎨 Interface utilisateur modernisée : Design responsive, onglets fluides, modales animées, notifications système.",
+        "type": "global"
+      },
+      {
+        "text": "🔧 Outils d'administration : Export de sauvegarde JSON, diagnostic système, suppression sécurisée des données.",
+        "type": "secondaire"
+      },
+      {
+        "text": "💾 Sauvegarde hybride : Système de backup automatique local + serveur avec récupération d'urgence.",
+        "type": "global"
+      },
+      {
+        "text": "🗑️ Suppression complète du système de documents et signatures : Nettoyage total des fonctionnalités obsolètes.",
+        "type": "secondaire"
+      },
+      {
+        "text": "📋 Gestion centralisée des données : Interface unifiée pour manuels.json, grades.json, spécialites.json et categories.json.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.12.2",
+    "date": "07/10/2025 - 15:10",
+    "changes": [
+      {
+        "text": "Ajout du style pour le bouton actualiser de la page hierarchie.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Correction où dans la navbar de hierarchie, professeur et ph ne s'affichait pas alors que l'utilisateur avait la spécialité.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.12.1",
+    "date": "07/10/2025 - 15:10",
+    "changes": [
+      {
+        "text": "Réglage du style de la page hierarchie pour une meilleure lisibilité.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Réglage du style de la page specialites pour une meilleure lisibilité.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Changement du nom dans le header de la page spécialités",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.12.0",
+    "date": "07/10/2025 - 15:30",
+    "changes": [
+      {
+        "text": "🏛️ Nouvelle page Hiérarchie SAMS : affichage complet des grades importants et directions des spécialités",
+        "type": "global"
+      },
+      {
+        "text": "📊 Interface à onglets : 'Grades Importants' et 'Directions Spécialités' avec chargement dynamique depuis JSON",
+        "type": "global"
+      },
+      {
+        "text": "🎨 Design moderne avec cartes hiérarchiques, badges colorés par grade et avatars générés automatiquement",
+        "type": "secondaire"
+      },
+      {
+        "text": "📱 Interface responsive avec grille adaptative pour l'affichage des membres et informations détaillées",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔄 Système d'actualisation des données et gestion des états (chargement, erreur, vide)",
+        "type": "secondaire"
+      },
+      {
+        "text": "🗂️ Structure de données JSON pour grades.json et specialites.json avec informations complètes des membres",
+        "type": "secondaire"
+      },
+      {
+        "text": "🧭 Ajout du bouton 'Hiérarchie' dans la navigation de toutes les pages de l'application",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.5",
+    "date": "07/10/2025 - 15:10",
+    "changes": [
+      {
+        "text": "Déplacement des fichiers .json dans un dossier json pour une meilleure organisation.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Mise à jour de tous les chemins d'accès aux fichiers .json dans le code (fetch).",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.4",
+    "date": "07/10/2025 - 14:50",
+    "changes": [
+      {
+        "text": "Correction de touts les changelogs pour les faire passer vers la nouvelle version de la gestion des changelogs.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.3",
+    "date": "07/10/2025 - 14:30",
+    "changes": [
+      {
+        "text": "Retrait de tout ce qui est lié aux statistiques (bouton dans la nav, page, CSS, JS, etc.)",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.2",
+    "date": "07/10/2025 - 12:30",
+    "changes": [
+      {
+        "text": "🐛 Correction du bug de couleur du statut 'Inapte' qui s'affichait en vert au lieu de rouge",
+        "type": "global"
+      },
+      {
+        "text": "🔄 Correction du bug de mise à jour en temps réel des notes dans professeur.html",
+        "type": "global"
+      },
+      {
+        "text": "📊 Les changements de notes mettent maintenant à jour automatiquement le statut (Apte/Inapte) et le rapport généré",
+        "type": "global"
+      },
+      {
+        "text": "🛠️ Amélioration de la fonction calculateNotes() avec vérifications d'existence des éléments DOM",
+        "type": "secondaire"
+      },
+      {
+        "text": "⚡ Optimisation du flux de calcul et de mise à jour des templates dans l'interface de notation",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔍 Ajout de vérifications pour éviter les erreurs JavaScript lors des calculs de notes",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.1",
+    "date": "07/10/2025 - 10:45",
+    "changes": [
+      {
+        "text": "🎨 Refonte complète de la page Changelog dans informations.html pour gérer les nouveaux formats annotés.",
+        "type": "global"
+      },
+      {
+        "text": "Support intelligent des deux formats : ancien (strings) et nouveau (objets avec text/type).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Affichage visuel différencié : changements globaux (🎯 fond bleu) vs secondaires (🔧 fond gris).",
+        "type": "global"
+      },
+      {
+        "text": "Système de filtrage dynamique : '📋 Tous les changements' ou '🎯 Changements principaux uniquement'.",
+        "type": "global"
+      },
+      {
+        "text": "Icônes distinctives et styles CSS pour identifier rapidement l'importance des changements.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Filtrage en temps réel sans rechargement de page avec mise à jour des boutons actifs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Versions automatiquement masquées si aucun changement ne correspond au filtre appliqué.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Correction du bug d'affichage '[object Object]' remplacé par un rendu HTML propre.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.11.0",
+    "date": "07/10/2025 - 10:30",
+    "changes": [
+      {
+        "text": "🔔 Nouveau système de notifications de mise à jour automatique sur toutes les pages.",
+        "type": "global"
+      },
+      {
+        "text": "Détection intelligente des nouvelles versions depuis la dernière visite utilisateur.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Affichage modal centré avec résumé des changements principaux uniquement (filtre global vs secondaire).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Interface élégante avec design glassmorphism cohérent, animations et responsive.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Système de persistance : l'utilisateur ne voit plus la notification une fois fermée jusqu'à la prochaine mise à jour.",
+        "type": "global"
+      },
+      {
+        "text": "Boutons d'action : 'Plus tard' (reporte) et 'J'ai compris' (marque comme vu définitivement).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Annotation complète du changelog avec types 'global' et 'secondaire' pour un filtrage intelligent.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Intégration sur toutes les pages de l'application avec chargement automatique au DOM ready.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.10.3",
+    "date": "07/10/2025 - 10:15",
+    "changes": [
+      {
+        "text": "🔇 Amélioration UX : Suppression complète de toutes les alertes et confirmations dans la page Suggestions/Bugs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression des alertes de validation : les erreurs de champs vides n'interrompent plus l'utilisateur.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression des alertes de succès : confirmation d'envoi Discord via feedback visuel uniquement.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression des alertes d'erreur : erreurs loggées silencieusement dans la console pour le débogage.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression du dialogue de confirmation lors du vidage des formulaires : action immédiate.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression de l'alerte 'Copié !' dans la modale de messages : copie silencieuse.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Expérience utilisateur fluidifiée : plus d'interruptions par des pop-ups, workflow continu.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Conservation du logging d'erreurs pour le support technique via console.error().",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.10.2",
+    "date": "07/10/2025 - 10:00",
+    "changes": [
+      {
+        "text": "Refonte complète des formulaires de soumission pour intégrer les informations RP.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Remplacement des champs 'Nom d'utilisateur/Pseudo' et 'Email' par 'Prénom et Nom (RP)', 'ID' et 'Nom d'utilisateur Discord'.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Pré-remplissage automatique des champs avec les données des paramètres utilisateur (si configurés).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Mise à jour des embeds Discord avec formatage amélioré : nom RP en gras, ID entre parenthèses, champ Discord séparé.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Validation renforcée avec vérification obligatoire de tous les nouveaux champs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Cohérence avec l'écosystème RP : utilisation des mêmes données que dans les autres pages de l'application.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.10.1",
+    "date": "07/10/2025 - 09:45",
+    "changes": [
+      {
+        "text": "Intégration complète des webhooks Discord pour l'envoi automatique des suggestions et bugs.",
+        "type": "global"
+      },
+      {
+        "text": "Création d'embeds Discord joliment formatés avec couleurs distinctes (vert pour suggestions, rouge pour bugs).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Mention automatique du développeur (@422404651577638943) à chaque soumission.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Système de feedback visuel amélioré : bouton avec états 'Envoi en cours', 'Envoyé' avec animations.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Gestion intelligente des erreurs avec fallback automatique vers l'ancien système de copie.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Embeds enrichis avec emojis, timestamps, footer avec version AideSAMS, et champs structurés.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression de l'étape manuelle : l'utilisateur n'a plus besoin de copier-coller sur Discord.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.10.0",
+    "date": "07/10/2025 - 09:30",
+    "changes": [
+      {
+        "text": "🎉 Ajout majeur : Nouvelle page 'Suggestions/Bugs' avec interface complète de soumission.",
+        "type": "global"
+      },
+      {
+        "text": "Système de sous-navigation à onglets : '💡 Suggestions' et '🐛 Bugs' avec interfaces dédiées.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Formulaires intelligents avec catégorisation (suggestions) et niveaux de gravité (bugs).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Sauvegarde automatique des données pendant la saisie avec restauration au rechargement.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Historique local des 50 dernières soumissions pour suivi utilisateur.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Interface cohérente avec le design system AideSAMS : cartes, couleurs, animations.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Zone d'instructions contextuelles qui s'adaptent selon le type sélectionné.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Boutons d'action unifiés : 'Vider le formulaire' et 'Soumettre' avec feedback visuel.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Intégration complète dans la navigation de toutes les pages existantes.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Gestion des spécialités utilisateur (affichage conditionnel des onglets PH/Professeur).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Chargement automatique de la version depuis changelog.json.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Système de validation des champs obligatoires avant soumission.",
+        "type": "secondaire"
+      },
+      {
+        "text": "🗑️ Suppression complète des anciennes bannières notif-bug sur toutes les pages : plus d'interruption visuelle.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.9.0",
+    "date": "05/10/2025 - 23:30",
+    "changes": [
+      {
+        "text": "Refonte complète de la page Professeur avec système de sous-navigation à onglets.",
+        "type": "global"
+      },
+      {
+        "text": "Système de gestion séparée des deux types de rapports (Rapport de Note et Demande de Points).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Interface dynamique pour l'ajout/suppression de professeurs et participants multiples.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Formatage automatique des dates (DD/MM/YYYY) et heures (HH:MM) dans les demandes de points.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Sauvegarde indépendante des données pour chaque type de rapport dans localStorage.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Affichage automatique du template de rapport dès le chargement de la page (plus de zone vide).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Correction du système de notification pliable pour la barre d'information de bugs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout de l'affichage automatique de la version dans le header depuis changelog.json.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration de l'expérience utilisateur avec des templates pré-remplis et des placeholders informatifs.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Validation et limitation automatique des valeurs d'entrée pour les notes EMT.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Interface cohérente et responsive pour tous les types de rapports professeur.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Gestion multi-rapports avec onglets dynamiques pour chaque type séparément.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.8.2",
+    "date": "05/10/2025 - 23:05",
+    "changes": [
+      {
+        "text": "Gestion multi-rapports avec onglets dynamiques pour chaque type séparément.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Harmonisation complète du style de la page Professeur avec les autres pages du site.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Mise en place de la disposition horizontale des cartes sur toutes les pages de formulaires.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Réorganisation de la sous-navigation : boutons d'action à gauche, onglets à droite.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration de l'affichage des professeurs multiples avec séparateur '/' entre les noms.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Optimisation du bouton de copie avec feedback visuel amélioré.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.8.1",
+    "date": "05/10/2025 - 22:50",
+    "changes": [
+      {
+        "text": "Ajout de la page Professeur avec deux types de rapports : Rapport de Note (évaluation EMT) et Demande de Points (formation).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Système de gestion des grades dans les paramètres avec échelons conditionnels (Paramédic, Médecin, etc.).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Système de spécialités avec affichage conditionnel des onglets (PH visible uniquement si spécialité Pilote Héliporté, Professeur si spécialité Professeur).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout dynamique de professeurs et participants dans la page Professeur.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Remplissage automatique des champs professeur avec les données des paramètres.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration du style : disposition horizontale des cartes sur toutes les pages.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Limitation des valeurs d'entrée pour les notes (ne peut pas dépasser le maximum de chaque catégorie).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration du style des boutons de sous-navigation.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Rapport généré affiché en haut de page pour une meilleure expérience utilisateur.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.8.0",
+    "date": "05/10/2025 - 22:20",
+    "changes": [
+      {
+        "text": "Ajout complet de la page Professeur avec deux types de rapports : Rapport de Note et Demande de Points.",
+        "type": "global"
+      },
+      {
+        "text": "Implémentation du système de grades et spécialités dans les paramètres utilisateur.",
+        "type": "global"
+      },
+      {
+        "text": "Navigation conditionnelle : onglets PH et Professeur visibles uniquement selon les spécialités.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout de la validation automatique des notes avec limitation des valeurs maximales.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration du style des boutons de sous-navigation avec animations cohérentes.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Remplissage automatique des champs professeur avec les données utilisateur.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.7",
+    "date": "01/08/2025 - 06:00",
+    "changes": [
+      {
+        "text": "Ajout de la fonction de recherche de patient dans le Trello correspondant a la première lettre de son prénom dans le rapport de soins.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout d'un bouton 'Réinitialiser le rapport/fiche' dans toutes les pages concernées (rapport, morgue, impayés, refus de soin, LSPD, PH). Le bouton permet de réinitialiser le rapport ou la fiche courante aux valeurs par défaut et a été déplacé dans la barre supérieure de chaque page.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.6.5",
+    "date": "01/08/2025 - 01:50",
+    "changes": [
+      {
+        "text": "Réglage du bug quand on copie un rapport (soin/refus/morgue) et qu'on le colle il n'y avais pas le gras.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout de la possibilité d'exporter et d'importer les statistiques.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Retrait de PDS et FDS dans Service, car c'est inutile.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.6",
+    "date": "31/07/2025 - 18:30",
+    "changes": [
+      {
+        "text": "Diverses améliorations de performance et de sécurité.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout d'une notification sur toutes les pages pour donner le moyen de signaler un bug ou une erreur.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.5",
+    "date": "31/07/2025 - 17:30",
+    "changes": [
+      {
+        "text": "Nettoyage et réorganisation du code CSS : suppression des doublons, séparation des styles globaux et spécifiques (statistiques).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Refonte du style de la page <b>statistiques.html</b> : styles déplacés dans le head de la page, structure HTML clarifiée.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Refonte du style de la page <b>manuels.html</b> : affichage par catégories, filtres dynamiques, design responsive et moderne.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Chargement dynamique des manuels depuis <b>manuels.json</b> (plus de données en dur dans le JS).",
+        "type": "secondaire"
+      },
+      {
+        "text": "Correction du chargement dynamique de la version depuis <b>changelog.json</b> sur toutes les pages.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Uniformisation des styles et de la structure des headers, boutons et containers sur toutes les pages.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Suppression des styles statistiques du fichier <b>style.css</b> pour alléger le CSS global.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.4",
+    "date": "31/07/2025 - 17:00",
+    "changes": [
+      {
+        "text": "Ajout d'un en-tête sur toutes les pages avec le titre de la page et un bouton de retour.",
+        "type": "global"
+      },
+      {
+        "text": "Refonte de l’en-tête : version et bouton informations affichés à droite du titre, header plus compact.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Ajout du sticky sur le header, la barre de navigation et la sous-barre (ex : Service 1, Ajouter un service) sur toutes les pages principales.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Uniformisation du style sticky sur <b>service.html</b>, <b>impayes.html</b> et autres pages.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.3",
+    "date": "31/07/2025 - 16:00",
+    "changes": [
+      {
+        "text": "Ajout de la page informations avec versionning et changelog.",
+        "type": "global"
+      },
+      {
+        "text": "Amélioration de l'affichage des manuels : regroupement par catégorie, filtres, couleurs personnalisées, auteur affiché.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Statistiques : affichage graphique, tri des actions, affichage des heures en h/mn, semaines lisibles.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Correction de l'auto-remplissage du nom/ID dans PH.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.2",
+    "date": "31/07/2025 - 04:30",
+    "changes": [
+      {
+        "text": "Ajout du bouton de réinitialisation des statistiques.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout du support des auteurs sur les manuels.",
+        "type": "global"
+      },
+      {
+        "text": "Amélioration de la navigation et du responsive sur toutes les pages.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.1",
+    "date": "30/07/2025 - 03:30",
+    "changes": [
+      {
+        "text": "Ajout de la page <b>manuels</b> : affichage en cartes.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout de la page <b>statistiques</b> avec graphiques et tri avancé.",
+        "type": "global"
+      },
+      {
+        "text": "Refonte du design général.",
+        "type": "global"
+      }
+    ]
+  },
+  {
+    "version": "v1.0",
+    "date": "30/07/2025 - 02:30",
+    "changes": [
+      {
+        "text": "Première version du site Aide SAMS.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Pages : Service, Rapport de soins, Refus de soins, Morgue, Impayés, LSPD, PH, Paramètres.",
+        "type": "global"
+      }
+    ]
+  }
+]

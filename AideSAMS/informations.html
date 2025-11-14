@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informations & Versions - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+    <style>
+        .info-container {
+            max-width: 900px;
+            margin: 40px auto 24px auto;
+            background: #181818;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0003;
+            padding: 28px 28px 18px 28px;
+        }
+        .info-title {
+            font-size: 1.5em;
+            color: #22c55e;
+            margin-bottom: 10px;
+        }
+        .info-list {
+            color: #eee;
+            margin: 0 0 0 10px;
+            font-size: 1.05em;
+        }
+        .changelog-global {
+            max-width: 1100px;
+            margin: 0 auto 40px auto;
+            background: #111;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px #0003;
+            padding: 32px 28px 24px 28px;
+        }
+        .changelog-title {
+            font-size: 2em;
+            color: #22c55e;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        .changelog-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            justify-content: center;
+        }
+        .version-card {
+            background: #181818;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0004;
+            padding: 24px 22px 18px 22px;
+            min-width: 280px;
+            max-width: 370px;
+            flex: 1 1 320px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+            border-left: 6px solid #22c55e;
+            position: relative;
+        }
+        .version-card:last-child {
+            border-color: #ef4444;
+        }
+        .version-header {
+            font-size: 1.15em;
+            color: #fbbf24;
+            margin-bottom: 6px;
+            margin-top: 0;
+            font-weight: bold;
+        }
+        .version-date {
+            color: #aaa;
+            font-size: 0.95em;
+            margin-left: 8px;
+        }
+        .version-list {
+            color: #eee;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-left: 18px;
+        }
+        .change-global {
+            background: rgba(74, 158, 255, 0.1);
+            border-left: 3px solid #4a9eff;
+            padding: 8px 12px;
+            margin: 6px 0;
+            border-radius: 6px;
+            list-style: none;
+        }
+        .change-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #666;
+            padding: 6px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+            list-style: none;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+        .change-icon {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .version-list li:not(.change-global):not(.change-secondary) {
+            margin: 4px 0;
+        }
+        .changelog-filters {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .filter-btn.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: white;
+        }
+        @media (max-width: 900px) {
+            .changelog-cards { flex-direction: column; gap: 18px; }
+            .version-card { max-width: 98vw; min-width: unset; }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="info-container">
+        <div class="info-title">Informations Projet</div>
+        <ul class="info-list">
+            <li><b>Nom du projet :</b> Aide SAMS</li>
+            <li><b>Développeur principal :</b> NiavlySDev (Jason Parker 37833)</li>
+            <li><b>Contact :</b> niavlys.dev@proton.me</li>
+            <li><b>Date de création :</b> 30 Juillet 2025</li>
+            <li><b>Technologies :</b> HTML, CSS, JavaScript, LocalStorage</li>
+            <li><b>Objectif :</b> Centraliser les outils, manuels, statistiques et documents utiles pour les SAMS.</li>
+            <li><b>Contributeurs Manuels :</b> Tous les professeurs ayant fait des cours sont sités dans la page <a href="manuels.html">Manuels</a></li>
+            <li><b>Licence :</b> MIT Liscence</li>
+        </ul>
+    </div>
+
+    <div class="changelog-global">
+        <div class="changelog-title">Changelog</div>
+        <div class="changelog-filters" style="text-align: center; margin-bottom: 24px;">
+            <button class="filter-btn active" onclick="filterChanges('all')" id="filter-all">
+                📋 Tous les changements
+            </button>
+            <button class="filter-btn" onclick="filterChanges('global')" id="filter-global">
+                🎯 Changements principaux uniquement
+            </button>
+        </div>
+        <div class="changelog-cards">
+        </div>
+    </div>
+    <script>
+    let changelogData = [];
+    let currentFilter = 'all';
+
+    function renderChangelog(filterType = 'all') {
+      const container = document.querySelector('.changelog-cards');
+      
+      if (!changelogData.length) {
+        container.innerHTML = '<div style="color:#ef4444;">Aucune donnée de changelog disponible.</div>';
+        return;
+      }
+
+      container.innerHTML = changelogData.map(version => {
+        // Gérer les changements (format objet ou string)
+        const changesList = version.changes
+          .filter(change => {
+            if (filterType === 'global') {
+              return typeof change === 'object' && change.type === 'global';
+            }
+            return true; // Afficher tous les changements
+          })
+          .map(change => {
+            // Si c'est un objet avec text et type
+            if (typeof change === 'object' && change.text) {
+              const typeIcon = change.type === 'global' ? '🎯' : '🔧';
+              const typeClass = change.type === 'global' ? 'change-global' : 'change-secondary';
+              return `<li class="${typeClass}"><span class="change-icon">${typeIcon}</span> ${change.text}</li>`;
+            }
+            // Si c'est une string (ancien format)
+            else if (typeof change === 'string') {
+              return `<li>${change}</li>`;
+            }
+            return '';
+          }).join('');
+        
+        // Ne pas afficher la version si aucun changement après filtrage
+        if (!changesList.trim()) {
+          return '';
+        }
+        
+        return `
+          <div class="version-card">
+            <div class="version-header">${version.version} <span class="version-date">${version.date}</span></div>
+            <ul class="version-list">
+              ${changesList}
+            </ul>
+          </div>
+        `;
+      }).filter(card => card.trim()).join('');
+    }
+
+    function filterChanges(type) {
+      currentFilter = type;
+      
+      // Mettre à jour les boutons
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`filter-${type}`).classList.add('active');
+      
+      // Re-render avec le nouveau filtre
+      renderChangelog(type);
+    }
+
+    // Charger les données du changelog
+    fetch('json/changelog.json')
+      .then(response => response.json())
+      .then(data => {
+        changelogData = data;
+        renderChangelog(currentFilter);
+      })
+      .catch(error => {
+        console.error('Erreur lors du chargement du changelog:', error);
+        document.querySelector('.changelog-cards').innerHTML = 
+          '<div style="color:#ef4444;">Erreur lors du chargement des données.</div>';
+      });
+    
+    </script>
+</body>
+</html>

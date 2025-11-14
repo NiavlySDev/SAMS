@@ -1,0 +1,784 @@
+/* ===== DOCUMENTS.CSS - Système de Documents Médicaux ===== */
+
+/* Page principale des documents */
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, #1a1a1b 0%, #2a2a2e 100%);
+    border-radius: 12px;
+    border: 1px solid #404044;
+}
+
+.page-header h1 {
+    color: #22c55e;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.page-header p {
+    color: #aaa;
+    font-size: 1.1em;
+}
+
+/* Grille des templates */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.template-card {
+    background: #1a1a1b;
+    border: 2px solid #404044;
+    border-radius: 15px;
+    padding: 25px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-card:hover {
+    border-color: #22c55e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15);
+}
+
+.template-card:hover .template-icon {
+    transform: scale(1.1);
+}
+
+.template-icon {
+    font-size: 4em;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.template-info h3 {
+    color: #22c55e;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+
+.template-info p {
+    color: #ccc;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.template-features {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.feature {
+    color: #aaa;
+    font-size: 0.9em;
+    padding: 2px 0;
+}
+
+.template-action {
+    text-align: center;
+}
+
+.btn-template {
+    background: #22c55e;
+    color: #181818;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1em;
+    width: 100%;
+}
+
+.btn-template:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+}
+
+/* Documents récents */
+.recent-documents, .quick-actions {
+    background: #1a1a1b;
+    border: 1px solid #404044;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.recent-documents h2, .quick-actions h2 {
+    color: #22c55e;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #404044;
+    padding-bottom: 10px;
+}
+
+.no-documents {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-docs-icon {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.recent-doc-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #2a2a2e;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: background 0.3s ease;
+}
+
+.recent-doc-item:hover {
+    background: #333338;
+}
+
+.doc-icon {
+    font-size: 2em;
+}
+
+.doc-info {
+    flex: 1;
+}
+
+.doc-name {
+    color: #e5e5e5;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.doc-date {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.doc-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    background: #404044;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #e5e5e5;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background 0.3s ease;
+}
+
+.btn-sm:hover {
+    background: #22c55e;
+    color: #181818;
+}
+
+/* Actions rapides */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.action-btn {
+    background: #2a2a2e;
+    border: 1px solid #404044;
+    padding: 20px;
+    border-radius: 10px;
+    color: #e5e5e5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+}
+
+.action-btn:hover {
+    border-color: #22c55e;
+    background: #333338;
+}
+
+.action-icon {
+    font-size: 1.5em;
+}
+
+.action-text {
+    font-weight: 500;
+}
+
+/* ===== FORMULAIRES DE CRÉATION DE DOCUMENTS ===== */
+
+.document-creator {
+    background: #1a1a1b;
+    border: 1px solid #404044;
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.document-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #404044;
+}
+
+.document-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.document-title h2 {
+    color: #22c55e;
+    margin: 0;
+}
+
+.document-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-save {
+    background: #22c55e;
+    color: #181818;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-preview {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-back {
+    background: #404044;
+    color: #e5e5e5;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Sections de formulaire */
+.form-section {
+    background: #2a2a2e;
+    border: 1px solid #404044;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.form-section h3 {
+    color: #22c55e;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    color: #e5e5e5;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    background: #1a1a1b;
+    border: 1px solid #404044;
+    border-radius: 8px;
+    color: #e5e5e5;
+    font-size: 1em;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Système de signatures */
+.signature-section {
+    background: #1f2937;
+    border: 2px solid #374151;
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.signature-section h3 {
+    color: #10b981;
+    margin-bottom: 20px;
+}
+
+.signature-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.signature-tab {
+    background: #374151;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: #e5e5e5;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.signature-tab.active {
+    background: #10b981;
+    color: #181818;
+}
+
+.signature-content {
+    min-height: 200px;
+}
+
+.signature-canvas {
+    border: 2px dashed #6b7280;
+    border-radius: 8px;
+    background: white;
+    cursor: crosshair;
+    width: 100%;
+    max-width: 400px;
+    height: 150px;
+}
+
+.signature-text-options {
+    display: none;
+}
+
+.signature-text-options.active {
+    display: block;
+}
+
+.font-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.font-option {
+    background: #374151;
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.font-option.selected {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.font-preview {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #e5e5e5;
+}
+
+.font-name {
+    font-size: 0.9em;
+    color: #9ca3af;
+}
+
+/* Preview du document */
+.document-preview {
+    background: white;
+    color: black;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 21cm;
+    min-height: 29.7cm;
+    margin: 20px auto;
+    font-family: 'Times New Roman', serif;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .templates-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .document-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .document-actions {
+        justify-content: center;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Polices pour les signatures texte */
+.signature-font-script {
+    font-family: 'Brush Script MT', cursive;
+}
+
+.signature-font-elegant {
+    font-family: 'Lucida Handwriting', cursive;
+}
+
+.signature-font-formal {
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+}
+
+.signature-font-modern {
+    font-family: 'Arial', sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+/* ===== GESTION DES SIGNATURES DANS PARAMÈTRES ===== */
+
+.signature-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.signature-creation {
+    background: #2a2a2e;
+    border: 1px solid #404044;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.signature-creation h3 {
+    color: #22c55e;
+    margin-bottom: 20px;
+}
+
+.signature-mode {
+    margin: 20px 0;
+}
+
+.signature-canvas-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.signature-canvas {
+    border: 2px dashed #6b7280;
+    border-radius: 8px;
+    background: white;
+    cursor: crosshair;
+}
+
+.signature-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.signature-preview-container {
+    margin: 20px 0;
+    padding: 15px;
+    background: #1a1a1b;
+    border-radius: 8px;
+    border: 1px solid #404044;
+}
+
+.signature-preview {
+    background: white;
+    color: black;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 24px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signature-save {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #404044;
+}
+
+.saved-signatures {
+    background: #2a2a2e;
+    border: 1px solid #404044;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.saved-signatures h3 {
+    color: #22c55e;
+    margin-bottom: 20px;
+}
+
+.signatures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.signature-item {
+    background: #1a1a1b;
+    border: 1px solid #404044;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.signature-item:hover {
+    border-color: #22c55e;
+    transform: translateY(-2px);
+}
+
+.signature-preview-item {
+    background: white;
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signature-name {
+    color: #e5e5e5;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.signature-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.signature-upload-area {
+    border: 2px dashed #6b7280;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    color: #666;
+}
+
+.signature-upload-area:hover {
+    border-color: #22c55e;
+    background: #f0f8f5;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== BROUILLONS ===== */
+.drafts-section {
+    margin: 40px 0;
+    padding: 30px;
+    background: #1a1a1b;
+    border-radius: 12px;
+    border: 1px solid #404044;
+}
+
+.drafts-section h2 {
+    color: #22c55e;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.drafts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.draft-card {
+    background: #2a2a2e;
+    border: 1px solid #404044;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.draft-card:hover {
+    border-color: #22c55e;
+    transform: translateY(-2px);
+}
+
+.draft-header h3 {
+    color: #fff;
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+}
+
+.draft-header small {
+    color: #aaa;
+}
+
+.draft-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.85em;
+    background: #404044;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-sm:hover {
+    background: #22c55e;
+}
+
+/* ===== SIGNATURES DANS DOCUMENTS ===== */
+.signature-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.signature-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+.signature-section h4 {
+    margin-top: 0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.signature-preview-area {
+    min-height: 100px;
+    background: white;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.document-actions-bottom {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.btn-save-draft, .btn-finalize {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn-save-draft {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-save-draft:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+.btn-finalize {
+    background: #28a745;
+    color: white;
+}
+
+.btn-finalize:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}

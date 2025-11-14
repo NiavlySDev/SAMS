@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morgue - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="morgue-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-morgue-btn" onclick="addMorgue()" style="margin-left:16px; white-space:nowrap;">➕
+            Ajouter une fiche</button>
+        <button class="btn" onclick="resetMorgue()" style="margin-left:8px;background:#ef4444;color:#fff;">🗑️ Réinitialiser la fiche</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+    </div>
+
+    <script>
+        const defaultMorgue = () => ({
+            samsName: "",
+            patientInfo: "",
+            day: "",
+            month: "",
+            year: "",
+            hour: "",
+            minute: "",
+            comaReason: "",
+            collapsed: [false, false],
+        });
+
+        let morgues = [];
+        let currentMorgue = 0;
+
+        function saveMorgues() {
+            localStorage.setItem('sams_morgues', JSON.stringify({ morgues, currentMorgue }));
+        }
+        function loadMorgues() {
+            const data = localStorage.getItem('sams_morgues');
+            if (data) {
+                const obj = JSON.parse(data);
+                morgues = obj.morgues;
+                currentMorgue = obj.currentMorgue;
+            } else {
+                morgues = [defaultMorgue()];
+                currentMorgue = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('morgue-tabs');
+            tabs.innerHTML = "";
+            morgues.forEach((r, i) => {
+                let label = "Fiche n°" + (i + 1);
+                if (r.patientInfo.trim()) label = "Fiche [" + r.patientInfo.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentMorgue ? ' active' : ''}" onclick="switchMorgue(${i})">
+                    ${label}
+                    ${morgues.length > 1 ? '<button class="delete-rapport" onclick="deleteMorgue(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const r = morgues[currentMorgue];
+            const cards = [
+                {
+                    title: "👤 Informations",
+                    content: `
+    <div class="form-group">
+        <label>Votre Prénom et Nom</label>
+        <input type="text" id="samsName" value="${r.samsName}" oninput="updateField('samsName',this.value)">
+    </div>
+    <div class="form-group">
+        <label>Prénom, Nom et ID du patient</label>
+        <input type="text" value="${r.patientInfo}" oninput="updateField('patientInfo',this.value)">
+    </div>
+                `
+                },
+                {
+                    title: "🕒 Prise en charge & Raison du coma",
+                    content: `
+                    <div class="form-group">
+                        <label>Date et Heure de la prise en charge</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="1" max="31" placeholder="JJ" style="width:60px" value="${r.day || ''}" oninput="updateField('day',this.value)">
+                            <input type="number" min="1" max="12" placeholder="MM" style="width:60px" value="${r.month || ''}" oninput="updateField('month',this.value)">
+                            <input type="number" min="1900" max="2100" placeholder="AAAA" style="width:90px" value="${r.year || ''}" oninput="updateField('year',this.value)">
+                            <input type="number" min="0" max="23" placeholder="HH" style="width:60px" value="${r.hour || ''}" oninput="updateField('hour',this.value)">
+                            <input type="number" min="0" max="59" placeholder="MM" style="width:60px" value="${r.minute || ''}" oninput="updateField('minute',this.value)">
+                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow()">Maintenant</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Raison du coma</label>
+                        <input type="text" value="${r.comaReason || ''}" oninput="updateField('comaReason',this.value)" placeholder="Ex: Balle dans la tête">
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const r = morgues[currentMorgue];
+            const dateStr = (r.day && r.month && r.year) ? `${String(r.day).padStart(2, '0')}/${String(r.month).padStart(2, '0')}/${r.year}` : "";
+            const timeStr = (r.hour !== "" && r.minute !== "") ? `${String(r.hour).padStart(2, '0')}h${String(r.minute).padStart(2, '0')}` : "";
+            document.getElementById('template-content').innerHTML = `
+- **Prénom Nom du SAMS :** ${r.samsName || ""}<br>
+- **Prénom Nom ID du patient :** ${r.patientInfo || ""}<br>
+- **Date et heure de la prise en charge :** ${dateStr}${(dateStr && timeStr ? " " : "")}${timeStr}<br>
+- **Raison du coma :** ${r.comaReason || ""}
+    `;
+        }
+
+        function updateField(field, value) {
+            morgues[currentMorgue][field] = value;
+            saveMorgues();
+            renderTemplate();
+            if (field === "patientInfo") renderTabs();
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            morgues[currentMorgue].collapsed[idx] = !morgues[currentMorgue].collapsed[idx];
+            saveMorgues();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            morgues[currentMorgue].collapsed[idx] = true;
+            saveMorgues();
+            renderCards();
+        }
+        function addMorgue() {
+            morgues.push(defaultMorgue());
+            currentMorgue = morgues.length - 1;
+            saveMorgues();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchMorgue(idx) {
+            currentMorgue = idx;
+            saveMorgues();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteMorgue(e, idx) {
+            e.stopPropagation();
+            if (morgues.length <= 1) return;
+            morgues.splice(idx, 1);
+            if (currentMorgue >= morgues.length) currentMorgue = morgues.length - 1;
+            saveMorgues();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function() {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                document.body.removeChild(textarea);
+            }
+        }
+        function setNow() {
+            const now = new Date();
+            const r = morgues[currentMorgue];
+            r.day = now.getDate();
+            r.month = now.getMonth() + 1;
+            r.year = now.getFullYear();
+            r.hour = now.getHours();
+            r.minute = now.getMinutes();
+            saveMorgues();
+            renderCards();
+            renderTemplate();
+        }
+        function resetMorgue() {
+            morgues[currentMorgue] = defaultMorgue();
+            saveMorgues();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+
+        // --- Init ---
+        loadMorgues();
+        renderTabs();
+        renderCards();
+        fillSamsFields('samsName');
+        renderTemplate();
+
+        function fillSamsFields(nameFieldId) {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName && document.getElementById(nameFieldId)) {
+                document.getElementById(nameFieldId).value = params.samsName;
+                morgues[currentMorgue].samsName = params.samsName;
+                saveMorgues();
+                renderTemplate();
+            }
+        }
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+        
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hiérarchie SAMS - AideSAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+    <style>
+        .hierarchy-section {
+            width: 100%;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            color: #22c55e;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8em;
+        }
+
+        .section-header p {
+            color: #64748b;
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .hierarchy-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .grade-card, .specialite-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .grade-card:hover, .specialite-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(34, 197, 94, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .grade-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .grade-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            margin-right: 1rem;
+            font-size: 0.9em;
+        }
+
+        .grade-level {
+            background: rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: auto;
+        }
+
+        .specialite-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .specialite-title {
+            color: #22c55e;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .membres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .membre-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .membre-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .membre-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .membre-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .membre-nom {
+            color: white;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            font-size: 1em;
+        }
+
+        .membre-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .membre-id, .membre-discord {
+            color: #94a3b8;
+            font-size: 0.85em;
+            margin: 0;
+        }
+
+        .membre-statut {
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            align-self: flex-start;
+            margin-top: 0.25rem;
+        }
+
+        .statut-actif {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .statut-inactif {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 2rem;
+            color: #22c55e;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 2rem;
+            color: #ef4444;
+        }
+
+        .refresh-btn {
+            background: #22c55e;
+            color: #181818;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .membres-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header h2 {
+                font-size: 1.5em;
+            }
+
+            .grade-card, .specialite-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+
+    <div class="sub-nav">
+        <div class="sub-nav-left">
+            <button onclick="refreshData()" class="refresh-btn">🔄 Actualiser</button>
+        </div>
+        <div class="sub-nav-right">
+            <button onclick="showSection('grades')" id="btn-grades" class="sub-nav-btn active">🏅 Direction Générale</button>
+            <button onclick="showSection('specialites')" id="btn-specialites" class="sub-nav-btn">⚡ Directions Spécialités</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Section Grades -->
+        <div id="grades-section" class="hierarchy-section">
+            <div class="section-header">
+                <h2>🏅 Direction Générale</h2>
+                <p>Membres de la direction générale de la SAMS</p>
+            </div>
+            <div id="grades-container" class="hierarchy-container">
+                <!-- Chargé dynamiquement -->
+            </div>
+        </div>
+
+        <!-- Section Spécialités -->
+        <div id="specialites-section" class="hierarchy-section" style="display: none;">
+            <div class="section-header">
+                <h2>⚡ Directions des Spécialités</h2>
+                <p>Responsables de chaque spécialité SAMS</p>
+            </div>
+            <div id="specialites-container" class="hierarchy-container">
+                <!-- Chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gradesData = [];
+        let specialitesData = [];
+        let currentSection = 'grades';
+
+        // Chargement des données
+        async function loadData() {
+            try {
+                // Chargement des grades
+                document.getElementById('grades-container').innerHTML = '<div class="loading-state">🔄 Chargement des grades...</div>';
+                
+                const gradesResponse = await fetch('json/grades.json');
+                if (!gradesResponse.ok) throw new Error('Erreur de chargement des grades');
+                gradesData = await gradesResponse.json();
+
+                // Chargement des spécialités
+                document.getElementById('specialites-container').innerHTML = '<div class="loading-state">🔄 Chargement des spécialités...</div>';
+                
+                const specialitesResponse = await fetch('json/specialites.json');
+                if (!specialitesResponse.ok) throw new Error('Erreur de chargement des spécialités');
+                specialitesData = await specialitesResponse.json();
+
+                // Affichage des données
+                renderGrades();
+                renderSpecialites();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.getElementById('grades-container').innerHTML = '<div class="error-state">❌ Erreur de chargement des grades</div>';
+                document.getElementById('specialites-container').innerHTML = '<div class="error-state">❌ Erreur de chargement des spécialités</div>';
+            }
+        }
+
+        // Affichage des grades
+        function renderGrades() {
+            const container = document.getElementById('grades-container');
+            
+            if (!gradesData || gradesData.length === 0) {
+                container.innerHTML = '<div class="empty-state">Aucun grade trouvé</div>';
+                return;
+            }
+
+            // Tri par niveau si disponible
+            const sortedGrades = [...gradesData].sort((a, b) => (a.niveau || 999) - (b.niveau || 999));
+
+            const html = sortedGrades.map(grade => {
+                const membres = grade.membres || [];
+                const couleur = grade.couleur || '#22c55e';
+                
+                const membresHtml = membres.length > 0 
+                    ? membres.map(membre => `
+                        <div class="membre-card">
+                            <div class="membre-avatar">${getInitials(membre.nom || membre)}</div>
+                            <div class="membre-info">
+                                <h4 class="membre-nom">${typeof membre === 'string' ? membre : membre.nom}</h4>
+                                ${typeof membre === 'object' ? `
+                                    <div class="membre-details">
+                                        ${membre.id ? `<p class="membre-id">ID: ${membre.id}</p>` : ''}
+                                        ${membre.discord ? `<p class="membre-discord">Discord: ${membre.discord}</p>` : ''}
+                                        ${membre.statut ? `<span class="membre-statut statut-${membre.statut.toLowerCase()}">${membre.statut}</span>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<div class="empty-state">Aucun membre assigné</div>';
+
+                return `
+                    <div class="grade-card">
+                        <div class="grade-header">
+                            <div class="grade-badge" style="background-color: ${couleur};">
+                                ${grade.grade}
+                            </div>
+                            ${grade.niveau ? `<div class="grade-level">Niveau ${grade.niveau}</div>` : ''}
+                        </div>
+                        <div class="membres-grid">
+                            ${membresHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Affichage des spécialités
+        function renderSpecialites() {
+            const container = document.getElementById('specialites-container');
+            
+            if (!specialitesData || specialitesData.length === 0) {
+                container.innerHTML = '<div class="empty-state">Aucune spécialité trouvée</div>';
+                return;
+            }
+
+            const html = specialitesData.map(specialite => {
+                const membres = specialite.membres || [];
+                
+                const membresHtml = membres.length > 0 
+                    ? membres.map(membre => `
+                        <div class="membre-card">
+                            <div class="membre-avatar">${getInitials(membre.nom || membre)}</div>
+                            <div class="membre-info">
+                                <h4 class="membre-nom">${typeof membre === 'string' ? membre : membre.nom}</h4>
+                                ${typeof membre === 'object' ? `
+                                    <div class="membre-details">
+                                        ${membre.id ? `<p class="membre-id">ID: ${membre.id}</p>` : ''}
+                                        ${membre.discord ? `<p class="membre-discord">Discord: ${membre.discord}</p>` : ''}
+                                        ${membre.statut ? `<span class="membre-statut statut-${membre.statut.toLowerCase()}">${membre.statut}</span>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<div class="empty-state">Aucun responsable assigné</div>';
+
+                return `
+                    <div class="specialite-card">
+                        <div class="specialite-header">
+                            <h3 class="specialite-title">⚡ ${specialite.specialite}</h3>
+                        </div>
+                        <div class="membres-grid">
+                            ${membresHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // Obtenir les initiales d'un nom
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        // Basculer entre les sections
+        function showSection(section) {
+            currentSection = section;
+            
+            // Mise à jour des boutons
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${section}`).classList.add('active');
+            
+            // Mise à jour des sections
+            document.getElementById('grades-section').style.display = section === 'grades' ? 'block' : 'none';
+            document.getElementById('specialites-section').style.display = section === 'specialites' ? 'block' : 'none';
+        }
+
+        // Actualiser les données
+        function refreshData() {
+            loadData();
+        }
+        // Gestion de l'affichage des onglets selon les spécialités
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            
+            // Initialiser le notificateur de mise à jour
+            const notifier = new UpdateNotifier();
+            notifier.init();
+        });
+
+        // Chargement de la version
+    </script>
+</body>
+</html>

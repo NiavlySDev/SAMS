@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="service-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-service-btn" onclick="addService()" style="margin-left:16px; white-space:nowrap;">➕
+            Ajouter un service</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+    </div>
+
+    <script>
+        const defaultService = () => ({
+            samsName: "",
+            date: "",
+            actions: [
+                { label: "Blessures légères", count: 0 },
+                { label: "Blessures moyennes", count: 0 },
+                { label: "Blessures graves", count: 0 },
+                { label: "10-17", count: 0 },
+                { label: "10-18", count: 0 },
+                { label: "10-19", count: 0 }
+            ],
+            recap: "",
+            collapsed: [false, false, false],
+        });
+
+        let services = [];
+        let currentService = 0;
+
+        function saveServices() {
+            localStorage.setItem('sams_services', JSON.stringify({ services, currentService }));
+        }
+        function loadServices() {
+            const data = localStorage.getItem('sams_services');
+            if (data) {
+                const obj = JSON.parse(data);
+                services = obj.services;
+                currentService = obj.currentService;
+
+                const baseActions = [
+                    { label: "Blessures légères", count: 0 },
+                    { label: "Blessures moyennes", count: 0 },
+                    { label: "Blessures graves", count: 0 },
+                    { label: "10-17", count: 0 },
+                    { label: "10-18", count: 0 },
+                    { label: "10-19", count: 0 }
+                ];
+                services.forEach(s => {
+                    if (!s.actions || !Array.isArray(s.actions)) s.actions = [];
+                    baseActions.forEach(base => {
+                        if (!s.actions.some(a => a.label === base.label)) {
+                            s.actions.push({ label: base.label, count: base.count });
+                        }
+                    });
+                });
+            } else {
+                services = [defaultService()];
+                currentService = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('service-tabs');
+            tabs.innerHTML = "";
+            services.forEach((s, i) => {
+                let label = "Service n°" + (i + 1);
+                if (s.samsName.trim()) label = "Service [" + s.samsName.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentService ? ' active' : ''}" onclick="switchService(${i})">
+                    ${label}
+                    ${services.length > 1 ? '<button class="delete-rapport" onclick="deleteService(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const s = services[currentService];
+            const cards = [
+                {
+                    title: "🕒 Horaires du service",
+                    content: `
+                    <div class="form-group">
+                        <label>Date du service</label>
+                        <input type="date" id="serviceDate" value="${s.date || ''}" oninput="updateField('date',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de Prise de Service (PDS)</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${s.pdsHour || ''}" oninput="updateField('pdsHour',this.value)">
+                            <span>:</span>
+                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${s.pdsMinute || ''}" oninput="updateField('pdsMinute',this.value)">
+                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow('pds')">Maintenant</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Heure de Fin de Service (FDS)</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${s.fdsHour || ''}" oninput="updateField('fdsHour',this.value)">
+                            <span>:</span>
+                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${s.fdsMinute || ''}" oninput="updateField('fdsMinute',this.value)">
+                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow('fds')">Maintenant</button>
+                        </div>
+                    </div>
+                `
+                },
+                {
+                    title: "📝 Actions et Récapitulatif",
+                    content: `
+                    <div class="form-group">
+                        <label>Récapitulatif rapide des opérations réalisées</label>
+                        <input type="text" value="${s.recap || ''}" oninput="updateField('recap',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Actions réalisées</label>
+                        <div id="actions-list">
+                            ${s.actions.map((a, idx) => `
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                                    <input type="text" value="${a.label}" style="width:200px" oninput="updateActionLabel(${idx},this.value)">
+                                    <button class="counter-btn" onclick="updateActionCount(${idx},${a.count - 1})">−</button>
+                                    <span class="counter-display">${a.count}</span>
+                                    <button class="counter-btn" onclick="updateActionCount(${idx},${a.count + 1})">+</button>
+                                    <button class="close-btn" onclick="deleteAction(${idx})" title="Supprimer cette action">✖</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn" onclick="addAction()" style="margin-top:8px;">Ajouter une action</button>
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${s.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${s.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const s = services[currentService];
+            let actions = s.actions.filter(a => a.label.trim()).map(a => `${a.count}x ${a.label}`).filter(txt => !txt.startsWith("0x")).join(', ');
+            document.getElementById('template-content').innerHTML = `
+- <b>Rapide recap des opérations réalisées :</b> ${s.recap || ""}${actions ? (" ; " + actions) : ""}
+        `;
+        }
+
+        function updateField(field, value) {
+            services[currentService][field] = value;
+            saveServices();
+            renderTemplate();
+            if (field === "samsName") renderTabs();
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            services[currentService].collapsed[idx] = !services[currentService].collapsed[idx];
+            saveServices();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            services[currentService].collapsed[idx] = true;
+            saveServices();
+            renderCards();
+        }
+        function addService() {
+            services.push(defaultService());
+            currentService = services.length - 1;
+            saveServices();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchService(idx) {
+            currentService = idx;
+            saveServices();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteService(e, idx) {
+            e.stopPropagation();
+            if (services.length <= 1) return;
+            services.splice(idx, 1);
+            if (currentService >= services.length) currentService = services.length - 1;
+            saveServices();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function() {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                document.body.removeChild(textarea);
+            }
+        }
+        function setNow(type) {
+            const now = new Date();
+            if (type === 'pds') {
+                services[currentService].pdsHour = now.getHours();
+                services[currentService].pdsMinute = now.getMinutes();
+            } else if (type === 'fds') {
+                services[currentService].fdsHour = now.getHours();
+                services[currentService].fdsMinute = now.getMinutes();
+            }
+            saveServices();
+            renderCards();
+            renderTemplate();
+        }
+        function addAction() {
+            services[currentService].actions.push({ label: "", count: 0 });
+            saveServices();
+            renderCards();
+            renderTemplate();
+        }
+        function updateActionLabel(idx, value) {
+            services[currentService].actions[idx].label = value;
+            saveServices();
+            renderTemplate();
+        }
+        function updateActionCount(idx, value) {
+            services[currentService].actions[idx].count = Math.max(0, parseInt(value) || 0);
+            saveServices();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteAction(idx) {
+            services[currentService].actions.splice(idx, 1);
+            saveServices();
+            renderCards();
+            renderTemplate();
+        }
+
+        loadServices();
+        renderTabs();
+        renderCards();
+        renderTemplate();
+
+        // Le chargement de version et la gestion des onglets spécialisés 
+    </script>
+</body>
+
+</html>

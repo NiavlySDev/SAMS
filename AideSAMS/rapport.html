@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="rapport-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-rapport-btn" onclick="addRapport()" style="margin-left:16px; white-space:nowrap;">➕
+            Ajouter un rapport</button>
+        <button class="btn" onclick="resetRapport()" style="margin-left:8px;background:#ef4444;color:#fff;">🗑️ Réinitialiser le rapport</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+        <!-- Supprime le bouton réinitialiser ici -->
+        <div class="action-buttons" style="margin-top:24px;">
+            <button class="btn" onclick="addRapport()">➕ Ajouter un rapport</button>
+            <!-- <button class="btn" onclick="resetRapport()" style="background:#ef4444;color:#fff;">🗑️ Réinitialiser le rapport</button> -->
+        </div>
+    </div>
+
+    <div class="footer-links">
+        <a href="https://trello.com/b/EOC2a8lf/dossiers-patients-a-k">📁 Dossiers A-E</a>
+        <a href="https://trello.com/b/TaRKWziJ/dossiers-patients-f-k">📁 Dossiers F-K</a>
+        <a href="https://trello.com/b/i6gRwfon/dossiers-patients-m-z">📁 Dossiers L-Z</a>
+    </div>
+
+    <script>
+        // --- Data Model ---
+        const defaultRapport = () => ({
+            samsName: "",
+            patientInfo: "",
+            birthDate: "",
+            profession: "",
+            antecedents: "",
+            injuriesSummary: "",
+            hospitalizationReason: "",
+            examDetails: "",
+            costs: {
+                irm: 0, irmCount: 0,
+                radio: 0, radioCount: 0,
+                accessories: 0, accessoriesCount: 0,
+                privateRoom: 0, privateRoomChecked: false,
+                other: 0,
+                injury: 0, injuryType: 0
+            },
+            detailActive: false,
+            collapsed: [false, false, false, false, false],
+        });
+
+        let rapports = [];
+        let currentRapport = 0;
+
+        function saveRapports() {
+            localStorage.setItem('sams_rapports', JSON.stringify({ rapports, currentRapport }));
+        }
+        function loadRapports() {
+            const data = localStorage.getItem('sams_rapports');
+            if (data) {
+                const obj = JSON.parse(data);
+                rapports = obj.rapports;
+                currentRapport = obj.currentRapport;
+            } else {
+                rapports = [defaultRapport()];
+                currentRapport = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('rapport-tabs');
+            tabs.innerHTML = "";
+            rapports.forEach((r, i) => {
+                let label = "Rapport n°" + (i + 1);
+                if (r.patientInfo.trim()) label = "Rapport [" + r.patientInfo.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentRapport ? ' active' : ''}" onclick="switchRapport(${i})">
+                    ${label}
+                    ${rapports.length > 1 ? '<button class="delete-rapport" onclick="deleteRapport(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const r = rapports[currentRapport];
+            const cards = [
+                {
+                    title: "👤 Informations SAMS",
+                    content: `
+                    <div class="form-group">
+                        <label>Votre Prénom et Nom</label>
+                        <input type="text" id="sams-name" value="${r.samsName}" oninput="updateField('samsName',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "🏥 Informations Patient",
+                    content: `
+                    <div class="form-group">
+                        <label>Prénom, Nom et ID</label>
+                        <input type="text" id="patient-info" value="${r.patientInfo}" oninput="updateField('patientInfo',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Date de naissance</label>
+                        <input type="text" id="birth-date" value="${r.birthDate}" oninput="updateField('birthDate',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Profession</label>
+                        <input type="text" id="profession" value="${r.profession}" oninput="updateField('profession',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "📋 Historique Médical",
+                    content: `
+                    <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+                        <label>Antécédents récents</label>
+                        <input type="text" id="antecedents" value="${r.antecedents}" oninput="updateField('antecedents',this.value)">
+                        <input type="text" id="trello-patient-id" placeholder="ID patient" style="width:100px;" value="${r.trelloPatientId || ''}" oninput="updateField('trelloPatientId',this.value)">
+                        <button class="btn" type="button" onclick="searchTrelloPatient()" title="Rechercher le patient dans Trello">🔎</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Blessures actuelles</label>
+                        <input type="text" id="injuries-summary" value="${r.injuriesSummary}" oninput="updateField('injuriesSummary',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Raison hospitalisation</label>
+                        <input type="text" id="hospitalization-reason" value="${r.hospitalizationReason}" oninput="updateField('hospitalizationReason',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "🔬 Examens Détaillés",
+                    content: `
+                    <div class="form-group">
+                        <label>Détails des examens et opérations</label>
+                        <textarea id="exam-details" oninput="updateField('examDetails',this.value)">${r.examDetails}</textarea>
+                    </div>
+                `
+                },
+                {
+                    title: "💰 Gestion des Coûts",
+                    content: `
+                    <div class="costs-section">
+                        <div class="cost-item">
+                            <span class="cost-item-label">🩹 Type de blessure</span>
+                            <div class="cost-controls">
+                                <select id="injury-type" onchange="updateCost('injuryType',this.value)" class="select-custom">
+                                    <option value="0"${r.costs.injuryType == 0 ? ' selected' : ''}>Aucune</option>
+                                    <option value="1000"${r.costs.injuryType == 1000 ? ' selected' : ''}>Blessure Légère (1,000$)</option>
+                                    <option value="2500"${r.costs.injuryType == 2500 ? ' selected' : ''}>Blessure Moyenne (2,500$)</option>
+                                    <option value="5000"${r.costs.injuryType == 5000 ? ' selected' : ''}>Blessure Grave (5,000$)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🔍 IRM (500$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('irmCount',${r.costs.irmCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.irmCount}</span>
+                                <button class="counter-btn" onclick="updateCost('irmCount',${r.costs.irmCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">📡 Radio (500$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('radioCount',${r.costs.radioCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.radioCount}</span>
+                                <button class="counter-btn" onclick="updateCost('radioCount',${r.costs.radioCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🦽 Accessoires (2,000$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('accessoriesCount',${r.costs.accessoriesCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.accessoriesCount}</span>
+                                <button class="counter-btn" onclick="updateCost('accessoriesCount',${r.costs.accessoriesCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🏨 Chambre privée (10,000$)</span>
+                            <div class="cost-controls">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="private-room" ${r.costs.privateRoomChecked ? 'checked' : ''} onchange="updateCost('privateRoomChecked',this.checked)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">➕ Coûts supplémentaires</span>
+                            <div class="cost-controls">
+                                <input type="number" class="cost-input" placeholder="0" id="other-costs" value="${r.costs.other}" oninput="updateCost('other',this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <button class="btn${r.detailActive ? ' primary' : ''}" onclick="toggleDetail()">${r.detailActive ? '🔍 Désactiver le détail' : '🔍 Activer le détail'}</button>
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const r = rapports[currentRapport];
+            const c = r.costs;
+            c.irm = Math.max(0, c.irmCount) * 500;
+            c.radio = Math.max(0, c.radioCount) * 500;
+            c.accessories = Math.max(0, c.accessoriesCount) * 2000;
+            c.injury = parseInt(c.injuryType) || 0;
+            c.privateRoom = c.privateRoomChecked ? 10000 : 0;
+            c.other = parseInt(c.other) || 0;
+            const total = c.irm + c.radio + c.accessories + c.privateRoom + c.other + c.injury;
+            let detailString = "";
+            if (r.detailActive) {
+                let details = [];
+                if (c.irmCount > 0) details.push(`${c.irmCount}x IRM : ${(c.irm).toLocaleString()} $`);
+                if (c.radioCount > 0) details.push(`${c.radioCount}x Radio : ${(c.radio).toLocaleString()} $`);
+                if (c.accessoriesCount > 0) details.push(`${c.accessoriesCount}x Accessoires : ${(c.accessories).toLocaleString()} $`);
+                if (c.injury > 0) {
+                    let txt = "";
+                    if (c.injuryType == 1000) txt = "Blessure Légère";
+                    if (c.injuryType == 2500) txt = "Blessure Moyenne";
+                    if (c.injuryType == 5000) txt = "Blessure Grave";
+                    if (txt) details.push(`${txt} : ${c.injury.toLocaleString()} $`);
+                }
+                if (c.privateRoomChecked) details.push(`Chambre privée : 10,000 $`);
+                if (c.other > 0) details.push(`Autres coûts : ${c.other.toLocaleString()} $`);
+                if (details.length > 0) detailString = ` (${details.join(', ')})`;
+            }
+            document.getElementById('template-content').innerHTML = `
+            - **Prénom Nom du SAMS :** ${r.samsName || ""}<br>
+            - **Prénom Nom ID du patient :** ${r.patientInfo || ""}<br>
+            - **Date de naissance :**${r.birthDate || ""}<br>
+            - **Profession :** ${r.profession || ""}<br>
+            - **Antécédents médicaux (les 2 derniers) :** ${r.antecedents || ""}<br>
+            - **Récapitulatif des blessures :** ${r.injuriesSummary || ""}<br>
+            - **Récapitulatif de la raison de l'hospitalisation :** ${r.hospitalizationReason || ""}<br>
+            - **Examens (DÉTAILLER LES OP) :** ${r.examDetails || ""}<br>
+            - **Coût total (en $) :** ${total.toLocaleString()}${detailString} $
+        `;
+        }
+
+        function updateField(field, value) {
+            rapports[currentRapport][field] = value;
+            saveRapports();
+            renderTemplate();
+            if (field === "patientInfo") renderTabs();
+        }
+        function updateCost(field, value) {
+            const c = rapports[currentRapport].costs;
+            if (field.endsWith('Count')) {
+                value = Math.max(0, parseInt(value) || 0);
+                c[field] = value;
+            } else if (field === "privateRoomChecked") {
+                c.privateRoomChecked = value;
+            } else if (field === "injuryType") {
+                c.injuryType = parseInt(value) || 0;
+            } else {
+                c[field] = parseInt(value) || 0;
+            }
+            saveRapports();
+            renderTemplate();
+            updateCard(4);
+        }
+        function toggleDetail() {
+            rapports[currentRapport].detailActive = !rapports[currentRapport].detailActive;
+            saveRapports();
+            renderTemplate();
+            updateCard(4);
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            rapports[currentRapport].collapsed[idx] = !rapports[currentRapport].collapsed[idx];
+            saveRapports();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            rapports[currentRapport].collapsed[idx] = true;
+            saveRapports();
+            renderCards();
+        }
+        function addRapport() {
+            rapports.push(defaultRapport());
+            currentRapport = rapports.length - 1;
+            saveRapports();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchRapport(idx) {
+            currentRapport = idx;
+            saveRapports();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteRapport(e, idx) {
+            e.stopPropagation();
+            if (rapports.length <= 1) return;
+            rapports.splice(idx, 1);
+            if (currentRapport >= rapports.length) currentRapport = rapports.length - 1;
+            saveRapports();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function () {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch (e) { }
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch (e) { }
+                document.body.removeChild(textarea);
+            }
+        }
+
+        loadRapports();
+        renderTabs();
+        renderCards();
+        fillSamsFields('sams-name');
+        renderTemplate();
+
+        function fillSamsFields(nameFieldId) {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName && document.getElementById(nameFieldId)) {
+                document.getElementById(nameFieldId).value = params.samsName;
+                rapports[currentRapport].samsName = params.samsName;
+                saveRapports();
+                renderTemplate();
+            }
+        }
+
+        function updateCard(idx) {
+            const r = rapports[currentRapport];
+            const cards = [
+                {
+                    title: "👤 Informations SAMS",
+                    content: `
+                    <div class="form-group">
+                        <label>Votre Prénom et Nom</label>
+                        <input type="text" id="sams-name" value="${r.samsName}" oninput="updateField('samsName',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "🏥 Informations Patient",
+                    content: `
+                    <div class="form-group">
+                        <label>Prénom, Nom et ID</label>
+                        <input type="text" id="patient-info" value="${r.patientInfo}" oninput="updateField('patientInfo',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Date de naissance</label>
+                        <input type="text" id="birth-date" value="${r.birthDate}" oninput="updateField('birthDate',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Profession</label>
+                        <input type="text" id="profession" value="${r.profession}" oninput="updateField('profession',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "📋 Historique Médical",
+                    content: `
+                    <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+                        <label>Antécédents récents</label>
+                        <input type="text" id="antecedents" value="${r.antecedents}" oninput="updateField('antecedents',this.value)">
+                        <input type="text" id="trello-patient-id" placeholder="ID patient" style="width:100px;" value="${r.trelloPatientId || ''}" oninput="updateField('trelloPatientId',this.value)">
+                        <button class="btn" type="button" onclick="searchTrelloPatient()" title="Rechercher le patient dans Trello">🔎</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Blessures actuelles</label>
+                        <input type="text" id="injuries-summary" value="${r.injuriesSummary}" oninput="updateField('injuriesSummary',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Raison hospitalisation</label>
+                        <input type="text" id="hospitalization-reason" value="${r.hospitalizationReason}" oninput="updateField('hospitalizationReason',this.value)">
+                    </div>
+                `
+                },
+                {
+                    title: "🔬 Examens Détaillés",
+                    content: `
+                    <div class="form-group">
+                        <label>Détails des examens et opérations</label>
+                        <textarea id="exam-details" oninput="updateField('examDetails',this.value)">${r.examDetails}</textarea>
+                    </div>
+                `
+                },
+                {
+                    title: "💰 Gestion des Coûts",
+                    content: `
+                    <div class="costs-section">
+                        <div class="cost-item">
+                            <span class="cost-item-label">🩹 Type de blessure</span>
+                            <div class="cost-controls">
+                                <select id="injury-type" onchange="updateCost('injuryType',this.value)" class="select-custom">
+                                    <option value="0"${r.costs.injuryType == 0 ? ' selected' : ''}>Aucune</option>
+                                    <option value="1000"${r.costs.injuryType == 1000 ? ' selected' : ''}>Blessure Légère (1,000$)</option>
+                                    <option value="2500"${r.costs.injuryType == 2500 ? ' selected' : ''}>Blessure Moyenne (2,500$)</option>
+                                    <option value="5000"${r.costs.injuryType == 5000 ? ' selected' : ''}>Blessure Grave (5,000$)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🔍 IRM (500$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('irmCount',${r.costs.irmCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.irmCount}</span>
+                                <button class="counter-btn" onclick="updateCost('irmCount',${r.costs.irmCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">📡 Radio (500$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('radioCount',${r.costs.radioCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.radioCount}</span>
+                                <button class="counter-btn" onclick="updateCost('radioCount',${r.costs.radioCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🦽 Accessoires (2,000$)</span>
+                            <div class="cost-controls">
+                                <button class="counter-btn" onclick="updateCost('accessoriesCount',${r.costs.accessoriesCount - 1})">−</button>
+                                <span class="counter-display">${r.costs.accessoriesCount}</span>
+                                <button class="counter-btn" onclick="updateCost('accessoriesCount',${r.costs.accessoriesCount + 1})">+</button>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">🏨 Chambre privée (10,000$)</span>
+                            <div class="cost-controls">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="private-room" ${r.costs.privateRoomChecked ? 'checked' : ''} onchange="updateCost('privateRoomChecked',this.checked)">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <span class="cost-item-label">➕ Coûts supplémentaires</span>
+                            <div class="cost-controls">
+                                <input type="number" class="cost-input" placeholder="0" id="other-costs" value="${r.costs.other}" oninput="updateCost('other',this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <button class="btn${r.detailActive ? ' primary' : ''}" onclick="toggleDetail()">${r.detailActive ? '🔍 Désactiver le détail' : '🔍 Activer le détail'}</button>
+                    </div>
+                `
+                }
+            ];
+            const card = document.getElementById(`card-${idx}`);
+            if (card) {
+                card.outerHTML = `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${cards[idx].title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${cards[idx].content}</div>
+            </div>
+            `;
+            }
+        }
+
+
+        // Ajoute cette fonction dans le <script> principal
+        function searchTrelloPatient() {
+            const r = rapports[currentRapport];
+            const patientInfo = r.patientInfo.trim();
+            const patientId = (r.trelloPatientId || "").trim();
+            if (!patientInfo && !patientId) {
+                alert("Veuillez renseigner le prénom/nom ou l'ID du patient.");
+                return;
+            }
+            // On suppose que le prénom est le premier mot
+            const firstName = patientInfo ? patientInfo.split(' ')[0] : "";
+            const firstLetter = firstName ? firstName[0].toUpperCase() : "";
+            let trelloUrl = "";
+            let filterValue = patientId || patientInfo;
+            if (firstLetter && "ABCDE".includes(firstLetter)) {
+                trelloUrl = `https://trello.com/b/EOC2a8lf/dossiers-patients-a-k?filter=${encodeURIComponent(filterValue)}`;
+            } else if (firstLetter && "FGHIJK".includes(firstLetter)) {
+                trelloUrl = `https://trello.com/b/TaRKWziJ/dossiers-patients-f-k?filter=${encodeURIComponent(filterValue)}`;
+            } else if (firstLetter && "LMNOPQRSTUVWXYZ".includes(firstLetter)) {
+                trelloUrl = `https://trello.com/b/i6gRwfon/dossiers-patients-m-z?filter=${encodeURIComponent(filterValue)}`;
+            } else if (patientId) {
+                // Si pas de prénom, on ouvre tous les Trello avec le filtre ID
+                window.open(`https://trello.com/b/EOC2a8lf/dossiers-patients-a-k?filter=${encodeURIComponent(patientId)}`, "_blank");
+                window.open(`https://trello.com/b/TaRKWziJ/dossiers-patients-f-k?filter=${encodeURIComponent(patientId)}`, "_blank");
+                window.open(`https://trello.com/b/i6gRwfon/dossiers-patients-m-z?filter=${encodeURIComponent(patientId)}`, "_blank");
+                return;
+            } else {
+                alert("Première lettre du prénom non reconnue.");
+                return;
+            }
+            window.open(trelloUrl, "_blank");
+        }
+
+        function resetRapport() {
+            rapports[currentRapport] = defaultRapport();
+            saveRapports();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

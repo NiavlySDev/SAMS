@@ -1,0 +1,57 @@
+[
+  {
+    "id": "accueil_0",
+    "name": "Accueil au 0",
+    "content": "Accueil au 0 ->"
+  },
+  {
+    "id": "accueil_-1",
+    "name": "Accueil au -1",
+    "content": "Accueil au -1 d'un 10-18 ->"
+  },
+  {
+    "id": "accueil_3",
+    "name": "Accueil au 3",
+    "content": "Accueil au 3 d'un 10-28 ->"
+  },
+  {
+    "id": "suite_accueil",
+    "name": "Suite Accueil",
+    "content": "Accompagnement en salle de soin -> Prise d'informations sur la douleur ->"
+  },
+  {
+    "id": "fracture_jambe_d",
+    "name": "Fracture Jambe Droite",
+    "content": "Accompagnement en salle d'opération -> Branchement des constantes -> Anesthésie générale -> Désinfection jambe Droite -> Placement d'un champ stérile jambe Droite -> Incision jambe Droite -> Retrait des morceaux d'os cassés -> Épongeage du sang -> Placement de l'écarteur -> Placement d'une broche -> Placement des vis -> Retrait de l'écarteur -> Suture -> Désinfection -> Bandage -> "
+  },
+  {
+    "id": "fracture_jambe_g",
+    "name": "Fracture Jambe Gauche",
+    "content": "Accompagnement en salle d'opération -> Branchement des constantes -> Anesthésie générale -> Désinfection jambe Gauche -> Placement d'un champ stérile jambe Gauche -> Incision jambe Gauche -> Retrait des morceaux d'os cassés -> Épongeage du sang -> Placement de l'écarteur -> Placement d'une broche -> Placement des vis -> Retrait de l'écarteur -> Suture -> Désinfection -> Bandage -> "
+  },
+  {
+    "id": "fracture_cote_d",
+    "name": "Fracture Côte Droite",
+    "content": "Accompagnement en salle d'opération -> Branchement des constantes -> Anesthésie générale -> Désinfection côte Droite -> Placement d'un champ stérile côté Droite -> Incision côté Droite -> Retrait des morceaux de côte cassés -> Épongeage du sang -> Placement de l'écarteur -> Placement d'une plaque -> Placement des vis -> Retrait de l'écarteur -> Suture -> Désinfection -> Bandage -> "
+  },
+  {
+    "id": "fracture_cote_g",
+    "name": "Fracture Côte Gauche",
+    "content": "Accompagnement en salle d'opération -> Branchement des constantes -> Anesthésie générale -> Désinfection côte Gauche -> Placement d'un champ stérile côté Gauche -> Incision côté Gauche -> Retrait des morceaux de côte cassés -> Épongeage du sang -> Placement de l'écarteur -> Placement d'une plaque -> Placement des vis -> Retrait de l'écarteur -> Suture -> Désinfection -> Bandage -> "
+  },
+  {
+    "id": "radio",
+    "name": "Radio",
+    "content": "Accompagnement en salle de Radio -> Radio -> Analyse des images -> "
+  },
+  {
+    "id": "fin_operation",
+    "name": "Fin d'Opération",
+    "content": "Raccompagnement en salle de réveil -> Rebranchement des constantes -> Reveil du patient -> Vérification de la mémoire -> Vérificaiton des réflexes ->"
+  },
+  {
+    "id": "fin",
+    "name": "Fin",
+    "content": "Prescription de médicaments -> Repos -> Recueil d'informations -> Raccompagnement au 0."
+  }
+]

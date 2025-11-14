@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manuels - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+    <style>
+        .manuals-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .manual-card {
+            background: #181818;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0004;
+            padding: 28px 24px 20px 24px;
+            min-width: 260px;
+            max-width: 340px;
+            flex: 1 1 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: box-shadow 0.2s;
+        }
+
+        .manual-card:hover {
+            box-shadow: 0 4px 16px #22c55e55;
+        }
+
+        .manual-title {
+            font-size: 1.2em;
+            color: #22c55e;
+            margin-bottom: 10px;
+        }
+
+        .manual-desc {
+            color: #ccc;
+            margin-bottom: 18px;
+            font-size: 1em;
+        }
+
+        .manual-link {
+            background: #22c55e;
+            color: #181818;
+            padding: 8px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .manual-link:hover {
+            background: #16a34a;
+        }
+
+        @media (max-width: 800px) {
+            .manuals-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .manual-card {
+                width: 95%;
+                min-width: unset;
+                max-width: 98vw;
+            }
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .category-group-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(340px, 1fr));
+            gap: 32px;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 32px;
+            max-width: 1900px;
+        }
+
+        @media (max-width: 1200px) {
+            .category-group-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        .category-group {
+            background: #111;
+            border-radius: 18px;
+            padding: 24px 18px 10px 18px;
+            box-shadow: 0 2px 16px #0003;
+            max-width: 900px;
+            width: 100%;
+            min-width: 340px;
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+    <div class="main-container">
+        <h2 style="text-align:center;margin-top:32px;">Manuels utiles pour les SAMS</h2>
+        <div id="manuals-filters"
+            style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;"></div>
+        <div class="manuals-container" id="manuals-list">
+        </div>
+    </div>
+    <script>
+        let manuals = [];
+
+        function getCategories() {
+            const cats = {};
+            manuals.forEach(m => {
+                const cat = m.categorie || "Autre";
+                if (!cats[cat]) cats[cat] = m.catColor || "#22c55e";
+            });
+            return cats;
+        }
+
+        function importanceColor(note) {
+            const clamp = n => Math.max(1, Math.min(10, n));
+            note = clamp(note);
+            const r = Math.round(34 + (239 - 34) * (note - 1) / 9);
+            const g = Math.round(197 + (68 - 197) * (note - 1) / 9);
+            const b = Math.round(94 + (68 - 94) * (note - 1) / 9);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        function renderCategoryFilters(selected) {
+            const categories = getCategories();
+            const container = document.getElementById('manuals-filters');
+            container.innerHTML = `
+        <button class="btn" data-cat="all" ${selected === "all" ? 'style="background:#22c55e;color:#181818;"' : ''}>Toutes</button>
+        ${Object.entries(categories).map(([cat, color]) => `
+            <button class="btn" data-cat="${cat}" ${selected === cat ? `style="background:${color};color:#181818;"` : ''}>
+                <span style="display:inline-block;width:14px;height:14px;background:${color};border-radius:3px;margin-right:6px;vertical-align:middle;"></span>
+                ${cat}
+            </button>
+        `).join('')}
+    `;
+            Array.from(container.querySelectorAll('button')).forEach(btn => {
+                btn.onclick = () => {
+                    renderCategoryFilters(btn.dataset.cat);
+                    renderManuals(btn.dataset.cat);
+                };
+            });
+        }
+
+        function renderManuals(filterCat = "all") {
+            const container = document.getElementById('manuals-list');
+            const categories = getCategories();
+
+            let filteredManuals = manuals
+                .slice()
+                .sort((a, b) => b.importance - a.importance)
+                .filter(m => filterCat === "all" || (m.categorie || "Autre") === filterCat);
+
+            let grouped = {};
+            filteredManuals.forEach(m => {
+                const cat = m.categorie || "Autre";
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(m);
+            });
+
+            const groupHtml = Object.entries(grouped).map(([cat, cards]) => {
+                const color = cards[0].catColor || categories[cat] || "#22c55e";
+                return `
+        <div class="category-group">
+            <div style="display:flex;align-items:center;margin-bottom:18px;">
+                <span style="background:${color};color:#181818;padding:6px 18px;border-radius:8px;font-size:1.1em;font-weight:bold;box-shadow:0 2px 8px #0002;">
+                    ${cat}
+                </span>
+                <span style="margin-left:12px;color:#aaa;font-size:0.95em;">(${cards.length} manuel${cards.length > 1 ? 's' : ''})</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
+                ${cards.map(m => `
+                    <div class="manual-card" style="position:relative;box-shadow:0 2px 8px #0004;min-width:240px;max-width:320px;flex:1 1 240px;">
+                        <div class="manual-importance" 
+                            style="
+                                position:absolute;top:12px;right:12px;
+                                background:${importanceColor(m.importance)};
+                                color:#181818;
+                                font-weight:bold;
+                                border-radius:50%;
+                                width:38px;height:38px;
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:1.1em;
+                                box-shadow:0 2px 8px #0006;
+                                cursor:help;
+                            "
+                            title="Importance ${m.importance} / 10"
+                        >${m.importance}</div>
+                        <div class="manual-title">${m.title}</div>
+                        <div class="manual-desc">${m.desc}</div>
+                        <a class="manual-link" href="${m.link}" target="_blank">Ouvrir le manuel</a>
+                        ${m.auteur ? `<div style="position:absolute;bottom:10px;right:16px;font-size:0.95em;color:#aaa;font-style:italic;">${m.auteur}</div>` : ""}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        `;
+            }).join('');
+            container.innerHTML = `<div class="category-group-container">${groupHtml}</div>`;
+        }
+
+        fetch('json/manuels.json')
+            .then(res => res.json())
+            .then(data => {
+                manuals = data;
+                renderCategoryFilters("all");
+                renderManuals("all");
+            })
+            .catch(() => {
+                document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">Impossible de charger les manuels.</div>';
+            });
+
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+        
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

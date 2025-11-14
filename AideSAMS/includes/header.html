@@ -1,0 +1,20 @@
+<!-- Header commun pour toutes les pages -->
+<div class="header" style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:18px;margin-bottom:18px;">
+    <h1 style="margin:0;text-align:center;">Aide SAMS</h1>
+    <div style="display:flex;align-items:center;gap:12px;margin-left:18px;">
+        <span id="version-display" style="background:#22c55e;color:#181818;padding:6px 16px;border-radius:8px;font-weight:bold;font-size:1.05em;">
+            v...
+        </span>
+        <button class="btn" onclick="location.href='informations.html'" style="background:#181818;color:#22c55e;border:1px solid #22c55e;">
+            ℹ️ Informations
+        </button>
+        <!-- Indicateur de session admin (visible seulement sur admin.html) -->
+        <div id="session-indicator" style="background:#404044;color:#e5e5e5;padding:6px 12px;border-radius:8px;font-size:0.9em;display:none;">
+            ⏰ <span id="session-time">5:00</span>
+        </div>
+        <!-- Bouton déconnexion admin (visible seulement sur admin.html) -->
+        <button id="logout-btn" class="btn" onclick="logout()" style="background:#ef4444;color:white;border:1px solid #ef4444;display:none;">
+            🚪 Déconnexion
+        </button>
+    </div>
+</div>

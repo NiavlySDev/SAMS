@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refus de soins - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="refus-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-refus-btn" onclick="addRefus()" style="margin-left:16px; white-space:nowrap;">➕
+            Ajouter un refus</button>
+        <button class="btn" onclick="resetRefus()" style="margin-left:8px;background:#ef4444;color:#fff;">🗑️ Réinitialiser le refus</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+    </div>
+
+    <div class="footer-links">
+        <a href="https://trello.com/b/EOC2a8lf/dossiers-patients-a-k">📁 Dossiers A-E</a>
+        <a href="https://trello.com/b/TaRKWziJ/dossiers-patients-f-k">📁 Dossiers F-K</a>
+        <a href="https://trello.com/b/i6gRwfon/dossiers-patients-m-z">📁 Dossiers L-Z</a>
+    </div>
+
+    <script>
+        const defaultRefus = () => ({
+            samsName: "",
+            patientInfo: "",
+            day: "",
+            month: "",
+            year: "",
+            hour: "",
+            minute: "",
+            injuriesSummary: "",
+            refusalReason: "",
+            collapsed: [false, false, false],
+        });
+
+        let refus = [];
+        let currentRefus = 0;
+
+        function saveRefus() {
+            localStorage.setItem('sams_refus', JSON.stringify({ refus, currentRefus }));
+        }
+        function loadRefus() {
+            const data = localStorage.getItem('sams_refus');
+            if (data) {
+                const obj = JSON.parse(data);
+                refus = obj.refus;
+                currentRefus = obj.currentRefus;
+            } else {
+                refus = [defaultRefus()];
+                currentRefus = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('refus-tabs');
+            tabs.innerHTML = "";
+            refus.forEach((r, i) => {
+                let label = "Refus n°" + (i + 1);
+                if (r.patientInfo.trim()) label = "Refus [" + r.patientInfo.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentRefus ? ' active' : ''}" onclick="switchRefus(${i})">
+                    ${label}
+                    ${refus.length > 1 ? '<button class="delete-rapport" onclick="deleteRefus(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const r = refus[currentRefus];
+            const cards = [
+                {
+                    title: "👤 Informations SAMS",
+                    content: `
+    <div class="form-group">
+        <label>Votre Prénom et Nom</label>
+        <input type="text" id="samsName" value="${r.samsName}" oninput="updateField('samsName',this.value)">
+    </div>
+                `
+                },
+                {
+                    title: "🏥 Informations Patient",
+                    content: `
+                    <div class="form-group">
+                        <label>Prénom, Nom et ID</label>
+                        <input type="text" value="${r.patientInfo}" oninput="updateField('patientInfo',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Date et Heure de la prise en charge</label>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <input type="number" min="1" max="31" placeholder="JJ" style="width:60px" value="${r.day || ''}" oninput="updateField('day',this.value)">
+                            <input type="number" min="1" max="12" placeholder="MM" style="width:65px" value="${r.month || ''}" oninput="updateField('month',this.value)">
+                            <input type="number" min="1900" max="2100" placeholder="AAAA" style="width:90px" value="${r.year || ''}" oninput="updateField('year',this.value)">
+                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${r.hour || ''}" oninput="updateField('hour',this.value)">
+                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${r.minute || ''}" oninput="updateField('minute',this.value)">
+                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow()">Maintenant</button>
+                        </div>
+                    </div>
+                `
+                },
+                {
+                    title: "📋 Refus de soins",
+                    content: `
+                    <div class="form-group">
+                        <label>Récapitulatif des blessures</label>
+                        <input type="text" value="${r.injuriesSummary}" oninput="updateField('injuriesSummary',this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>Raison du refus</label>
+                        <input type="text" value="${r.refusalReason}" oninput="updateField('refusalReason',this.value)">
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const r = refus[currentRefus];
+            const dateStr = (r.day && r.month && r.year) ? `${String(r.day).padStart(2, '0')}/${String(r.month).padStart(2, '0')}/${r.year}` : "";
+            const timeStr = (r.hour !== "" && r.minute !== "") ? `${String(r.hour).padStart(2, '0')}h${String(r.minute).padStart(2, '0')}` : "";
+            document.getElementById('template-content').innerHTML = `
+- **Prénom Nom du SAMS :** ${r.samsName || ""}<br>
+- **Prénom Nom ID du patient :** ${r.patientInfo || ""}<br>
+- **Date et Heure de la prise en charge :** ${dateStr}${(dateStr && timeStr ? " " : "")}${timeStr}<br>
+- **Récapitulatif des blessures :** ${r.injuriesSummary || ""}<br>
+- **Raison du refus :** ${r.refusalReason || ""}
+        `;
+        }
+
+        function updateField(field, value) {
+            refus[currentRefus][field] = value;
+            saveRefus();
+            renderTemplate();
+            if (field === "patientInfo") renderTabs();
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            refus[currentRefus].collapsed[idx] = !refus[currentRefus].collapsed[idx];
+            saveRefus();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            refus[currentRefus].collapsed[idx] = true;
+            saveRefus();
+            renderCards();
+        }
+        function addRefus() {
+            refus.push(defaultRefus());
+            currentRefus = refus.length - 1;
+            saveRefus();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchRefus(idx) {
+            currentRefus = idx;
+            saveRefus();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteRefus(e, idx) {
+            e.stopPropagation();
+            if (refus.length <= 1) return;
+            refus.splice(idx, 1);
+            if (currentRefus >= refus.length) currentRefus = refus.length - 1;
+            saveRefus();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function() {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                document.body.removeChild(textarea);
+            }
+        }
+        function setNow() {
+            const now = new Date();
+            refus[currentRefus].day = now.getDate();
+            refus[currentRefus].month = now.getMonth() + 1;
+            refus[currentRefus].year = now.getFullYear();
+            refus[currentRefus].hour = now.getHours();
+            refus[currentRefus].minute = now.getMinutes();
+            saveRefus();
+            renderCards();
+            renderTemplate();
+        }
+        function resetRefus() {
+            refus[currentRefus] = defaultRefus();
+            saveRefus();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+
+        loadRefus();
+        renderTabs();
+        renderCards();
+        fillSamsFields('samsName');
+        renderTemplate();
+
+        function fillSamsFields(nameFieldId) {
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            if (params.samsName && document.getElementById(nameFieldId)) {
+                document.getElementById(nameFieldId).value = params.samsName;
+                refus[currentRefus].samsName = params.samsName;
+                saveRefus();
+                renderTemplate();
+            }
+        }
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+        
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

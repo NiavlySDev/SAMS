@@ -1,0 +1,43 @@
+[
+    {
+        "grade": "Directeur",
+        "membres" : [
+            "Jean Dupont | 53931"
+        ]
+    },
+    {
+        "grade": "Directeur Adjoint",
+        "membres" : []
+    },
+    {
+        "grade": "Superviseur",
+        "membres" : [
+            "Vera Tyr | 56912"
+        ]
+    },
+    {
+        "grade": "CDS Médecin",
+        "membres" : [
+            "Silvia Dupont | 51337"
+        ]
+    },
+    {
+        "grade": "CDS Paramedic",
+        "membres" : [
+            "John Gordon | 54690"
+        ]
+    },
+    {
+        "grade": "CDS Infirmier",
+        "membres" : [
+            "Hayk Lutter | 52232"
+        ]
+    },
+    {
+        "grade": "Secrétaire",
+        "membres" : [
+            "Xavier Gordon | 54689",
+            "Arthur Lenz | 45346"
+        ]
+    }
+]

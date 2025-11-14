@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction Examen SAMS</title>
+    <link rel="stylesheet" href="prof.css">
+</head>
+
+<body>
+    <div class="header">
+        <h1>Correction Examen SAMS</h1>
+        <span>v...</span>
+        <button class="btn" onclick="location.href='informations.html'">
+            ℹ️ Informations
+        </button>
+    </div>
+    <div class="main-container">
+        <form id="studentInfo" style="margin-bottom: 20px;">
+            <label>Nom : <input type="text" id="nom" required></label><br>
+            <label>Prénom : <input type="text" id="prenom" required></label><br>
+            <label>ID Discord : <input type="text" id="discordId" required></label>
+        </form>
+
+        <section id="theorique">
+            <h2>Examen Théorique (sur 10)</h2>
+            <div class="category">
+                <div class="category-title">Piliers de la LSMS (/2)</div>
+                <div class="question-block">
+                    <label><input type="checkbox" data-points="0.25" class="theorique" data-part="piliers" /> Un manque
+                        de respect envers ses supérieurs sera sanctionné d’un licenciement.</label>
+                    <label><input type="checkbox" data-points="0.3" class="theorique" data-part="piliers" /> Un
+                        non-respect du code de la route sera sanctionné selon la gravité de la faute commise.</label>
+                    <label><input type="checkbox" data-points="0.3" class="theorique" data-part="piliers" /> Une
+                        utilisation des gyrophares ou des sirènes de votre véhicule de fonction sans raison valable sera
+                        sanctionnée.</label>
+                    <label><input type="checkbox" data-points="0.25" class="theorique" data-part="piliers" /> Un refus
+                        d’appliquer les ordres d’un supérieur hiérarchique sera sanctionné, si récidive.</label>
+                    <label><input type="checkbox" data-points="0.3" class="theorique" data-part="piliers" /> Un membre
+                        des SAMS doit montrer l’exemple, un comportement exemplaire est attendu de la part de chacun
+                        d’entre vous.</label>
+                    <label><input type="checkbox" data-points="0.3" class="theorique" data-part="piliers" /> Les
+                        uniformes doivent rester dans le domaine protocolaire de la S.A.M.S., tout irrespect de
+                        l'uniforme sera sanctionné.</label>
+                    <label><input type="checkbox" data-points="0.3" class="theorique" data-part="piliers" /> Un membre
+                        des SAMS a interdiction de forcer les gens à avoir des soins médicaux. Il a juste obligation de
+                        réanimer la personne puis de lui faire payer 5000$.</label>
+                    <label><input type="checkbox" data-points="0.00" class="theorique" data-part="piliers" />
+                        Bonus/Malus
+                        <div class="adjust-control">
+                            <button type="button" class="adjust-btn" data-adjust="-0.01">−</button>
+                            <span class="adjust-value">0</span>
+                            <button type="button" class="adjust-btn" data-adjust="0.01">+</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">Hiérarchie (/3) - 0.25</div>
+                <div class="question-block">
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Directeur Général</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Directeur Adjoint</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Superviseur</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" /> CDS
+                        Medecin</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" /> CDS
+                        Paramedic</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" /> CDS
+                        Infirmier</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Secrétaire</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" /> Médecin
+                        Urgentiste</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Médecin</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Paramedic chef</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Paramedic</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        Infirmier Clinique</label>
+                    <label><input type="checkbox" data-points="0.22" class="theorique" data-part="hierarchie" />
+                        EMT</label>
+                    <label><input type="checkbox" data-points="0.14" class="theorique" data-part="hierarchie" />
+                        Eleve</label>
+                    <label><input type="checkbox" data-points="0.00" class="theorique" data-part="hierarchie" />
+                        Bonus/Malus
+                        <div class="adjust-control">
+                            <button type="button" class="adjust-btn" data-adjust="-0.01">−</button>
+                            <span class="adjust-value">0</span>
+                            <button type="button" class="adjust-btn" data-adjust="0.01">+</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">Protocoles de la LSMS (/1)</div>
+                <div class="question-block">
+                    <label><input type="checkbox" data-points="0.16" class="theorique" data-part="protocoles" /> Afin
+                        d’assurer une bonne entente entre tous, il est primordial de respecter la hiérarchie.</label>
+                    <label><input type="checkbox" data-points="0.16" class="theorique" data-part="protocoles" />
+                        Exprimer ses pensées, son avis ou son ressenti n’est pas interdit, mais fortement
+                        déconseillé.</label>
+                    <label><input type="checkbox" data-points="0.17" class="theorique" data-part="protocoles" /> Le pôle
+                        Infirmier n’ont pas le droit de patrouiller, il faut un Paramedic ou un Médecin qui les
+                        accompagne.</label>
+                    <label><input type="checkbox" data-points="0.17" class="theorique" data-part="protocoles" /> Les
+                        médecins et Paramedic ont le droit de patrouiller seul, uniquement si aucune autre unité n’est
+                        disponible. </label>
+                    <label><input type="checkbox" data-points="0.17" class="theorique" data-part="protocoles" /> Dans
+                        les zones sensibles (quartiers défavorisés …), évitez les altercations inutiles avec les
+                        individus. </label>
+                    <label><input type="checkbox" data-points="0.17" class="theorique" data-part="protocoles" /> Suivez
+                        les procédures et n'agissez pas comme un super-héros, vous pourriez mettre votre vie et celle
+                        des autres en péril.</label>
+                    <label><input type="checkbox" data-points="0.00" class="theorique" data-part="protocoles" />
+                        Bonus/Malus
+                        <div class="adjust-control">
+                            <button type="button" class="adjust-btn" data-adjust="-0.01">−</button>
+                            <span class="adjust-value">0</span>
+                            <button type="button" class="adjust-btn" data-adjust="0.01">+</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">Spécialités de la SAMS (/1)</div>
+                <div class="question-block">
+                    <label><input type="checkbox" data-points="0.2" class="theorique" data-part="specialites" /> Pilote
+                        Héliporté</label>
+                    <label><input type="checkbox" data-points="0.2" class="theorique" data-part="specialites" />
+                        Psychologue</label>
+                    <label><input type="checkbox" data-points="0.2" class="theorique" data-part="specialites" /> Médecin
+                        Légiste (Coroner)</label>
+                    <label><input type="checkbox" data-points="0.2" class="theorique" data-part="specialites" />
+                        Assistant Direction</label>
+                    <label><input type="checkbox" data-points="0.2" class="theorique" data-part="specialites" />
+                        Professeur</label>
+                    <label><input type="checkbox" data-points="0.00" class="theorique" data-part="specialites" />
+                        Bonus/Malus
+                        <div class="adjust-control">
+                            <button type="button" class="adjust-btn" data-adjust="-0.01">−</button>
+                            <span class="adjust-value">0</span>
+                            <button type="button" class="adjust-btn" data-adjust="0.01">+</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">Codes Radio (/3)</div>
+                <div class="question-block" id="codes-radio-block"></div>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-codes-radio" placeholder="Ajouter un code radio..." style="width:60%;">
+                    <button type="button" class="adjust-btn" onclick="addCustomQuestion('codesRadio')">Ajouter</button>
+                </div>
+            </div>
+        </section>
+        <section id="pratique">
+            <h2>Examen Pratique (sur 10)</h2>
+
+            <div class="category">
+                <div class="category-title">Type de blessure (/2)</div>
+                <div class="question-block" id="type-blessure-block"></div>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-type-blessure" placeholder="Ajouter un type de blessure..."
+                        style="width:60%;">
+                    <button type="button" class="adjust-btn"
+                        onclick="addCustomQuestion('typeBlessure')">Ajouter</button>
+                </div>
+            </div>
+            <div class="category">
+                <div class="category-title">Savoir faire un rapport (/3)</div>
+                <div class="question-block" id="rapport-block"></div>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-rapport" placeholder="Ajouter un critère de rapport..."
+                        style="width:60%;">
+                    <button type="button" class="adjust-btn" onclick="addCustomQuestion('rapport')">Ajouter</button>
+                </div>
+            </div>
+            <div class="category">
+                <div class="category-title">Mise en Situation (/3)</div>
+                <div class="question-block" id="mes-block"></div>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-mes" placeholder="Ajouter un critère de mise en situation..."
+                        style="width:60%;">
+                    <button type="button" class="adjust-btn" onclick="addCustomQuestion('mes')">Ajouter</button>
+                </div>
+            </div>
+            <div class="category">
+                <div class="category-title">Connaissance de l’Hôpital (/2)</div>
+                <div class="question-block" id="connaissance-block"></div>
+                <div style="margin-top:8px;">
+                    <input type="text" id="new-connaissance" placeholder="Ajouter une connaissance..."
+                        style="width:60%;">
+                    <button type="button" class="adjust-btn"
+                        onclick="addCustomQuestion('connaissance')">Ajouter</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ajoute ce bouton à la fin du formulaire ou de la page -->
+        <button id="genererDiscordTexte" class="adjust-btn" style="margin-top:18px;">Générer message Discord</button>
+        <button id="copierDiscordTexte" class="btn" style="margin-left:12px;display:none;">📋 Copier</button>
+        <button id="resetFormBtn" class="btn danger" style="margin-left:12px;">🗑️ Réinitialiser</button>
+        <pre id="discordTexte" class="generated-text"></pre>
+        <div id="scoreDisplay" style="margin-top: 20px; font-size: 1.2em; font-weight: bold= true;">
+            Score total : <span id="totalScore">0</span> / 10
+        </div>
+    </div>
+    <script type="text/javascript" src="prof.js"></script>
+
+</body>
+
+</html>

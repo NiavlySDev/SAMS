@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggestions/Bugs - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div style="flex:1; display:flex; gap:4px;">
+            <button class="sub-nav-btn active" id="tab-suggestion" onclick="switchType('suggestion')">💡 Suggestions</button>
+            <button class="sub-nav-btn" id="tab-bug" onclick="switchType('bug')">🐛 Bugs</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn" onclick="clearCurrentForm()" style="background:#f59e0b;color:#fff;">🧹 Vider le formulaire</button>
+            <button class="btn" onclick="submitCurrentReport()" style="background:#22c55e;color:#fff;">📤 Soumettre</button>
+        </div>
+    </div>
+
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%); border-color: rgba(34, 197, 94, 0.3); margin-bottom: 24px;">
+            <h3 style="color: #22c55e; margin-bottom: 16px;">📋 Instructions</h3>
+            <div id="instructions-content">
+                <p style="margin-bottom: 12px;">Utilisez cette page pour soumettre vos suggestions d'amélioration ou signaler des bugs.</p>
+                <p style="margin-bottom: 12px;">• <strong>Suggestions :</strong> Proposez de nouvelles fonctionnalités ou améliorations</p>
+                <p style="margin: 0;">• <strong>Bugs :</strong> Signalez les problèmes techniques ou erreurs rencontrés</p>
+            </div>
+        </div>
+
+        <div id="form-container"></div>
+
+        <div class="card" style="background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%); border-color: rgba(74, 158, 255, 0.3);">
+            <h3 style="color: #4a9eff; margin-bottom: 16px;">📞 Contact & Info</h3>
+            <p style="margin-bottom: 12px;">✅ <strong>Envoi automatique :</strong> Vos suggestions et bugs sont automatiquement envoyés sur Discord</p>
+            <p style="margin-bottom: 12px;">Pour un contact direct, vous pouvez me joindre sur Discord :</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <strong style="color: #4a9eff;">niavlysdev</strong>
+                <button class="btn" onclick="copyDiscord()" style="background: rgba(74, 158, 255, 0.2); color: #4a9eff; border-color: #4a9eff;">
+                    📋 Copier
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'suggestion';
+        
+        const defaultSuggestion = () => ({
+            type: 'suggestion',
+            prenomNom: '',
+            userId: '',
+            discordUsername: '',
+            title: '',
+            description: '',
+            priority: 'normal',
+            category: '',
+            timestamp: new Date().toISOString()
+        });
+
+        const defaultBug = () => ({
+            type: 'bug',
+            prenomNom: '',
+            userId: '',
+            discordUsername: '',
+            title: '',
+            description: '',
+            steps: '',
+            severity: 'normal',
+            browser: '',
+            timestamp: new Date().toISOString()
+        });
+
+        function switchType(type) {
+            currentType = type;
+            
+            // Mettre à jour l'interface
+            document.querySelectorAll('.sub-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+            
+            // Mettre à jour les instructions
+            updateInstructions(type);
+            
+            // Afficher le bon formulaire
+            if (type === 'suggestion') {
+                showSuggestionForm();
+            } else {
+                showBugForm();
+            }
+        }
+
+        function updateInstructions(type) {
+            const instructionsContainer = document.getElementById('instructions-content');
+            if (type === 'suggestion') {
+                instructionsContainer.innerHTML = `
+                    <p style="margin-bottom: 12px;">💡 <strong>Soumettre une suggestion</strong></p>
+                    <p style="margin-bottom: 8px;">• Décrivez clairement votre idée d'amélioration</p>
+                    <p style="margin-bottom: 8px;">• Expliquez pourquoi cette fonctionnalité serait utile</p>
+                    <p style="margin-bottom: 8px;">• Votre suggestion sera automatiquement envoyée sur Discord</p>
+                    <p style="margin: 0;">• Proposez éventuellement comment l'implémenter</p>
+                `;
+            } else {
+                instructionsContainer.innerHTML = `
+                    <p style="margin-bottom: 12px;">🐛 <strong>Signaler un bug</strong></p>
+                    <p style="margin-bottom: 8px;">• Décrivez le problème rencontré de manière précise</p>
+                    <p style="margin-bottom: 8px;">• Indiquez les étapes pour reproduire le bug</p>
+                    <p style="margin-bottom: 8px;">• Votre rapport sera automatiquement envoyé sur Discord</p>
+                    <p style="margin: 0;">• Précisez votre navigateur et les circonstances</p>
+                `;
+            }
+        }
+
+        function showSuggestionForm() {
+            const container = document.getElementById('form-container');
+            container.innerHTML = `
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>👤 Vos informations</h3>
+                        <div class="form-group">
+                            <label for="suggestion-prenomNom">Prénom et Nom (RP) :</label>
+                            <input type="text" id="suggestion-prenomNom" placeholder="Ex: John Doe" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="suggestion-userId">Votre ID :</label>
+                            <input type="text" id="suggestion-userId" placeholder="Ex: 12345" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="suggestion-discordUsername">Nom d'utilisateur Discord :</label>
+                            <input type="text" id="suggestion-discordUsername" placeholder="Ex: johndoe123" value="">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>💡 Votre suggestion</h3>
+                        <div class="form-group">
+                            <label for="suggestion-title">Titre de la suggestion :</label>
+                            <input type="text" id="suggestion-title" placeholder="Ex: Ajouter un mode sombre" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="suggestion-category">Catégorie :</label>
+                            <select id="suggestion-category">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="interface">Interface utilisateur</option>
+                                <option value="fonctionnalite">Nouvelle fonctionnalité</option>
+                                <option value="performance">Performance</option>
+                                <option value="rapport">Rapports</option>
+                                <option value="navigation">Navigation</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="suggestion-priority">Priorité :</label>
+                            <select id="suggestion-priority">
+                                <option value="low">Faible</option>
+                                <option value="normal" selected>Normale</option>
+                                <option value="high">Élevée</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex-basis: 100%;">
+                        <h3>📝 Description détaillée</h3>
+                        <div class="form-group">
+                            <label for="suggestion-description">Décrivez votre suggestion en détail :</label>
+                            <textarea id="suggestion-description" rows="6" placeholder="Expliquez votre idée, pourquoi elle serait utile, et comment vous l'imaginez..." style="width: 100%; min-height: 120px; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadSavedData('suggestion');
+            prefillUserData('suggestion');
+        }
+
+        function showBugForm() {
+            const container = document.getElementById('form-container');
+            container.innerHTML = `
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>👤 Vos informations</h3>
+                        <div class="form-group">
+                            <label for="bug-prenomNom">Prénom et Nom (RP) :</label>
+                            <input type="text" id="bug-prenomNom" placeholder="Ex: John Doe" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="bug-userId">Votre ID :</label>
+                            <input type="text" id="bug-userId" placeholder="Ex: 12345" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="bug-discordUsername">Nom d'utilisateur Discord :</label>
+                            <input type="text" id="bug-discordUsername" placeholder="Ex: johndoe123" value="">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🐛 Le bug</h3>
+                        <div class="form-group">
+                            <label for="bug-title">Titre du problème :</label>
+                            <input type="text" id="bug-title" placeholder="Ex: Erreur lors de la sauvegarde" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="bug-severity">Gravité :</label>
+                            <select id="bug-severity">
+                                <option value="low">Faible (cosmétique)</option>
+                                <option value="normal" selected>Normale</option>
+                                <option value="high">Élevée (bloque une fonctionnalité)</option>
+                                <option value="critical">Critique (application inutilisable)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bug-browser">Navigateur utilisé :</label>
+                            <input type="text" id="bug-browser" placeholder="Ex: Chrome 118, Firefox 119, Safari 17..." value="">
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex-basis: 100%;">
+                        <h3>📝 Description du problème</h3>
+                        <div class="form-group">
+                            <label for="bug-description">Décrivez le problème rencontré :</label>
+                            <textarea id="bug-description" rows="4" placeholder="Que s'est-il passé ? Quel était le comportement attendu ?" style="width: 100%; min-height: 100px; resize: vertical;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="bug-steps">Étapes pour reproduire le bug :</label>
+                            <textarea id="bug-steps" rows="4" placeholder="1. Aller sur la page...&#10;2. Cliquer sur...&#10;3. Remplir le champ...&#10;4. Le bug apparaît..." style="width: 100%; min-height: 100px; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadSavedData('bug');
+            prefillUserData('bug');
+        }
+
+        function prefillUserData(type) {
+            // Récupérer les données des paramètres utilisateur
+            const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
+            
+            if (params.samsName) {
+                const field = document.getElementById(type + '-prenomNom');
+                if (field && !field.value) {
+                    field.value = params.samsName;
+                }
+            }
+            
+            if (params.samsId) {
+                const field = document.getElementById(type + '-userId');
+                if (field && !field.value) {
+                    field.value = params.samsId;
+                }
+            }
+            
+            // Sauvegarder automatiquement les données pré-remplies
+            saveCurrentData();
+        }
+
+        function saveCurrentData() {
+            const data = currentType === 'suggestion' ? collectSuggestionData() : collectBugData();
+            localStorage.setItem('sams_temp_' + currentType, JSON.stringify(data));
+        }
+
+        function loadSavedData(type) {
+            const saved = localStorage.getItem('sams_temp_' + type);
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                // Charger les données dans le formulaire
+                Object.keys(data).forEach(key => {
+                    const field = document.getElementById(type + '-' + key);
+                    if (field) {
+                        field.value = data[key] || '';
+                    }
+                });
+            }
+            
+            // Ajouter les listeners pour la sauvegarde automatique
+            document.querySelectorAll('#form-container input, #form-container select, #form-container textarea').forEach(field => {
+                field.addEventListener('input', saveCurrentData);
+            });
+        }
+
+        function collectSuggestionData() {
+            return {
+                prenomNom: document.getElementById('suggestion-prenomNom')?.value || '',
+                userId: document.getElementById('suggestion-userId')?.value || '',
+                discordUsername: document.getElementById('suggestion-discordUsername')?.value || '',
+                title: document.getElementById('suggestion-title')?.value || '',
+                category: document.getElementById('suggestion-category')?.value || '',
+                priority: document.getElementById('suggestion-priority')?.value || '',
+                description: document.getElementById('suggestion-description')?.value || ''
+            };
+        }
+
+        function collectBugData() {
+            return {
+                prenomNom: document.getElementById('bug-prenomNom')?.value || '',
+                userId: document.getElementById('bug-userId')?.value || '',
+                discordUsername: document.getElementById('bug-discordUsername')?.value || '',
+                title: document.getElementById('bug-title')?.value || '',
+                severity: document.getElementById('bug-severity')?.value || '',
+                browser: document.getElementById('bug-browser')?.value || '',
+                description: document.getElementById('bug-description')?.value || '',
+                steps: document.getElementById('bug-steps')?.value || ''
+            };
+        }
+
+        function clearCurrentForm() {
+            // Effacer les champs
+            document.querySelectorAll('#form-container input, #form-container select, #form-container textarea').forEach(field => {
+                if (field.type === 'select-one') {
+                    field.selectedIndex = field.querySelector('[selected]') ? 
+                        Array.from(field.options).findIndex(opt => opt.hasAttribute('selected')) : 0;
+                } else {
+                    field.value = '';
+                }
+            });
+            
+            // Effacer la sauvegarde
+            localStorage.removeItem('sams_temp_' + currentType);
+            
+            // Feedback visuel
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Formulaire vidé';
+            btn.style.background = '#22c55e';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
+
+        async function submitCurrentReport() {
+            const data = currentType === 'suggestion' ? collectSuggestionData() : collectBugData();
+            
+            // Validation basique
+            if (!data.prenomNom.trim()) {
+                return;
+            }
+            
+            if (!data.userId.trim()) {
+                return;
+            }
+            
+            if (!data.discordUsername.trim()) {
+                return;
+            }
+            
+            if (!data.title.trim()) {
+                return;
+            }
+            
+            if (!data.description.trim()) {
+                return;
+            }
+            
+            if (currentType === 'bug' && !data.steps.trim()) {
+                return;
+            }
+            
+            // Ajouter les métadonnées
+            data.type = currentType;
+            data.timestamp = new Date().toISOString();
+            data.userAgent = navigator.userAgent;
+            
+            // Désactiver le bouton et afficher loading
+            const submitBtn = event.target;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Envoi en cours...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Envoyer vers Discord
+                console.log('Envoi vers Discord...', data.type);
+                const response = await sendToDiscord(data);
+                console.log('Réponse Discord:', response.status, response.statusText);
+                
+                // Sauvegarder dans l'historique
+                let history = JSON.parse(localStorage.getItem('sams_submissions_history') || '[]');
+                history.unshift(data);
+                
+                // Garder seulement les 50 dernières soumissions
+                if (history.length > 50) {
+                    history = history.slice(0, 50);
+                }
+                
+                localStorage.setItem('sams_submissions_history', JSON.stringify(history));
+                
+                // Effacer le formulaire
+                clearCurrentForm();
+                
+                // Confirmation de succès
+                submitBtn.innerHTML = '✅ Envoyé !';
+                submitBtn.style.background = '#22c55e';
+                
+                setTimeout(() => {
+                    // Restaurer le bouton
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.background = '';
+                    submitBtn.disabled = false;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Erreur lors de l\'envoi:', error);
+                
+                // Restaurer le bouton
+                submitBtn.innerHTML = '✅ Envoyé !';
+                submitBtn.style.background = '#22c55e';
+                submitBtn.disabled = false;
+                
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.background = '';
+                }, 2000);
+                
+                // Distinguer les types d'erreurs - Gestion silencieuse
+                if (error.message.includes('Discord API Error')) {
+                    // Erreur Discord spécifique - log seulement
+                    console.error('Erreur Discord:', error.message);
+                } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+                    // Erreur réseau - log seulement
+                    console.error('Erreur de connexion:', error.message);
+                } else {
+                    // Fallback vers l'ancien système pour les autres erreurs
+                    const message = generateContactMessage(data);
+                    navigator.clipboard.writeText(message).catch(() => {
+                        showMessageModal(message, data);
+                    });
+                }
+            }
+        }
+
+        async function sendToDiscord(data) {
+            // URLs des webhooks
+            const webhookUrls = {
+                suggestion: 'https://discord.com/api/webhooks/1425024899075936267/WefXXxjlLByGVEDnteb9yxO07TrKK1_9YK-LhhtRXMiD6FBDSm3vpp5-D5FUlmjqdnp3',
+                bug: 'https://discord.com/api/webhooks/1425024782021169272/O5GO5J3kbOHgEOK51Hrt7CgnFihz_j2uCtAZyhBlm_ECeXbXWL55wqoR25yW0nNn7FH6'
+            };
+            
+            const webhook = webhookUrls[data.type];
+            
+            // Créer l'embed Discord
+            const embed = createDiscordEmbed(data);
+            
+            // Payload Discord
+            const payload = {
+                content: `<@422404651577638943>`, // Mention de l'utilisateur
+                embeds: [embed]
+            };
+            
+            // Envoyer vers Discord
+            const response = await fetch(webhook, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // Discord renvoie 204 (No Content) ou 200 pour succès
+            if (!response.ok && response.status !== 204) {
+                const errorText = await response.text().catch(() => 'Erreur inconnue');
+                throw new Error(`Discord API Error ${response.status}: ${errorText}`);
+            }
+            
+            return response;
+        }
+
+        function createDiscordEmbed(data) {
+            const timestamp = new Date(data.timestamp).toISOString();
+            const issuggestion = data.type === 'suggestion';
+            
+            // Couleurs
+            const colors = {
+                suggestion: 0x22c55e, // Vert
+                bug: 0xef4444 // Rouge
+            };
+            
+            // Emojis et titres
+            const typeEmoji = issuggestion ? '💡' : '🐛';
+            const typeText = issuggestion ? 'NOUVELLE SUGGESTION' : 'NOUVEAU BUG REPORT';
+            
+            let embed = {
+                title: `${typeEmoji} ${typeText}`,
+                description: `**${data.title}**`,
+                color: colors[data.type],
+                timestamp: timestamp,
+                footer: {
+                    text: `AideSAMS v${document.querySelector('.header span')?.textContent || '1.9.0'} • ${data.type === 'suggestion' ? 'Suggestion' : 'Bug Report'}`,
+                    icon_url: 'https://cdn.discordapp.com/emojis/1234567890123456789.png' // Optionnel
+                },
+                fields: []
+            };
+            
+            // Champs communs
+            embed.fields.push({
+                name: '👤 Utilisateur',
+                value: `**${data.prenomNom}** (ID: ${data.userId})`,
+                inline: true
+            });
+            
+            embed.fields.push({
+                name: '💬 Discord',
+                value: `@${data.discordUsername}`,
+                inline: true
+            });
+            
+            if (issuggestion) {
+                // Champs spécifiques aux suggestions
+                if (data.category) {
+                    embed.fields.push({
+                        name: '📂 Catégorie',
+                        value: data.category.charAt(0).toUpperCase() + data.category.slice(1),
+                        inline: true
+                    });
+                }
+                
+                embed.fields.push({
+                    name: '⭐ Priorité',
+                    value: getPriorityText(data.priority),
+                    inline: true
+                });
+                
+                embed.fields.push({
+                    name: '📝 Description',
+                    value: data.description.length > 1000 ? 
+                        data.description.substring(0, 997) + '...' : 
+                        data.description || 'Aucune description',
+                    inline: false
+                });
+                
+            } else {
+                // Champs spécifiques aux bugs
+                embed.fields.push({
+                    name: '🔥 Gravité',
+                    value: getSeverityText(data.severity),
+                    inline: true
+                });
+                
+                if (data.browser) {
+                    embed.fields.push({
+                        name: '🌐 Navigateur',
+                        value: data.browser,
+                        inline: true
+                    });
+                }
+                
+                embed.fields.push({
+                    name: '📝 Description du problème',
+                    value: data.description.length > 500 ? 
+                        data.description.substring(0, 497) + '...' : 
+                        data.description || 'Aucune description',
+                    inline: false
+                });
+                
+                embed.fields.push({
+                    name: '🔄 Étapes pour reproduire',
+                    value: data.steps.length > 500 ? 
+                        data.steps.substring(0, 497) + '...' : 
+                        data.steps || 'Aucune étape spécifiée',
+                    inline: false
+                });
+            }
+            
+            return embed;
+        }
+        
+        function getPriorityText(priority) {
+            const priorities = {
+                low: '🟢 Faible',
+                normal: '🟡 Normale',
+                high: '🔴 Élevée'
+            };
+            return priorities[priority] || priority;
+        }
+        
+        function getSeverityText(severity) {
+            const severities = {
+                low: '🟢 Faible (cosmétique)',
+                normal: '🟡 Normale',
+                high: '🟠 Élevée (bloque une fonctionnalité)',
+                critical: '🔴 Critique (application inutilisable)'
+            };
+            return severities[severity] || severity;
+        }
+
+        function generateContactMessage(data) {
+            const typeEmoji = data.type === 'suggestion' ? '💡' : '🐛';
+            const typeText = data.type === 'suggestion' ? 'SUGGESTION' : 'BUG REPORT';
+            
+            let message = `${typeEmoji} **${typeText}** ${typeEmoji}\\n\\n`;
+            message += `**De :** ${data.prenomNom} (ID: ${data.userId})`;
+            message += `\\n**Discord :** @${data.discordUsername}`;
+            message += `\\n**Titre :** ${data.title}\\n\\n`;
+            
+            if (data.type === 'suggestion') {
+                if (data.category) message += `**Catégorie :** ${data.category}\\n`;
+                message += `**Priorité :** ${data.priority}\\n\\n`;
+                message += `**Description :**\\n${data.description}\\n\\n`;
+            } else {
+                message += `**Gravité :** ${data.severity}\\n`;
+                if (data.browser) message += `**Navigateur :** ${data.browser}\\n\\n`;
+                message += `**Description du problème :**\\n${data.description}\\n\\n`;
+                message += `**Étapes pour reproduire :**\\n${data.steps}\\n\\n`;
+            }
+            
+            message += `**Timestamp :** ${new Date(data.timestamp).toLocaleString('fr-FR')}`;
+            
+            return message;
+        }
+
+        function showMessageModal(message, data) {
+            // Créer une modale pour afficher le message
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: #1a1a1b; border-radius: 16px; padding: 24px; max-width: 600px; max-height: 80vh; overflow-y: auto; color: #e5e5e5;">
+                    <h3 style="color: #22c55e; margin-bottom: 16px;">${data.type === 'suggestion' ? 'Suggestion' : 'Bug'} préparé(e) !</h3>
+                    <p style="margin-bottom: 16px;">Copiez le message ci-dessous et envoyez-le sur Discord (niavlysdev) :</p>
+                    <textarea readonly style="width: 100%; height: 200px; background: #2a2a2b; color: #e5e5e5; border: 1px solid #404044; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px;">${message}</textarea>
+                    <div style="display: flex; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+                        <button onclick="navigator.clipboard.writeText('${message.replace(/'/g, "\\'")}')" style="background: #4a9eff; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">📋 Copier</button>
+                        <button onclick="this.closest('[style*=fixed]').remove(); clearCurrentForm();" style="background: #22c55e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">✅ Fermer</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function copyDiscord() {
+            navigator.clipboard.writeText('niavlysdev').then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copié !';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Gestion de l'affichage des onglets selon les spécialités
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            switchType('suggestion'); // Commencer par les suggestions
+        });
+        
+        // Chargement de la version
+    </script>
+
+    <style>
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .cards-container .card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        .sub-nav-btn {
+            padding: 14px 20px;
+            background: none;
+            border: none;
+            color: #a8a8a8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+            margin-right: 4px;
+        }
+
+        .sub-nav-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sub-nav-btn:hover::before {
+            opacity: 1;
+        }
+
+        .sub-nav-btn:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .sub-nav-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+            border-bottom: 2px solid #22c55e;
+        }
+
+        textarea {
+            background: rgba(35, 35, 36, 0.8) !important;
+            border: 1px solid rgba(64, 64, 68, 0.3) !important;
+            color: #e5e5e5 !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            font-family: inherit !important;
+            transition: all 0.3s ease !important;
+        }
+
+        textarea:focus {
+            border-color: #4a9eff !important;
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1) !important;
+            outline: none !important;
+        }
+
+        select {
+            background: rgba(35, 35, 36, 0.8) !important;
+            border: 1px solid rgba(64, 64, 68, 0.3) !important;
+            color: #e5e5e5 !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        select:focus {
+            border-color: #4a9eff !important;
+            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1) !important;
+            outline: none !important;
+        }
+    </style>
+</body>
+
+</html>

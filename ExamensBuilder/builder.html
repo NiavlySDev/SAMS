@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Builder - Examens</title>
+    <link rel="stylesheet" href="../AideSAMS/style.css">
+    <style>
+        body {
+            background: #181818;
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            color: #f3f4f6;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 18px;
+            margin-bottom: 18px;
+        }
+        .header h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 2.1em;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #f3f4f6;
+        }
+        .main-container {
+            display: block;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .builder-container {
+            background: #23272a;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px #0008;
+            padding: 32px 28px 24px 28px;
+            margin: 32px auto 32px auto;
+            max-width: 900px;
+        }
+        .template-list, .drop-zone {
+            min-height: 60px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .template-list {
+            background: #23272a;
+            margin-bottom: 18px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            border: 1px solid #2d3238;
+        }
+        .template-block {
+            background: #181818;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 10px 18px;
+            margin: 4px 0;
+            cursor: grab;
+            box-shadow: 0 2px 8px #22c55e22;
+            font-weight: 500;
+            color: #22c55e;
+            transition: box-shadow 0.15s, border 0.15s, background 0.15s;
+        }
+        .template-block:active {
+            box-shadow: 0 2px 16px #22c55e33;
+            border: 1.5px solid #16a34a;
+            background: #23272a;
+        }
+        .drop-zone {
+            background: #23272a;
+            border: 2px dashed #22c55e;
+            min-height: 80px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+        .drop-zone.dragover {
+            background: #14532d;
+        }
+        .custom-block {
+            background: #292524;
+            border: 1px solid #facc15;
+            border-radius: 8px;
+            padding: 10px 18px;
+            margin: 4px 0;
+            color: #fde68a;
+            font-weight: 500;
+            box-shadow: 0 2px 8px #facc1522;
+        }
+        .output {
+            background: #23272a;
+            border: 1px solid #2d3238;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 18px;
+            font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
+            white-space: pre-line;
+            font-size: 1.05em;
+            color: #f3f4f6;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-left: 8px;
+            vertical-align: middle;
+            transition: color 0.15s;
+        }
+        .remove-btn:hover {
+            color: #b91c1c;
+        }
+        .custom-block, .template-block {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .builder-container label {
+            font-weight: 500;
+            color: #f3f4f6;
+        }
+        .builder-container input[type="text"] {
+            border: 1px solid #2d3238;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 1em;
+            margin-right: 8px;
+            outline: none;
+            background: #181818;
+            color: #f3f4f6;
+            transition: border 0.15s;
+        }
+        .builder-container input[type="text"]:focus {
+            border: 1.5px solid #22c55e;
+        }
+        .builder-container button {
+            background: #22c55e;
+            color: #181818;
+            border: none;
+            border-radius: 7px;
+            padding: 7px 18px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .builder-container button:hover {
+            background: #16a34a;
+            color: #fff;
+        }
+        .header span {
+            background: #22c55e;
+            color: #181818;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+        .header .btn {
+            background: #181818;
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+        .header .btn:hover {
+            background: #22c55e;
+            color: #181818;
+        }
+        @media (max-width: 700px) {
+            .builder-container, .main-container {
+                padding: 10px 2vw;
+            }
+            .header {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Examens Builder</h1>
+        <span style="background:#22c55e;color:#181818;padding:6px 16px;border-radius:8px;font-weight:bold;font-size:1.05em;">
+            v...
+        </span>
+        <button class="btn" onclick="location.href='informations.html'"
+            style="background:#181818;color:#22c55e;border:1px solid #22c55e;">
+            ℹ️ Informations
+        </button>
+    </div>
+    <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="location.href='builder.html'">Builder</button>
+    </nav>
+    <div class="main-container">
+        <div class="builder-container">
+            <p>Glisse les blocs ci-dessous dans la zone de construction pour générer la partie <b>Examens</b> d'un rapport.</p>
+            <div style="margin-bottom:18px;">
+                <label for="custom-block-input"><b>Ajouter un bloc personnalisé :</b></label>
+                <input type="text" id="custom-block-input" placeholder="Texte du bloc personnalisé" style="width:60%;">
+                <button onclick="addCustomBlock()">Ajouter</button>
+            </div>
+            <h2 style="margin-bottom:8px;">Blocs disponibles</h2>
+            <div class="template-list" id="template-list"></div>
+            <h2 style="margin-bottom:8px;">Construction du rapport</h2>
+            <div class="drop-zone" id="drop-zone"></div>
+            <button onclick="generateOutput()" style="margin-top:12px;">Générer le texte</button>
+            <div class="output" id="output"></div>
+        </div>
+    </div>
+    <script>
+        let templates = [];
+        let dropBlocks = [];
+
+        // Charger les templates
+        fetch('template.json')
+            .then(res => res.json())
+            .then(data => {
+                templates = data;
+                renderTemplates();
+            });
+
+        function renderTemplates() {
+            const list = document.getElementById('template-list');
+            list.innerHTML = '';
+            templates.forEach(tpl => {
+                const block = document.createElement('div');
+                block.className = 'template-block';
+                block.draggable = true;
+                block.textContent = tpl.name;
+                block.title = tpl.content;
+                block.dataset.id = tpl.id;
+                block.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', tpl.id);
+                });
+                list.appendChild(block);
+            });
+        }
+
+        // Drop zone
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', e => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const id = e.dataTransfer.getData('text/plain');
+            const tpl = templates.find(t => t.id === id);
+            if (tpl) {
+                dropBlocks.push({ type: 'template', ...tpl });
+                renderDropZone();
+            }
+        });
+
+        function addCustomBlock() {
+            const input = document.getElementById('custom-block-input');
+            const value = input.value.trim();
+            if (value) {
+                dropBlocks.push({ type: 'custom', content: value });
+                input.value = '';
+                renderDropZone();
+            }
+        }
+
+        function renderDropZone() {
+            dropZone.innerHTML = '';
+            dropBlocks.forEach((block, idx) => {
+                let el;
+                if (block.type === 'template') {
+                    el = document.createElement('div');
+                    el.className = 'template-block';
+                    el.textContent = block.name;
+                    el.title = block.content;
+                } else {
+                    el = document.createElement('div');
+                    el.className = 'custom-block';
+                    el.textContent = block.content;
+                }
+                // Remove button
+                const btn = document.createElement('button');
+                btn.className = 'remove-btn';
+                btn.innerHTML = '✖';
+                btn.title = 'Retirer ce bloc';
+                btn.onclick = () => { dropBlocks.splice(idx, 1); renderDropZone(); };
+                el.appendChild(btn);
+                dropZone.appendChild(el);
+            });
+        }
+
+        function generateOutput() {
+            const output = document.getElementById('output');
+            let text = dropBlocks.map(block => block.type === 'template' ? block.content : block.content).join(' ');
+            output.textContent = text;
+        }
+
+        fetch('changelog_builder.json')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    document.querySelector('.header span').textContent = data[0].version;
+                }
+            });
+    </script>
+</body>
+</html>

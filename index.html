@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil SAMS</title>
+    <link rel="stylesheet" href="AideSAMS/style.css">
+</head>
+<body>
+    <div class="main-container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;">
+        <div class="card" style="max-width:420px;width:100%;text-align:center;">
+            <h2 style="margin-bottom:24px;">Choisissez votre espace :</h2>
+            <div style="display:flex;flex-direction:column;gap:24px;align-items:center;">
+                <a href="AideSAMS/index.html" class="btn primary" style="width:220px;font-size:1.1em;">Aide SAMS</a>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;">
+                    <input id="prof-code-input" type="password" placeholder="Code ProfSAMS" style="width:220px;padding:10px 12px;border-radius:8px;border:1px solid #444;background:#222;color:#fff;font-size:1em;z-index:1000;position:relative;" onkeydown="if(event.key==='Enter'){checkProfSAMSCode()}" tabindex="1" />
+                    <button onclick="checkProfSAMSCode()" class="btn primary" style="width:220px;font-size:1.1em;">Accéder à Prof SAMS</button>
+                </div><div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;">
+                    <input id="rapport-builder-code-input" type="password" placeholder="Code Examens Builder" style="width:220px;padding:10px 12px;border-radius:8px;border:1px solid #444;background:#222;color:#fff;font-size:1em;z-index:1000;position:relative;" onkeydown="if(event.key==='Enter'){checkRapportBuilderCode()}" tabindex="1" />
+                    <button onclick="checkRapportBuilderCode()" class="btn primary" style="width:220px;font-size:1.1em;">Accéder à Rapport Builder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+function getDecoded(str) {
+    try {
+        return atob(str);
+    } catch {
+        return "";
+    }
+}
+
+function checkProfSAMSCode() {
+    const validCode = getDecoded("cHJvZjIwMjQ=");
+    var input = document.getElementById('prof-code-input');
+    if (!input) return;
+    var code = input.value;
+    if (!code) {
+        input.focus();
+        return;
+    }
+    if (code === validCode) {
+        window.location.href = 'ProfesseurSAMS/prof.html';
+    } else {
+        alert('Code incorrect.');
+        input.value = '';
+        input.focus();
+    }
+}
+function checkRapportBuilderCode() {
+    const validCode = getDecoded("YnVpbGRlcjIwMjQ=");
+    var input = document.getElementById('rapport-builder-code-input');
+    if (!input) return;
+    var code = input.value;
+    if (!code) {
+        input.focus();
+        return;
+    }
+    if (code === validCode) {
+        window.location.href = 'ExamensBuilder/builder.html';
+    } else {
+        alert('Code incorrect.');
+        input.value = '';
+        input.focus();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button.btn.primary').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (btn.textContent.includes('Prof SAMS')) {
+                checkProfSAMSCode();
+            } else if (btn.textContent.includes('Rapport Builder')) {
+                checkRapportBuilderCode();
+            }
+        });
+    });
+    document.getElementById('prof-code-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            checkProfSAMSCode();
+        }
+    });
+    document.getElementById('rapport-builder-code-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            checkRapportBuilderCode();
+        }
+    });
+});
+</script>
+</html>

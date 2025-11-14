@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents Médicaux - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/documents.css">
+    <script src="update-notifier.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+    <div id="navbar-placeholder"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📄 Documents Médicaux</h1>
+        </div>
+
+        <div class="templates-grid">
+            <div class="template-card" onclick="createDocument('arret-travail')">
+                <div class="template-icon">🩺</div>
+                <div class="template-info">
+                    <h3>Avis d'Arrêt de Travail</h3>
+                    <p>Document officiel d'arrêt maladie avec signature du médecin</p>
+                    <div class="template-features">
+                        <span class="feature">✓ Informations patient</span>
+                        <span class="feature">✓ Détails médicaux</span>
+                        <span class="feature">✓ Signature numérique</span>
+                    </div>
+                </div>
+                <div class="template-action">
+                    <button class="btn-template">Créer un arrêt</button>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="createDocument('certificat-naissance')">
+                <div class="template-icon">👶</div>
+                <div class="template-info">
+                    <h3>Certificat de Naissance</h3>
+                    <p>Certificat médical de naissance avec signatures des parents</p>
+                    <div class="template-features">
+                        <span class="feature">✓ Données de l'enfant</span>
+                        <span class="feature">✓ Informations parents</span>
+                        <span class="feature">✓ Signatures multiples</span>
+                    </div>
+                </div>
+                <div class="template-action">
+                    <button class="btn-template">Créer un certificat</button>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="createDocument('facture-hospitalisation')">
+                <div class="template-icon">🏥</div>
+                <div class="template-info">
+                    <h3>Facture d'Hospitalisation</h3>
+                    <p>Facture détaillée des frais médicaux et hospitaliers</p>
+                    <div class="template-features">
+                        <span class="feature">✓ Détails des soins</span>
+                        <span class="feature">✓ Calculs automatiques</span>
+                        <span class="feature">✓ Export professionnel</span>
+                    </div>
+                </div>
+                <div class="template-action">
+                    <button class="btn-template">Créer une facture</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Brouillons -->
+        <div class="drafts-section" id="drafts-section" style="display: none;">
+            <h2>📝 Brouillons Sauvegardés</h2>
+            <div class="drafts-grid" id="drafts-grid">
+                <!-- Les brouillons seront ajoutés ici dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sams-common.js"></script>
+    <script src="js/document-manager.js"></script>
+    <script src="js/document-templates.js"></script>
+    <script>
+        function createDocument(type) {
+            console.log('createDocument appelé avec type:', type);
+            console.log('documentManager disponible:', !!window.documentManager);
+            
+            // Navigation directe vers les formulaires de création
+            if (window.documentManager) {
+                console.log('Utilisation de documentManager.showDocumentForm');
+                window.documentManager.showDocumentForm(type);
+            } else {
+                console.log('Fallback vers rechargement de page');
+                // Fallback avec rechargement de page
+                window.location.href = `documents.html?create=${type}`;
+            }
+        }
+
+        
+        function regenerateDocument(docId) {
+            console.log('Régénération demandée pour docId:', docId);
+            const history = JSON.parse(localStorage.getItem('documentHistory') || '[]');
+            const doc = history.find(d => d.id == docId);
+            
+            if (!doc) {
+                console.error('Document non trouvé, docId:', docId, 'historique:', history);
+                alert('❌ Document introuvable dans l\'historique');
+                return;
+            }
+            
+            console.log('Document trouvé:', doc);
+            
+            // Vérifier que jsPDF est disponible
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert('❌ jsPDF non disponible. Rechargez la page.');
+                return;
+            }
+            
+            try {
+                // Recréer le PDF avec les données sauvegardées
+                const doc_pdf = new window.jspdf.jsPDF();
+                
+                // Titre simple pour test
+                doc_pdf.setFontSize(20);
+                doc_pdf.text('Document Régénéré', 20, 30);
+                doc_pdf.setFontSize(12);
+                doc_pdf.text(`Type: ${doc.type}`, 20, 50);
+                doc_pdf.text(`Créé le: ${new Date(doc.createdAt).toLocaleString('fr-FR')}`, 20, 70);
+                doc_pdf.text(`Données: ${Object.keys(doc.data || {}).length} champs`, 20, 90);
+                
+                // Sauvegarder
+                const newFilename = `regenere_${doc.filename}`;
+                doc_pdf.save(newFilename);
+                
+                alert('✅ PDF régénéré avec succès !');
+                
+            } catch (error) {
+                console.error('Erreur lors de la régénération:', error);
+                alert(`❌ Erreur lors de la régénération: ${error.message}`);
+            }
+        }
+
+        function regenerateDocument(docId) {
+            console.log('Tentative de régénération du document:', docId);
+            
+            const history = JSON.parse(localStorage.getItem('documentHistory') || '[]');
+            const doc = history.find(d => d.id === docId);
+            
+            if (!doc) {
+                console.error('Document non trouvé dans l\'historique:', docId);
+                alert('Document introuvable dans l\'historique');
+                return;
+            }
+
+            console.log('Document trouvé:', doc);
+
+            // Vérifier la disponibilité de jsPDF
+            if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+                console.error('jsPDF non disponible');
+                alert('Erreur : Système PDF non disponible');
+                return;
+            }
+
+            try {
+                // Régénérer le PDF avec les données stockées
+                const { jsPDF } = window.jspdf || window;
+                const pdf = new jsPDF();
+                
+                // Ajouter le contenu du document
+                pdf.text(`Document: ${doc.filename}`, 20, 20);
+                pdf.text(`Type: ${doc.type}`, 20, 40);
+                pdf.text(`Créé le: ${new Date(doc.createdAt).toLocaleString('fr-FR')}`, 20, 60);
+                
+                // Si on a les données du formulaire, les ajouter
+                if (doc.formData) {
+                    let y = 80;
+                    Object.entries(doc.formData).forEach(([key, value]) => {
+                        if (value && key !== 'signature') {
+                            pdf.text(`${key}: ${value}`, 20, y);
+                            y += 20;
+                        }
+                    });
+                }
+                
+                // Télécharger le PDF
+                pdf.save(doc.filename || `document-${doc.id}.pdf`);
+                console.log('PDF régénéré avec succès');
+                
+            } catch (error) {
+                console.error('Erreur lors de la régénération:', error);
+                alert('Erreur lors de la génération du PDF : ' + error.message);
+            }
+        }
+
+        function downloadDocument(docId) {
+            const history = JSON.parse(localStorage.getItem('documentHistory') || '[]');
+            const doc = history.find(d => d.id === docId);
+            
+            if (!doc) {
+                alert('Document introuvable');
+                return;
+            }
+            
+            // Télécharger les données du document en JSON
+            const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${(doc.filename || 'document').replace(/[^a-z0-9]/gi, '_')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialisation du gestionnaire de documents
+        let documentManager;
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initialisation du DocumentManager...');
+            documentManager = new DocumentManager();
+            window.documentManager = documentManager;
+            console.log('DocumentManager créé:', !!window.documentManager);
+            
+            // Charger les brouillons si ils existent
+            loadDraftsOnStartup();
+        });
+
+        function loadDraftsOnStartup() {
+            const drafts = JSON.parse(localStorage.getItem('documentDrafts') || '[]');
+            const section = document.getElementById('drafts-section');
+            
+            // Si la section n'existe pas (on n'est pas sur la page d'accueil), sortir
+            if (!section) {
+                return;
+            }
+            
+            if (drafts.length > 0) {
+                section.style.display = 'block';
+                renderDrafts(drafts);
+            }
+        }
+
+        function renderDrafts(drafts) {
+            const grid = document.getElementById('drafts-grid');
+            grid.innerHTML = drafts.map(draft => `
+                <div class="draft-card">
+                    <div class="draft-header">
+                        <h3>${getDocumentTypeIcon(draft.type)} ${draft.title}</h3>
+                    </div>
+                    <div class="draft-actions">
+                        <button class="btn-sm" onclick="continueDraft('${draft.id}')">✏️ Continuer</button>
+                        <button class="btn-sm" onclick="deleteDraft('${draft.id}')">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getDocumentTypeIcon(type) {
+            switch(type) {
+                case 'arret-travail': return '🩺';
+                case 'certificat-naissance': return '👶';
+                case 'facture-hospitalisation': return '🏥';
+                default: return '📄';
+            }
+        }
+
+        function continueDraft(draftId) {
+            const drafts = JSON.parse(localStorage.getItem('documentDrafts') || '[]');
+            const draft = drafts.find(d => d.id == draftId);
+            
+            if (!draft) {
+                alert('❌ Brouillon non trouvé');
+                return;
+            }
+            
+            // Rediriger vers le formulaire avec les données du brouillon
+            const params = new URLSearchParams({
+                create: draft.type,
+                draft: draftId
+            });
+            window.location.href = `documents.html?${params.toString()}`;
+        }
+
+        function deleteDraft(draftId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce brouillon ?')) return;
+            
+            const drafts = JSON.parse(localStorage.getItem('documentDrafts') || '[]');
+            const updatedDrafts = drafts.filter(d => d.id != draftId);
+            localStorage.setItem('documentDrafts', JSON.stringify(updatedDrafts));
+            
+            if (updatedDrafts.length === 0) {
+                document.getElementById('drafts-section').style.display = 'none';
+            } else {
+                renderDrafts(updatedDrafts);
+            }
+        }
+    </script>
+</body>
+
+</html>

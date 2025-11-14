@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSPD - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <script src="js/sams-common.js"></script>
+</head>
+
+<body>
+
+    <!-- Header et navbar chargés automatiquement par sams-common.js -->
+    </div>
+
+    <div class="sub-nav" style="display: flex; align-items: center;">
+        <div id="lspd-tabs" style="flex:1; display:flex;"></div>
+        <button class="btn" id="add-lspd-btn" onclick="addLspd()" style="margin-left:16px; white-space:nowrap;">➕
+            Ajouter une fiche</button>
+        <button class="btn" onclick="resetLspd()" style="margin-left:8px;background:#ef4444;color:#fff;">🗑️ Réinitialiser la fiche</button>
+    </div>
+    <div class="main-container" style="display:block;max-width:900px;">
+        <div class="card template-box" style="position:relative;">
+            <button class="copy-btn" onclick="copyTemplate()" style="top:16px;right:16px;">
+                📋 <span>Copier</span>
+            </button>
+            <div id="template-content"></div>
+        </div>
+        <div id="cards-container"></div>
+    </div>
+
+    <script>
+        const defaultLspd = () => ({
+            patientInfo: "",
+            amount: "",
+            collapsed: [false],
+        });
+
+        let lspds = [];
+        let currentLspd = 0;
+
+        function saveLspds() {
+            localStorage.setItem('sams_lspds', JSON.stringify({ lspds, currentLspd }));
+        }
+        function loadLspds() {
+            const data = localStorage.getItem('sams_lspds');
+            if (data) {
+                const obj = JSON.parse(data);
+                lspds = obj.lspds;
+                currentLspd = obj.currentLspd;
+            } else {
+                lspds = [defaultLspd()];
+                currentLspd = 0;
+            }
+        }
+
+        function renderTabs() {
+            const tabs = document.getElementById('lspd-tabs');
+            tabs.innerHTML = "";
+            lspds.forEach((r, i) => {
+                let label = "Fiche n°" + (i + 1);
+                if (r.patientInfo.trim()) label = "Fiche [" + r.patientInfo.trim() + "]";
+                tabs.innerHTML += `
+                <button class="sub-nav-item${i === currentLspd ? ' active' : ''}" onclick="switchLspd(${i})">
+                    ${label}
+                    ${lspds.length > 1 ? '<button class="delete-rapport" onclick="deleteLspd(event,' + i + ')">✖</button>' : ''}
+                </button>
+            `;
+            });
+        }
+
+        function renderCards() {
+            const r = lspds[currentLspd];
+            const cards = [
+                {
+                    title: "👤 Informations LSPD",
+                    content: `
+                    <div class="form-group">
+                        <label>Nom / Prénom / ID du LSPD</label>
+                        <input type="text" value="${r.patientInfo}" oninput="updateField('patientInfo',this.value)" placeholder="Ex: Foo Bar 1924">
+                    </div>
+                    <div class="form-group">
+                        <label>Montant initial</label>
+                        <input type="number" min="0" step="1" value="${r.amount || ''}" oninput="updateField('amount',this.value)" placeholder="Ex: 10000">
+                    </div>
+                `
+                }
+            ];
+            let html = "";
+            cards.forEach((card, idx) => {
+                html += `
+            <div class="collapsible-card${r.collapsed[idx] ? ' collapsed' : ''}" id="card-${idx}">
+                <div class="collapsible-header" onclick="toggleCard(${idx},event)">
+                    <span>${card.title}</span>
+                    <span>
+                        <button class="close-btn" onclick="closeCard(event,${idx})" title="Fermer cette carte">✖</button>
+                        <span>${r.collapsed[idx] ? '▶' : '▼'}</span>
+                    </span>
+                </div>
+                <div class="collapsible-content">${card.content}</div>
+            </div>
+            `;
+            });
+            document.getElementById('cards-container').innerHTML = html;
+        }
+
+        function renderTemplate() {
+            const r = lspds[currentLspd];
+            document.getElementById('template-content').innerHTML = `
+Nom / Prénom / ID : ${r.patientInfo || ""}<br>
+Montant initial : ${r.amount || 0} $
+        `;
+        }
+
+        function updateField(field, value) {
+            lspds[currentLspd][field] = value;
+            saveLspds();
+            renderTemplate();
+            if (field === "patientInfo") renderTabs();
+        }
+        function toggleCard(idx, e) {
+            if (e.target.classList.contains('close-btn')) return;
+            lspds[currentLspd].collapsed[idx] = !lspds[currentLspd].collapsed[idx];
+            saveLspds();
+            renderCards();
+        }
+        function closeCard(e, idx) {
+            e.stopPropagation();
+            lspds[currentLspd].collapsed[idx] = true;
+            saveLspds();
+            renderCards();
+        }
+        function addLspd() {
+            lspds.push(defaultLspd());
+            currentLspd = lspds.length - 1;
+            saveLspds();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function switchLspd(idx) {
+            currentLspd = idx;
+            saveLspds();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function deleteLspd(e, idx) {
+            e.stopPropagation();
+            if (lspds.length <= 1) return;
+            lspds.splice(idx, 1);
+            if (currentLspd >= lspds.length) currentLspd = lspds.length - 1;
+            saveLspds();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+        function copyTemplate() {
+            const templateText = document.getElementById('template-content').innerText;
+            function showCopied(btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '✅ <span>Copié!</span>';
+                btn.style.background = 'rgba(34, 197, 94, 0.2)';
+                btn.style.color = '#22c55e';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }
+            const btn = document.querySelector('.copy-btn');
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(templateText).then(() => {
+                    showCopied(btn);
+                }).catch(function() {
+                    // fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = templateText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                    document.body.removeChild(textarea);
+                });
+            } else {
+                // fallback for insecure context or no clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = templateText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e){}
+                document.body.removeChild(textarea);
+            }
+        }
+        function resetLspd() {
+            lspds[currentLspd] = defaultLspd();
+            saveLspds();
+            renderTabs();
+            renderCards();
+            renderTemplate();
+        }
+
+        loadLspds();
+        renderTabs();
+        renderCards();
+        renderTemplate();
+    </script>
+    <script>
+        // Gestion de l'affichage des onglets selon les spécialités
+        
+        // Appel au chargement de la page
+        
+    </script>
+</body>
+
+</html>        // Le chargement de version et la gestion des onglets spécialisés

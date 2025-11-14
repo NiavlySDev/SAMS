@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Aide SAMS</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="update-notifier.js"></script>
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .admin-section {
+            background: #1a1a1b;
+            border: 1px solid #404044;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .admin-section h2 {
+            color: #22c55e;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #404044;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #e5e5e5;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: #2a2a2c;
+            border: 1px solid #404044;
+            color: #e5e5e5;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-admin {
+            background: #22c55e;
+            color: #181818;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-admin:hover {
+            background: #16a34a;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: #181818;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .items-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #404044;
+            border-radius: 6px;
+            background: #2a2a2c;
+        }
+
+        .item {
+            padding: 15px;
+            border-bottom: 1px solid #404044;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-info h4 {
+            color: #e5e5e5;
+            margin: 0 0 5px 0;
+        }
+
+        .item-info p {
+            color: #aaa;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .item-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a1b;
+            border-radius: 12px;
+            border: 1px solid #404044;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #404044;
+        }
+
+        .modal-header h3 {
+            color: #22c55e;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #e5e5e5;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-option.selected {
+            border-color: #22c55e;
+            transform: scale(1.1);
+        }
+
+        /* Badges d'importance */
+        .importance-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .importance-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #404044;
+            background: #2a2a2c;
+            color: #e5e5e5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .importance-badge:hover {
+            border-color: #22c55e;
+            transform: scale(1.05);
+        }
+
+        .importance-badge.selected {
+            background: #22c55e;
+            color: #181818;
+            border-color: #22c55e;
+        }
+
+        /* Amélioration des listes de membres */
+        .members-container {
+            background: #2a2a2c;
+            border: 1px solid #404044;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .members-header {
+            background: #333335;
+            padding: 12px 15px;
+            border-bottom: 1px solid #404044;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .members-header h5 {
+            margin: 0;
+            color: #22c55e;
+            font-size: 14px;
+        }
+
+        .member-count {
+            background: #22c55e;
+            color: #181818;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .member-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #404044;
+            transition: background-color 0.2s ease;
+        }
+
+        .member-item:hover {
+            background: #333335;
+        }
+
+        .member-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .member-name {
+            color: #e5e5e5;
+            font-weight: 500;
+        }
+
+        .member-id {
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .grade-item, .specialite-item {
+            margin-bottom: 20px;
+            border: 1px solid #404044;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .grade-header, .specialite-header {
+            background: #333335;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #404044;
+        }
+
+        .grade-title, .specialite-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grade-title h4, .specialite-title h4 {
+            margin: 0;
+            color: #e5e5e5;
+        }
+
+        .grade-actions, .specialite-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Login screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #181818;
+        }
+
+        .login-box {
+            background: #1a1a1b;
+            border: 1px solid #404044;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: #22c55e;
+            margin-bottom: 20px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-error {
+            background: #ef4444;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: #181818;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-weight: 500;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: #2a2a2c;
+            border: 1px solid #404044;
+            color: #e5e5e5;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: #22c55e;
+            color: #181818;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .visibility-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #404044;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #22c55e;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* Styles pour l'affichage des manuels par catégorie */
+        .manuel-category-item {
+            background: #1a1a1b;
+            border: 1px solid #404044;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+
+        .manuel-category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404044;
+        }
+
+        .manuel-category-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .manuel-category-title h4 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .manuel-category-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .manuels-container {
+            transition: all 0.3s ease;
+        }
+
+        .manuel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .manuel-item {
+            background: #252526;
+            border: 1px solid #404044;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .manuel-info {
+            flex: 1;
+        }
+
+        .manuel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .manuel-name {
+            font-weight: bold;
+            color: #e5e5e5;
+            font-size: 1em;
+        }
+
+        .manuel-desc {
+            color: #ccc;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .manuel-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: #aaa;
+        }
+
+        .manuel-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 15px;
+        }
+
+        .manuel-importance {
+            font-size: 0.8em !important;
+            padding: 3px 8px !important;
+            border-radius: 12px !important;
+            font-weight: bold !important;
+        }
+
+        @media (max-width: 768px) {
+            .manuel-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .manuel-actions {
+                margin-left: 0;
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+
+            .manuel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Écran de connexion -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <h2>🔧 Panel d'Administration</h2>
+            <p style="color: #aaa; margin-bottom: 30px;">Veuillez entrer le mot de passe administrateur</p>
+            
+            <div id="login-error" class="login-error" style="display: none;"></div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-password">Mot de passe</label>
+                    <input type="password" id="admin-password" required>
+                </div>
+                <button type="submit" class="btn-admin" style="width: 100%;">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interface principale (masquée par défaut) -->
+    <div id="admin-interface" style="display: none;">
+        <div id="header-placeholder"></div>
+        <div id="navbar-placeholder"></div>
+
+        <div class="admin-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('manuels')">📚 Manuels</button>
+                <button class="tab-btn" onclick="switchTab('categories')">🏷️ Catégories</button>
+                <button class="tab-btn" onclick="switchTab('grades')">🏆 Grades</button>
+                <button class="tab-btn" onclick="switchTab('specialites')">⭐ Spécialités</button>
+                <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuration</button>
+            </div>
+
+            <!-- Section Manuels -->
+            <div id="manuels-tab" class="tab-content active">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>📚 Ajouter un Manuel</h2>
+                        <form id="manuel-form">
+                            <div class="form-group">
+                                <label for="manuel-title">Titre *</label>
+                                <input type="text" id="manuel-title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="manuel-desc">Description *</label>
+                                <textarea id="manuel-desc" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="manuel-link">Lien *</label>
+                                <input type="url" id="manuel-link" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Importance *</label>
+                                <div class="importance-badges">
+                                    <div class="importance-badge" data-value="1">1</div>
+                                    <div class="importance-badge" data-value="2">2</div>
+                                    <div class="importance-badge" data-value="3">3</div>
+                                    <div class="importance-badge" data-value="4">4</div>
+                                    <div class="importance-badge selected" data-value="5">5</div>
+                                    <div class="importance-badge" data-value="6">6</div>
+                                    <div class="importance-badge" data-value="7">7</div>
+                                    <div class="importance-badge" data-value="8">8</div>
+                                    <div class="importance-badge" data-value="9">9</div>
+                                    <div class="importance-badge" data-value="10">10</div>
+                                </div>
+                                <input type="hidden" id="manuel-importance" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="manuel-categorie">Catégorie *</label>
+                                <select id="manuel-categorie" required>
+                                    <option value="">Sélectionner une catégorie</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="manuel-auteur">Auteur *</label>
+                                <input type="text" id="manuel-auteur" value="SAMS" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter le Manuel</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearManuelForm()">Effacer</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>📋 Liste des Manuels</h2>
+                        <div class="items-list" id="manuels-list">
+                            <!-- Manuels seront chargés ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Catégories -->
+            <div id="categories-tab" class="tab-content">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>🏷️ Ajouter une Catégorie</h2>
+                        <form id="categorie-form">
+                            <div class="form-group">
+                                <label for="categorie-name">Nom de la catégorie *</label>
+                                <input type="text" id="categorie-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Couleur *</label>
+                                <div class="color-picker">
+                                    <div class="color-option selected" style="background: #ef4444;" data-color="#ef4444"></div>
+                                    <div class="color-option" style="background: #05f3f7;" data-color="#05f3f7"></div>
+                                    <div class="color-option" style="background: #22c55e;" data-color="#22c55e"></div>
+                                    <div class="color-option" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                                    <div class="color-option" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                                    <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                                    <div class="color-option" style="background: #ec4899;" data-color="#ec4899"></div>
+                                    <div class="color-option" style="background: #10b981;" data-color="#10b981"></div>
+                                </div>
+                                <input type="hidden" id="categorie-color" value="#ef4444">
+                            </div>
+                            <div class="form-group">
+                                <div class="visibility-toggle">
+                                    <label>Visible:</label>
+                                    <div class="toggle-switch active" id="categorie-visibility" onclick="toggleVisibility(this)">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter la Catégorie</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearCategorieForm()">Effacer</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>📋 Liste des Catégories</h2>
+                        <div class="items-list" id="categories-list">
+                            <!-- Catégories seront chargées ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Grades -->
+            <div id="grades-tab" class="tab-content">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>🏆 Ajouter un Grade</h2>
+                        <form id="grade-form">
+                            <div class="form-group">
+                                <label for="grade-name">Nom du Grade *</label>
+                                <input type="text" id="grade-name" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter le Grade</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearGradeForm()">Effacer</button>
+                        </form>
+
+                        <h2 style="margin-top: 30px;">👥 Ajouter un Membre</h2>
+                        <form id="membre-form">
+                            <div class="form-group">
+                                <label for="membre-grade">Grade *</label>
+                                <select id="membre-grade" required>
+                                    <option value="">Sélectionner un grade</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="membre-nom">Nom complet *</label>
+                                <input type="text" id="membre-nom" placeholder="Prénom Nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="membre-id">ID *</label>
+                                <input type="number" id="membre-id" placeholder="12345" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter le Membre</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearMembreForm()">Effacer</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>📋 Hiérarchie des Grades</h2>
+                        <div id="grades-list">
+                            <!-- Grades seront chargés ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Spécialités -->
+            <div id="specialites-tab" class="tab-content">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>⭐ Ajouter une Spécialité</h2>
+                        <form id="specialite-form">
+                            <div class="form-group">
+                                <label for="specialite-name">Nom de la Spécialité *</label>
+                                <input type="text" id="specialite-name" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter la Spécialité</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearSpecialiteForm()">Effacer</button>
+                        </form>
+
+                        <h2 style="margin-top: 30px;">👥 Ajouter un Membre à une Spécialité</h2>
+                        <form id="specialite-membre-form">
+                            <div class="form-group">
+                                <label for="specialite-membre-spec">Spécialité *</label>
+                                <select id="specialite-membre-spec" required>
+                                    <option value="">Sélectionner une spécialité</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="specialite-membre-nom">Nom complet *</label>
+                                <input type="text" id="specialite-membre-nom" placeholder="Prénom Nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="specialite-membre-id">ID *</label>
+                                <input type="number" id="specialite-membre-id" placeholder="12345" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter le Membre</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearSpecialiteMembreForm()">Effacer</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>📋 Liste des Spécialités</h2>
+                        <div id="specialites-list">
+                            <!-- Spécialités seront chargées ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Configuration -->
+            <div id="config-tab" class="tab-content">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>🔒 Changer le mot de passe</h2>
+                        <form id="password-form">
+                            <div class="form-group">
+                                <label for="current-password">Mot de passe actuel *</label>
+                                <input type="password" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">Nouveau mot de passe *</label>
+                                <input type="password" id="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">Confirmer le nouveau mot de passe *</label>
+                                <input type="password" id="confirm-password" required>
+                            </div>
+                            <button type="submit" class="btn-admin">Changer le mot de passe</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>🔧 Outils d'administration</h2>
+                        <button class="btn-admin" onclick="exportBackup()">📥 Exporter une sauvegarde</button>
+                        <button class="btn-admin btn-warning" onclick="runDiagnostic()">🔍 Diagnostic système</button>
+                        <button class="btn-admin btn-danger" onclick="clearAllData()">🗑️ Effacer toutes les données</button>
+                        
+                        <h3 style="color: #22c55e; margin-top: 20px;">Statistiques</h3>
+                        <div id="stats-container" style="color: #e5e5e5;">
+                            <!-- Statistiques seront chargées ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Modal pour éditer un manuel -->
+    <div id="edit-manuel-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier le Manuel</h3>
+                <span class="close" onclick="closeModal('edit-manuel-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-manuel-form">
+                    <input type="hidden" id="edit-manuel-index">
+                    <div class="form-group">
+                        <label for="edit-manuel-title">Titre *</label>
+                        <input type="text" id="edit-manuel-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-manuel-desc">Description *</label>
+                        <textarea id="edit-manuel-desc" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-manuel-link">Lien *</label>
+                        <input type="url" id="edit-manuel-link" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Importance *</label>
+                        <div class="importance-badges" id="edit-importance-badges">
+                            <div class="importance-badge" data-value="1">1</div>
+                            <div class="importance-badge" data-value="2">2</div>
+                            <div class="importance-badge" data-value="3">3</div>
+                            <div class="importance-badge" data-value="4">4</div>
+                            <div class="importance-badge" data-value="5">5</div>
+                            <div class="importance-badge" data-value="6">6</div>
+                            <div class="importance-badge" data-value="7">7</div>
+                            <div class="importance-badge" data-value="8">8</div>
+                            <div class="importance-badge" data-value="9">9</div>
+                            <div class="importance-badge" data-value="10">10</div>
+                        </div>
+                        <input type="hidden" id="edit-manuel-importance">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-manuel-categorie">Catégorie *</label>
+                        <select id="edit-manuel-categorie" required>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-manuel-auteur">Auteur *</label>
+                        <input type="text" id="edit-manuel-auteur" required>
+                    </div>
+                    <button type="submit" class="btn-admin">Sauvegarder</button>
+                    <button type="button" class="btn-admin btn-warning" onclick="closeModal('edit-manuel-modal')">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour éditer une catégorie -->
+    <div id="edit-categorie-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier la Catégorie</h3>
+                <span class="close" onclick="closeModal('edit-categorie-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-categorie-form">
+                    <input type="hidden" id="edit-categorie-index">
+                    <div class="form-group">
+                        <label for="edit-categorie-name">Nom de la catégorie *</label>
+                        <input type="text" id="edit-categorie-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur *</label>
+                        <div class="color-picker" id="edit-categorie-color-picker">
+                            <div class="color-option" style="background: #ef4444;" data-color="#ef4444"></div>
+                            <div class="color-option" style="background: #05f3f7;" data-color="#05f3f7"></div>
+                            <div class="color-option" style="background: #22c55e;" data-color="#22c55e"></div>
+                            <div class="color-option" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                            <div class="color-option" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                            <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                            <div class="color-option" style="background: #ec4899;" data-color="#ec4899"></div>
+                            <div class="color-option" style="background: #10b981;" data-color="#10b981"></div>
+                        </div>
+                        <input type="hidden" id="edit-categorie-color">
+                    </div>
+                    <div class="form-group">
+                        <div class="visibility-toggle">
+                            <label>Visible:</label>
+                            <div class="toggle-switch" id="edit-categorie-visibility" onclick="toggleVisibility(this)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-admin">Sauvegarder</button>
+                    <button type="button" class="btn-admin btn-warning" onclick="closeModal('edit-categorie-modal')">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour éditer un grade -->
+    <div id="edit-grade-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier le Grade</h3>
+                <span class="close" onclick="closeModal('edit-grade-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-grade-form">
+                    <input type="hidden" id="edit-grade-index">
+                    <div class="form-group">
+                        <label for="edit-grade-name">Nom du Grade *</label>
+                        <input type="text" id="edit-grade-name" required>
+                    </div>
+                    <button type="submit" class="btn-admin">Sauvegarder</button>
+                    <button type="button" class="btn-admin btn-warning" onclick="closeModal('edit-grade-modal')">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour éditer une spécialité -->
+    <div id="edit-specialite-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier la Spécialité</h3>
+                <span class="close" onclick="closeModal('edit-specialite-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-specialite-form">
+                    <input type="hidden" id="edit-specialite-index">
+                    <div class="form-group">
+                        <label for="edit-specialite-name">Nom de la Spécialité *</label>
+                        <input type="text" id="edit-specialite-name" required>
+                    </div>
+                    <button type="submit" class="btn-admin">Sauvegarder</button>
+                    <button type="button" class="btn-admin btn-warning" onclick="closeModal('edit-specialite-modal')">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sams-common.js"></script>
+    <script src="js/admin-panel-v2.js"></script>
+</body>
+
+</html>

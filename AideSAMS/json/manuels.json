@@ -1,0 +1,308 @@
+[
+    {
+        "title": "Manuel du SAMS",
+        "desc": "Les règles générales et procédures à suivre pour les SAMS.",
+        "link": "https://docs.google.com/presentation/d/1nXpJSDwB6mAclumSZf0nf_i1tgvOE0vyb-nQc6bnFEk/edit?slide=id.g2088f8e897e_0_16#slide=id.g2088f8e897e_0_16",
+        "importance": 10,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel PH",
+        "desc": "Le manuel de la spécialité PH.",
+        "link": "https://docs.google.com/presentation/d/1aBDyQUdX3Sznbofb8nGfI7HQOR3_OBkWYCF2_7FjjQw/edit?slide=id.g33fcf5659b2_2_75#slide=id.g33fcf5659b2_2_75",
+        "importance": 6,
+        "categorie": "Spécialités",
+        "catColor": "#05f3f7",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Prof",
+        "desc": "Le manuel de la spécialité Professeur.",
+        "link": "https://docs.google.com/document/d/1FccUT7-WjxQk8drfC3XySjfKA5KKsrlQdUfi-GZjhas/edit?tab=t.0",
+        "importance": 6,
+        "categorie": "Spécialités",
+        "catColor": "#05f3f7",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Coroner",
+        "desc": "Le manuel de la spécialité Coroner.",
+        "link": "https://docs.google.com/presentation/d/1A6ox1IScSV4pOrYZFA3yFvlMW__uC7FzQ3xf6SpC32w/edit",
+        "importance": 6,
+        "categorie": "Spécialités",
+        "catColor": "#05f3f7",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Infirmier",
+        "desc": "Les règles et procédures spécifiques pour les infirmiers SAMS.",
+        "link": "https://docs.google.com/presentation/d/1cAyUyOm8U4bwpwL_bwf-wugcTb_mzhIAfrcf1ZEXYLc/edit?usp=sharing",
+        "importance": 10,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Discord",
+        "desc": "Guide d'utilisation du serveur Discord SAMS.",
+        "link": "https://docs.google.com/presentation/d/1YHhDSkRUwjdpcbHCPM6T8DLxRq995aqXPEzlLCJ628o/edit?slide=id.p#slide=id.p",
+        "importance": 6,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Paramédic",
+        "desc": "Règles et procédures pour les Paramédics SAMS.",
+        "link": "https://docs.google.com/presentation/d/14LL9pFunQ_RMreCMrlfdkhRTB9S6jr_zbrnPdvncaJw/edit#slide=id.p",
+        "importance": 10,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Paramédic Chef",
+        "desc": "Règles et procédures pour les Paramédics Chefs SAMS.",
+        "link": "https://docs.google.com/presentation/d/1uI1Pau6MiVMr7D0R1yKQ3rUQNsLhnwcz_n9wsmGxsZ4/edit?usp=sharing",
+        "importance": 10,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel Médecin",
+        "desc": "Règles et procédures pour les Médecins SAMS.",
+        "link": "https://docs.google.com/presentation/d/1A5wicNea6WUA6R3OgqijPys9YoBHSHHtnOFOcwkuT_Q/edit?slide=id.g35f5ae29866_0_66#slide=id.g35f5ae29866_0_66",
+        "importance": 10,
+        "categorie": "Formations",
+        "catColor": "#ef4444",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel de Pratique Médicale",
+        "desc": "Guide de pratique médicale pour les SAMS.",
+        "link": "https://docs.google.com/presentation/d/1dOCIAeYl896eKJe5w6gPsf9_OGhiIZPVndQxcfZ_ivc/edit?usp=sharing",
+        "importance": 4,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Formation Infirmier Blessures Graves",
+        "desc": "Formation spécifique pour les infirmiers sur les blessures graves.",
+        "link": "https://docs.google.com/presentation/d/1KzysH2PJTW6HZ9GzsxAv5bEgadVrhvqp-Ych0rJtbvs/edit?usp=sharing",
+        "importance": 2,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Manuel de Pratique Opératoire",
+        "desc": "Guide de pratique opératoire pour les SAMS.",
+        "link": "https://docs.google.com/document/d/1Q-AFgE6mUB2NtoAMN5DiG3LUSXZgFKGTsutsA7DDCYk/",
+        "importance": 4,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Protocole de Gestion du Matériel de Secours",
+        "desc": "Protocole et gestion du matériel de secours",
+        "link": "https://docs.google.com/document/d/1swJIibjvbQxweLAQyfODCGyHeF42ST-hK16gjdB41WA",
+        "importance": 3,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Aide Rapports",
+        "desc": "Guide pour la rédaction des rapports.",
+        "link": "https://docs.google.com/presentation/d/1wDit5IdcLMrwEADiHipMWrGa8djPxDg42UfweN8oXTQ/edit?usp=sharing",
+        "importance": 8,
+        "categorie": "Documents D'Aide",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Arrêt de Travail",
+        "desc": "Modèle d'arrêt de travail pour les SAMS.",
+        "link": "https://docs.google.com/document/d/1_eTBxOvqT7jd9hxSzAenVjbAUk4hH8-PKG9goUIYm5U/edit?usp=sharing",
+        "importance": 6,
+        "categorie": "Papiers",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Dossiers A-E",
+        "desc": "Dossiers des patients de A à E",
+        "link": "https://trello.com/b/EOC2a8lf/dossiers-patients-a-k",
+        "importance": 7,
+        "categorie": "Dossiers Patients",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Dossiers F-K",
+        "desc": "Dossiers des patients de F à K",
+        "link": "https://trello.com/b/TaRKWziJ/dossiers-patients-f-k",
+        "importance": 7,
+        "categorie": "Dossiers Patients",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Dossiers L-Z",
+        "desc": "Dossiers des patients de L à Z",
+        "link": "https://trello.com/b/i6gRwfon/dossiers-patients-m-z",
+        "importance": 7,
+        "categorie": "Dossiers Patients",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Certificat de Naissance",
+        "desc": "Modèle de certificat de naissance pour les SAMS.",
+        "link": "https://docs.google.com/document/d/1Hr3fiuvb-CvsdIoJ1ilwS52QO-cBkNTfeiNhqpegJPs/edit?usp=sharing",
+        "importance": 1,
+        "categorie": "Papiers",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Facture Patient",
+        "desc": "Modèle de facture pour les patients.",
+        "link": "https://docs.google.com/document/d/1ar_sKfVVl2kBTsm_lhApfSLSoikkiBm9WtDulxJSq_E/edit?usp=sharing",
+        "importance": 1,
+        "categorie": "Papiers",
+        "catColor": "#fbbf24",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Organisation des Parkings",
+        "desc": "Protocole d'organisation des parkings pour les SAMS.",
+        "link": "https://docs.google.com/document/d/1MAmpIyKgsJhYiNY2EftDD1y2h1-UVuvHD7ocYohhCQY/edit?usp=sharing",
+        "importance": 9,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Protocole Mupelier",
+        "desc": "Protocole Mupelier.",
+        "link": "https://docs.google.com/document/d/1xzg1IbCy74xu9PLq2t2DJBSoLKiR1SJ1Y5UCjgz9jRA/edit?tab=t.0",
+        "importance": 6,
+        "categorie": "Documents Informatifs",
+        "catColor": "#60a5fa",
+        "auteur": "SAMS"
+    },
+    {
+        "title": "Cour sur le Savoir Travailler Ensemble",
+        "desc": "Cours sur le travail d'équipe au sein de la SAMS.",
+        "link": "https://docs.google.com/presentation/d/14s-ripMvYfPm-s95m1ex_2Y681_hOSnCR-NaKnj_IKg/edit?slide=id.gcb9a0b074_1_0#slide=id.gcb9a0b074_1_0",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Xavier Gordon"
+    },
+    {
+        "title": "Cours sur les Convois",
+        "desc": "Cours sur l'organisation des convois au sein de la SAMS.",
+        "link": "https://docs.google.com/presentation/d/1HR7nr5iffLMBFDbTSzFsViWoRJd9gFb8e2QTtHb7EDA/edit?slide=id.p#slide=id.p",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Xavier Gordon"
+    },
+    {
+        "title": "Cours sur les Imageries Médicales",
+        "desc": "Cours sur les imageries médicales et leur utilisation.",
+        "link": "https://docs.google.com/presentation/d/11zOEK3ImQpkIDwety7p4zFFAa5SdCYZt-dJ5vttIXJE/edit?slide=id.p#slide=id.p",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Evan Johnsson"
+    },
+    {
+        "title": "Cours sur le Matériel Ambulancier",
+        "desc": "Cours sur le matériel ambulancier et son utilisation.",
+        "link": "https://docs.google.com/presentation/d/1nO_EG6qfP-8UcwiyPXNwD1SuLLxr4K16NaXDs9fVpb0/edit?slide=id.g32a24a8d8cd_2_138#slide=id.g32a24a8d8cd_2_138",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Maxime Dougelasse"
+    },
+    {
+        "title": "Cours sur la Gestion des Epidemies",
+        "desc": "Cours sur la gestion des épidémies au sein de la SAMS.",
+        "link": "https://docs.google.com/presentation/d/1HR7nr5iffLMBFDbTSzFsViWoRJd9gFb8e2QTtHb7EDA/edit?slide=id.p#slide=id.p",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Xavier Gordon"
+    },
+    {
+        "title": "Cours sur la Prise en Charge d'un patient Drogué",
+        "desc": "Cours sur la prise en charge des patients sous l'influence de drogues.",
+        "link": "https://docs.google.com/presentation/d/1YO8_H-UTD7AxwrDevLK-ON0X7PcUB_rIkrSkuEOE7Ts/edit?slide=id.g33495e06c72_2_75#slide=id.g33495e06c72_2_75",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Vera Tyr"
+    },
+    {
+        "title": "Cours sur la prise de constantes vitales",
+        "desc": "Cours sur la prise de constantes vitales.",
+        "link": "https://docs.google.com/presentation/d/1ycIc8W25TwHPEZ_rd_yInxgJ9i-VNHzBD9EqJex8K9g/edit?slide=id.g2d94d3398de_2_75#slide=id.g2d94d3398de_2_75",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Vera Tyr"
+    },
+    {
+        "title": "Cours sur l'Utilisation de la Morgue",
+        "desc": "Cours sur l'utilisation de la morgue.",
+        "link": "docs.google.com/presentation/d/1AULok84ayALj79hNlluk5G9iwwbaMFGW/edit?usp=sharing&ouid=111613499231034926092&rtpof=true&sd=true",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Valandor Theronis"
+    },
+    {
+        "title": "Cours sur les Gestes de Survie",
+        "desc": "Cours sur les gestes de survie.",
+        "link": "https://docs.google.com/presentation/d/1WVpReUB78M-2LV7FjhEWeW9xolOXNHJ5DMSxjnLi1T0/edit?slide=id.g36d2efdf739_0_0#slide=id.g36d2efdf739_0_0",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Lexa Yowen"
+    },
+    {
+        "title": "Cours sur la Gestion d'une Hémorragie",
+        "desc": "Cours sur la gestion d'une hémorragie.",
+        "link": "https://docs.google.com/presentation/d/1hDFmF0VidGyysbHdACQfOQ4LkecRDIj0zkjWXdyPP2A/edit?usp=sharing",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Xavier Gordon"
+    },
+    {
+        "title": "Cours sur les Premiers Gestes d'Intervention",
+        "desc": "Cours sur les premiers gestes d'intervention.",
+        "link": "https://docs.google.com/presentation/d/1mLNkAz1reLxHDbsQ3M-fFy_EQFfS_1KVB33WOvr6EOU/edit?usp=sharing",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Maxime Dougelasse"
+    },
+    {
+        "title": "Cours sur la Prévention et Gestion des Épidémies : Stratégies et Actions Clés",
+        "desc": "Cours sur la Prévention et Gestion des Épidémies : Stratégies et Actions Clés",
+        "link": "https://docs.google.com/presentation/d/1htqZgLMk2QUeaqJC9rXFydXZznpQ-Yf75txMVJAQu_4/edit?usp=sharing",
+        "importance": 5,
+        "categorie": "Cours",
+        "catColor": "#d8b4fe",
+        "auteur": "Xavier Gordon"
+    }
+]

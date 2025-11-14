@@ -1,0 +1,11 @@
+[
+  {
+    "version": "v1.0",
+    "date": "30/07/2025 - 06:10",
+    "changes": [
+      "Première version du site Rapport Builder.",
+      "Pages : Builder, Informations.",
+      "Ajout de la possibilité de crée la partie 'Examens' dans le rapport de soins."      
+    ]
+  }
+]

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informations - Examens Prof</title>
+    <link rel="stylesheet" href="../ExamensBuilder/builder.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Examens Prof</h1>
+        <span style="background:#22c55e;color:#181818;padding:6px 16px;border-radius:8px;font-weight:bold;font-size:1.05em;">
+            v...
+        </span>
+        <button class="btn" onclick="location.href='informations.html'"
+            style="background:#181818;color:#22c55e;border:1px solid #22c55e;">
+            ℹ️ Informations
+        </button>
+    </div>
+    <nav class="nav-tabs">
+        <button class="nav-tab" onclick="location.href='prof.html'">Prof</button>
+    </nav>
+    <div class="info-container">
+        <div class="info-title">Informations Projet</div>
+        <ul class="info-list">
+            <li><b>Nom du projet :</b> Examens Prof</li>
+            <li><b>Développeur principal :</b> NiavlySDev (Jason Parker 37833)</li>
+            <li><b>Contact :</b> niavlys.dev@proton.me</li>
+            <li><b>Date de création :</b> 01 Août 2025</li>
+            <li><b>Technologies :</b> HTML, CSS, JavaScript</li>
+            <li><b>Objectif :</b> Créer un outil de génération de rapports pour les examens.</li>
+            <li><b>Licence :</b> MIT Liscence</li>
+        </ul>
+    </div>
+
+    <div class="changelog-global">
+        <div class="changelog-title">Changelog</div>
+        <div class="changelog-cards">
+        </div>
+    </div>
+    <script>
+    fetch('changelog_prof.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.querySelector('.changelog-cards');
+        container.innerHTML = data.map(version => `
+          <div class="version-card">
+            <div class="version-header">${version.version} <span class="version-date">${version.date}</span></div>
+            <ul class="version-list">
+              ${version.changes.map(change => `<li>${change}</li>`).join('')}
+            </ul>
+          </div>
+        `).join('');
+      })
+      .catch(() => {
+        document.querySelector('.changelog-cards').innerHTML = '<div style="color:#ef4444;">Impossible de charger le changelog.</div>';
+      });
+    fetch('changelog_prof.json')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          document.querySelector('.header span').textContent = data[0].version;
+        }
+      });
+    </script>
+</body>
+</html>
