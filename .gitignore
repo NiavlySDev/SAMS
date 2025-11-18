@@ -1,0 +1,23 @@
+# Configuration avec identifiants sensibles
+# config/config.json
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Packages
+node_modules/
+vendor/
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp

@@ -7,6 +7,24 @@ $tests = array();
 $errors = array();
 $recommendations = array();
 
+// Load config
+$config_path = '../../config/config.json';
+$config = null;
+
+if (file_exists($config_path)) {
+    $config = json_decode(file_get_contents($config_path), true);
+    $tests[] = array(
+        'name' => 'Config file found',
+        'status' => 'OK'
+    );
+} else {
+    $errors[] = 'Config file not found at ' . $config_path;
+    $tests[] = array(
+        'name' => 'Config file found',
+        'status' => 'FAIL'
+    );
+}
+
 // Test 1: mysqli
 $mysqli_ok = extension_loaded('mysqli');
 $tests[] = array(
@@ -33,8 +51,13 @@ $conn_ok = false;
 $db_ok = false;
 $query_ok = false;
 
-if ($mysqli_ok) {
-    $mysqli = @new mysqli('we01io.myd.infomaniak.com', 'we01io_sams', 'RBM91210chat!', '', 3306);
+if ($mysqli_ok && $config) {
+    $mysqli = @new mysqli(
+        $config['db_host'], 
+        $config['db_user'], 
+        $config['db_password'], 
+        $config['db_name']
+    );
     $conn_ok = !$mysqli->connect_error;
     
     $tests[] = array(
@@ -45,27 +68,17 @@ if ($mysqli_ok) {
     if (!$conn_ok) {
         $errors[] = 'MySQL connection failed';
     } else {
-        $db_ok = @$mysqli->select_db('we01io_sams');
+        $result = @$mysqli->query('SELECT 1');
+        $query_ok = ($result !== false);
         $tests[] = array(
-            'name' => 'Database selection',
-            'status' => $db_ok ? 'OK' : 'FAIL'
+            'name' => 'SELECT query',
+            'status' => $query_ok ? 'OK' : 'FAIL'
         );
         
-        if (!$db_ok) {
-            $errors[] = 'Database not found';
+        if ($query_ok) {
+            $recommendations[] = 'All tests passed';
         } else {
-            $result = @$mysqli->query('SELECT 1');
-            $query_ok = ($result !== false);
-            $tests[] = array(
-                'name' => 'SELECT query',
-                'status' => $query_ok ? 'OK' : 'FAIL'
-            );
-            
-            if ($query_ok) {
-                $recommendations[] = 'All tests passed';
-            } else {
-                $errors[] = 'Query failed';
-            }
+            $errors[] = 'Query failed';
         }
         
         @$mysqli->close();

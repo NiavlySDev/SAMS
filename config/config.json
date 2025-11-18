@@ -1,0 +1,20 @@
+{
+  "db_host": "we01io.myd.infomaniak.com",
+  "db_user": "we01io_sams",
+  "db_password": "RBM91210chat!",
+  "db_name": "we01io_sams",
+  "email": {
+    "address": "no-reply@tfe91.fr",
+    "password": "SdD_!7Ck.i69#7",
+    "imap": {
+      "host": "mail.infomaniak.com",
+      "port": 993,
+      "secure": true
+    },
+    "smtp": {
+      "host": "mail.infomaniak.com",
+      "port": 465,
+      "secure": true
+    }
+  }
+}

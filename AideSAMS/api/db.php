@@ -12,12 +12,25 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Configuration de la base de données
-define('DB_HOST', 'we01io.myd.infomaniak.com');
-define('DB_USER', 'we01io_sams');
-define('DB_PASS', 'RBM91210chat!');
-define('DB_NAME', 'we01io_sams');
-define('DB_PORT', 3306);
+// Charger la configuration depuis le fichier externe
+$config_path = '../../config/config.json';
+$config = null;
+
+if (file_exists($config_path)) {
+    $config = json_decode(file_get_contents($config_path), true);
+    define('DB_HOST', $config['db_host']);
+    define('DB_USER', $config['db_user']);
+    define('DB_PASS', $config['db_password']);
+    define('DB_NAME', $config['db_name']);
+    define('DB_PORT', 3306);
+} else {
+    // Fallback si config.json n'existe pas
+    define('DB_HOST', 'we01io.myd.infomaniak.com');
+    define('DB_USER', 'we01io_sams');
+    define('DB_PASS', 'RBM91210chat!');
+    define('DB_NAME', 'we01io_sams');
+    define('DB_PORT', 3306);
+}
 
 // Gérer les requêtes OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
