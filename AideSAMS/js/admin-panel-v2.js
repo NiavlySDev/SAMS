@@ -72,7 +72,18 @@ class AdminPanelV2 {
                         const config = {};
                         if (Array.isArray(result.data)) {
                             result.data.forEach(item => {
-                                config[item.config_key] = item.config_value;
+                                let value = item.config_value;
+                                // Essayer de décoder si c'est du JSON
+                                try {
+                                    const decoded = JSON.parse(value);
+                                    // Si c'est un objet, prendre le password de l'objet
+                                    if (decoded && typeof decoded === 'object' && decoded.password) {
+                                        value = decoded.password;
+                                    }
+                                } catch (e) {
+                                    // Pas du JSON, garder la valeur telle quelle
+                                }
+                                config[item.config_key] = value;
                             });
                         } else {
                             Object.assign(config, result.data);
@@ -220,13 +231,25 @@ class AdminPanelV2 {
             
             // Tentative de sauvegarde en BDD via l'API
             try {
+                // S'assurer que les valeurs sont des scalaires, pas des objets
+                const configToSave = {};
+                Object.keys(this.adminConfig).forEach(key => {
+                    let value = this.adminConfig[key];
+                    // Si c'est un objet, le convertir en JSON string
+                    if (typeof value === 'object' && value !== null) {
+                        value = JSON.stringify(value);
+                    }
+                    // Si c'est null, le convertir en string "null"
+                    if (value === null) {
+                        value = 'null';
+                    }
+                    configToSave[key] = String(value);
+                });
+                
                 const response = await fetch('api/db.php?action=save-admin-config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        password: this.adminConfig.password,
-                        lastChanged: this.adminConfig.lastChanged
-                    })
+                    body: JSON.stringify(configToSave)
                 });
                 
                 if (response.ok) {
@@ -236,7 +259,7 @@ class AdminPanelV2 {
                     }
                 }
             } catch (serverError) {
-                console.warn('Serveur non disponible, sauvegarde locale uniquement');
+                console.warn('Serveur non disponible, sauvegarde locale uniquement:', serverError);
             }
         } catch (error) {
             console.error('Erreur lors de la sauvegarde de la configuration:', error);
@@ -1569,8 +1592,33 @@ function clearAllData() {
     }
 }
 
+function repairAdminConfig() {
+    if (!window.adminPanel) return;
+    
+    const confirmed = confirm('Êtes-vous sûr de vouloir réparer la configuration admin ? Cela réinitialisera le mot de passe à "admin123".');
+    
+    if (confirmed) {
+        fetch('api/admin-config-repair.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    adminPanel.showNotification('Configuration admin réparée avec succès! Rechargement...', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    adminPanel.showNotification('Erreur: ' + (data.message || 'Erreur inconnue'), 'error');
+                }
+            })
+            .catch(error => {
+                adminPanel.showNotification('Erreur: ' + error.message, 'error');
+            });
+    }
+}
+
 // Initialiser le panel d'administration
 let adminPanel;
 document.addEventListener('DOMContentLoaded', () => {
     adminPanel = new AdminPanelV2();
 });
+
