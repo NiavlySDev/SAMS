@@ -520,8 +520,13 @@
                     if (confirm('Effacer tous les éléments localement?')) {
                         this.elements = [];
                         localStorage.setItem('gta5-map', JSON.stringify([]));
+                        // Aussi vider le cache du dataSyncManager pour que ça ne recharge pas depuis BDD
+                        if (window.dataSyncManager && window.dataSyncManager.cache) {
+                            window.dataSyncManager.cache['gta5-zones'] = [];
+                            window.dataSyncManager.cache['gta5-blippers'] = [];
+                        }
                         this.draw();
-                        console.log('✅ Données effacées localement');
+                        console.log('✅ Données effacées localement et du cache');
                     }
                 });
                 document.getElementById('clearDBBtn').addEventListener('click', () => {
