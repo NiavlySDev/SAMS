@@ -1,0 +1,345 @@
+<?php
+/**
+ * API de synchronisation avec la base de données MySQL
+ * Gère les blippers, manuels, grades, spécialités et catégories
+ */
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Configuration de la base de données
+define('DB_HOST', 'we01io.myd.infomaniak.com');
+define('DB_USER', 'we01io_sams');
+define('DB_PASS', 'RBM91210chat!');
+define('DB_NAME', 'we01io_sams');
+define('DB_PORT', 3306);
+
+// Gérer les requêtes OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$method = $_SERVER['REQUEST_METHOD'];
+$type = $_GET['type'] ?? '';
+$action = $_GET['action'] ?? '';
+
+// Variable globale pour la connexion
+$db = null;
+$dbConnected = false;
+
+/**
+ * Tenter de se connecter à la base de données
+ */
+function connectDB() {
+    global $db, $dbConnected;
+    
+    try {
+        $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+        
+        if ($db->connect_error) {
+            throw new Exception('Erreur de connexion: ' . $db->connect_error);
+        }
+        
+        $db->set_charset('utf8mb4');
+        $dbConnected = true;
+        
+        // Créer les tables si elles n'existent pas
+        createTables();
+        
+        return true;
+    } catch (Exception $e) {
+        error_log('Erreur DB: ' . $e->getMessage());
+        $dbConnected = false;
+        return false;
+    }
+}
+
+/**
+ * Créer les tables nécessaires
+ */
+function createTables() {
+    global $db;
+    
+    $tables = [
+        // Table des blippers
+        "CREATE TABLE IF NOT EXISTS blippers (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            bliper_id VARCHAR(50) UNIQUE NOT NULL,
+            label VARCHAR(100) NOT NULL,
+            icon VARCHAR(10) NOT NULL,
+            color VARCHAR(7) NOT NULL,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        // Table des manuels
+        "CREATE TABLE IF NOT EXISTS manuels (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            link VARCHAR(500),
+            importance INT DEFAULT 5,
+            categorie VARCHAR(100),
+            cat_color VARCHAR(7),
+            auteur VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        // Table des grades
+        "CREATE TABLE IF NOT EXISTS grades (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        // Table des spécialités
+        "CREATE TABLE IF NOT EXISTS specialites (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        // Table des catégories
+        "CREATE TABLE IF NOT EXISTS categories (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            color VARCHAR(7) NOT NULL,
+            visible BOOLEAN DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        
+        // Table des membres de spécialité
+        "CREATE TABLE IF NOT EXISTS specialite_membres (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            specialite_id INT NOT NULL,
+            nom VARCHAR(255) NOT NULL,
+            discord_id VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (specialite_id) REFERENCES specialites(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    ];
+    
+    foreach ($tables as $sql) {
+        if (!$db->query($sql)) {
+            error_log('Erreur création table: ' . $db->error);
+        }
+    }
+}
+
+/**
+ * Charger les données depuis la BDD
+ */
+function loadFromDB($type) {
+    global $db, $dbConnected;
+    
+    if (!$dbConnected) {
+        return null;
+    }
+    
+    try {
+        switch ($type) {
+            case 'blippers':
+                $result = $db->query("SELECT bliper_id as id, label, icon, color, description FROM blippers ORDER BY id");
+                break;
+            case 'manuels':
+                $result = $db->query("SELECT id, title, description as desc, link, importance, categorie, cat_color as catColor, auteur FROM manuels ORDER BY importance DESC, id");
+                break;
+            case 'grades':
+                $result = $db->query("SELECT id, name FROM grades ORDER BY name");
+                break;
+            case 'specialites':
+                $result = $db->query("SELECT id, name FROM specialites ORDER BY name");
+                break;
+            case 'categories':
+                $result = $db->query("SELECT id, name, color, visible FROM categories ORDER BY name");
+                break;
+            default:
+                return null;
+        }
+        
+        if (!$result) {
+            throw new Exception($db->error);
+        }
+        
+        $data = [];
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+        
+        return $data;
+    } catch (Exception $e) {
+        error_log('Erreur lecture DB: ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Sauvegarder les données dans la BDD
+ */
+function saveToDB($type, $data) {
+    global $db, $dbConnected;
+    
+    if (!$dbConnected) {
+        return false;
+    }
+    
+    try {
+        // Commencer une transaction
+        $db->begin_transaction();
+        
+        switch ($type) {
+            case 'blippers':
+                // Vider et recharger
+                $db->query("TRUNCATE TABLE blippers");
+                foreach ($data as $item) {
+                    $id = $db->real_escape_string($item['id']);
+                    $label = $db->real_escape_string($item['label']);
+                    $icon = $db->real_escape_string($item['icon']);
+                    $color = $db->real_escape_string($item['color']);
+                    $description = $db->real_escape_string($item['description'] ?? '');
+                    
+                    $sql = "INSERT INTO blippers (bliper_id, label, icon, color, description) 
+                            VALUES ('$id', '$label', '$icon', '$color', '$description')";
+                    
+                    if (!$db->query($sql)) {
+                        throw new Exception($db->error);
+                    }
+                }
+                break;
+                
+            case 'manuels':
+                $db->query("TRUNCATE TABLE manuels");
+                foreach ($data as $item) {
+                    $title = $db->real_escape_string($item['title']);
+                    $desc = $db->real_escape_string($item['desc'] ?? '');
+                    $link = $db->real_escape_string($item['link'] ?? '');
+                    $importance = (int)($item['importance'] ?? 5);
+                    $categorie = $db->real_escape_string($item['categorie'] ?? '');
+                    $catColor = $db->real_escape_string($item['catColor'] ?? '');
+                    $auteur = $db->real_escape_string($item['auteur'] ?? '');
+                    
+                    $sql = "INSERT INTO manuels (title, description, link, importance, categorie, cat_color, auteur) 
+                            VALUES ('$title', '$desc', '$link', $importance, '$categorie', '$catColor', '$auteur')";
+                    
+                    if (!$db->query($sql)) {
+                        throw new Exception($db->error);
+                    }
+                }
+                break;
+                
+            case 'grades':
+                $db->query("TRUNCATE TABLE grades");
+                foreach ($data as $item) {
+                    $name = $db->real_escape_string($item['name']);
+                    $sql = "INSERT INTO grades (name) VALUES ('$name')";
+                    if (!$db->query($sql)) {
+                        throw new Exception($db->error);
+                    }
+                }
+                break;
+                
+            case 'specialites':
+                $db->query("TRUNCATE TABLE specialites");
+                foreach ($data as $item) {
+                    $name = $db->real_escape_string($item['name']);
+                    $sql = "INSERT INTO specialites (name) VALUES ('$name')";
+                    if (!$db->query($sql)) {
+                        throw new Exception($db->error);
+                    }
+                }
+                break;
+                
+            case 'categories':
+                $db->query("TRUNCATE TABLE categories");
+                foreach ($data as $item) {
+                    $name = $db->real_escape_string($item['name']);
+                    $color = $db->real_escape_string($item['color']);
+                    $visible = (int)($item['visible'] ?? 1);
+                    $sql = "INSERT INTO categories (name, color, visible) VALUES ('$name', '$color', $visible)";
+                    if (!$db->query($sql)) {
+                        throw new Exception($db->error);
+                    }
+                }
+                break;
+        }
+        
+        $db->commit();
+        return true;
+    } catch (Exception $e) {
+        $db->rollback();
+        error_log('Erreur sauvegarde DB: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Vérifier la connexion à la BDD
+ */
+function checkConnection() {
+    return connectDB();
+}
+
+// Routeur des requêtes
+switch ($action) {
+    case 'check':
+        // Vérifier si on peut se connecter à la BDD
+        $connected = connectDB();
+        http_response_code($connected ? 200 : 503);
+        echo json_encode(['connected' => $connected]);
+        break;
+        
+    case 'load':
+        // Charger les données depuis la BDD
+        connectDB();
+        if ($dbConnected) {
+            $data = loadFromDB($type);
+            if ($data !== null) {
+                echo json_encode(['success' => true, 'source' => 'database', 'data' => $data]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Erreur de chargement']);
+            }
+        } else {
+            http_response_code(503);
+            echo json_encode(['success' => false, 'error' => 'Base de données indisponible']);
+        }
+        break;
+        
+    case 'save':
+        // Sauvegarder les données dans la BDD
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        connectDB();
+        if ($dbConnected) {
+            if (saveToDB($type, $data)) {
+                echo json_encode(['success' => true, 'message' => 'Données sauvegardées en BDD']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Erreur lors de la sauvegarde']);
+            }
+        } else {
+            http_response_code(503);
+            echo json_encode(['success' => false, 'error' => 'Base de données indisponible']);
+        }
+        break;
+        
+    default:
+        http_response_code(400);
+        echo json_encode(['error' => 'Action invalide']);
+        break;
+}
+
+// Fermer la connexion
+if ($db && $dbConnected) {
+    $db->close();
+}
+?>

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA5 Map - Interactive Builder</title>
+    <script src="js/sams-common.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0b 0%, #1a1a1b 100%);
+            color: #e5e5e5;
+            overflow: hidden;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container { 
+            width: 100%;
+            height: calc(100vh - 116px);
+            display: flex; 
+            flex-direction: column;
+            position: absolute;
+            top: 116px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .header {
+            background: rgba(15, 15, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(64, 64, 68, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 { 
+            font-size: 1.5em; 
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a8a8a8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .header p { color: #a8a8a8; font-size: 0.9em; }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .main-layout.view-mode { flex-direction: column; }
+
+        .control-panel {
+            width: 350px;
+            background: rgba(25, 25, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(64, 64, 68, 0.3);
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .control-panel.hidden { display: none !important; }
+
+        .section {
+            background: rgba(35, 35, 36, 0.6);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 12px;
+            padding: 14px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .section h2 {
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            color: #4a9eff;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-buttons { display: flex; flex-direction: column; gap: 8px; }
+
+        .tool-btn, .action-btn {
+            padding: 10px 12px;
+            background: rgba(35, 35, 36, 0.8);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 8px;
+            color: #e5e5e5;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-btn::before, .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-btn:hover::before, .action-btn:hover::before {
+            opacity: 1;
+        }
+
+        .tool-btn:hover, .action-btn:hover {
+            border-color: #4a9eff;
+            background: rgba(35, 35, 36, 0.9);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(74, 158, 255, 0.08) 100%);
+            border-color: #4a9eff;
+            color: #fff;
+        }
+
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .mode-btn {
+            padding: 8px 12px;
+            background: rgba(35, 35, 36, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 8px;
+            color: #a8a8a8;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mode-btn:hover::before {
+            opacity: 1;
+        }
+
+        .mode-btn:hover {
+            border-color: #4a9eff;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(74, 158, 255, 0.08) 100%);
+            border-color: #4a9eff;
+            color: #fff;
+        }
+
+        .map-container {
+            flex: 1;
+            background-color: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #mapCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+
+        #mapCanvas.pan { cursor: grab; }
+        #mapCanvas.pan:active { cursor: grabbing; }
+
+        .form-group {
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85em;
+            margin-bottom: 4px;
+            color: #a8a8a8;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 6px 8px;
+            background: rgba(45, 45, 46, 0.8);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 6px;
+            color: #e5e5e5;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: rgba(74, 158, 255, 0.3);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4a9eff;
+            background: rgba(45, 45, 46, 0.9);
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.1);
+        }
+
+        input[type="file"] { display: none; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(25, 25, 26, 0.4); }
+        ::-webkit-scrollbar-thumb { background: rgba(74, 158, 255, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(74, 158, 255, 0.5); }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Styles pour la navbar */
+        .nav-tabs,
+        .sub-nav {
+            position: sticky;
+            top: 38px;
+            z-index: 101;
+            background: #181818;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tabs {
+            background: rgba(20, 20, 21, 0.8);
+            backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(64, 64, 68, 0.25);
+            padding: 0 0 2px 0;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            color: #a8a8a8;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px 12px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-tab:hover::before {
+            opacity: 1;
+        }
+
+        .nav-tab:hover {
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.15) 0%, rgba(74, 158, 255, 0.08) 100%);
+            border-bottom: 2px solid #4a9eff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mode-toggle">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-size: 0.9em; color: #a8a8a8;">Style:</label>
+                <select id="mapStyle" style="padding: 6px 10px; background: rgba(35, 35, 36, 0.8); border: 1px solid rgba(64, 64, 68, 0.3); border-radius: 6px; color: #e5e5e5; font-size: 0.9em; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgba(74, 158, 255, 0.5)'" onmouseout="this.style.borderColor='rgba(64, 64, 68, 0.3)'" onfocus="this.style.borderColor='#4a9eff'; this.style.boxShadow='0 0 0 2px rgba(74, 158, 255, 0.1)'" onblur="this.style.borderColor='rgba(64, 64, 68, 0.3)'; this.style.boxShadow='none'">
+                    <option value="atlas">🗺️ Atlas</option>
+                    <option value="sattelite" selected>🛰️ Satellite</option>
+                    <option value="road">🛣️ Route</option>
+                </select>
+            </div>
+            <button class="mode-btn active" id="viewModeBtn">👁️ Consultation</button>
+            <button class="mode-btn" id="editModeBtn">✏️ Édition</button>
+        </div>
+
+        <div class="main-layout view-mode">
+            <!-- Panneau de contrôle (caché par défaut) -->
+            <aside class="control-panel hidden">
+                <section class="section">
+                    <h2>Outils</h2>
+                    <div class="tool-buttons">
+                        <button class="tool-btn active" data-tool="zone">🎨 Dessiner Zone</button>
+                        <button class="tool-btn" data-tool="bliper">📍 Ajouter Bliper</button>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Zone</h2>
+                    <div class="form-group">
+                        <label>Couleur:</label>
+                        <input type="color" id="zoneColor" value="#FF6B6B">
+                    </div>
+                    <div class="form-group">
+                        <label>Opacité: <span id="opacityValue">50%</span></label>
+                        <input type="range" id="zoneOpacity" min="0.1" max="1" step="0.1" value="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="zoneName" placeholder="Nom zone">
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Bliper</h2>
+                    <div class="form-group">
+                        <label>Type:</label>
+                        <select id="bliperType">
+                            <option>Chargement...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur:</label>
+                        <input type="color" id="bliperColor" value="#4CAF50">
+                    </div>
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="bliperName" placeholder="Nom bliper">
+                    </div>
+                </section>
+
+                <section class="section">
+                    <h2>Actions</h2>
+                    <button class="action-btn" id="resetViewBtn">🔄 Reset Vue</button>
+                    <button class="action-btn" id="clearBtn">🗑️ Effacer</button>
+                    <button class="action-btn" id="exportBtn">💾 Export</button>
+                    <button class="action-btn" id="importBtn">📂 Import</button>
+                    <button class="action-btn" id="loadMapBtn">🖼️ Charger Carte</button>
+                    <input type="file" id="importFile" accept=".json">
+                    <input type="file" id="loadMapFile" accept="image/*">
+                </section>
+            </aside>
+
+            <!-- Canvas -->
+            <main class="map-container">
+                <canvas id="mapCanvas"></canvas>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        class GTA5MapBuilder {
+            constructor() {
+                this.canvas = document.getElementById('mapCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.editMode = false;
+                this.elements = [];
+                this.blippers = []; // Tableau des blippers disponibles
+                
+                this.mapImage = new Image();
+                this.mapImageLoaded = false;
+                this.mapStyle = 'sattelite'; // Style de carte par défaut
+                
+                this.isDrawing = false;
+                this.currentPath = [];
+                this.currentTool = 'zone';
+                
+                this.zoom = 1;
+                this.panX = 0;
+                this.panY = 0;
+                this.isPanning = false;
+                this.panStartX = 0;
+                this.panStartY = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                this.loadBlippers(); // Charger les blippers du JSON
+                this.setupEvents();
+                this.loadSavedData();
+                this.loadMapImage();
+                this.loop();
+            }
+
+            async loadBlippers() {
+                try {
+                    const response = await fetch('json/blippers.json');
+                    this.blippers = await response.json();
+                    this.populateBliperSelect();
+                } catch (error) {
+                    console.error('Erreur lors du chargement des blippers:', error);
+                    // Fallback: blippers par défaut
+                    this.blippers = [
+                        { id: 'police', label: '🚔 Police', icon: '🚔', color: '#0066cc' },
+                        { id: 'hospital', label: '🏥 Hôpital', icon: '🏥', color: '#ff0000' },
+                        { id: 'store', label: '🏪 Magasin', icon: '🏪', color: '#00cc00' },
+                        { id: 'bar', label: '🍻 Bar', icon: '🍻', color: '#ff6600' },
+                        { id: 'marker', label: '📍 Marqueur', icon: '📍', color: '#ffff00' }
+                    ];
+                    this.populateBliperSelect();
+                }
+            }
+
+            populateBliperSelect() {
+                const select = document.getElementById('bliperType');
+                if (!select) return;
+                
+                select.innerHTML = '';
+                this.blippers.forEach(bliper => {
+                    const option = document.createElement('option');
+                    option.value = bliper.id;
+                    option.textContent = bliper.label;
+                    select.appendChild(option);
+                });
+            }
+
+            setupEvents() {
+                // Mode
+                document.getElementById('viewModeBtn').addEventListener('click', () => this.setMode(false));
+                document.getElementById('editModeBtn').addEventListener('click', () => this.setMode(true));
+
+                // Canvas
+                this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+                this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                this.canvas.addEventListener('mouseup', () => this.onMouseUp());
+                this.canvas.addEventListener('click', (e) => this.onClick(e));
+                this.canvas.addEventListener('wheel', (e) => this.onZoom(e));
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                // Tools
+                document.querySelectorAll('[data-tool]').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selectTool(e.target.closest('button').dataset.tool));
+                });
+
+                // Map Style
+                document.getElementById('mapStyle').addEventListener('change', (e) => {
+                    this.mapStyle = e.target.value;
+                    this.loadMapImage(false); // Ne pas réinitialiser la vue pour garder le zoom
+                });
+
+                // Actions
+                document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
+                document.getElementById('clearBtn').addEventListener('click', () => {
+                    if (confirm('Effacer tous?')) {
+                        this.elements = [];
+                        this.saveToDB();
+                    }
+                });
+                document.getElementById('exportBtn').addEventListener('click', () => this.export());
+                document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+                document.getElementById('loadMapBtn').addEventListener('click', () => document.getElementById('loadMapFile').click());
+
+                document.getElementById('importFile').addEventListener('change', (e) => this.import(e));
+                document.getElementById('loadMapFile').addEventListener('change', (e) => this.loadMapFile(e));
+
+                // Opacity
+                document.getElementById('zoneOpacity').addEventListener('input', (e) => {
+                    document.getElementById('opacityValue').textContent = Math.round(e.target.value * 100) + '%';
+                });
+            }
+
+            setMode(editMode) {
+                this.editMode = editMode;
+                const layout = document.querySelector('.main-layout');
+                const panel = document.querySelector('.control-panel');
+                const viewBtn = document.getElementById('viewModeBtn');
+                const editBtn = document.getElementById('editModeBtn');
+
+                if (editMode) {
+                    layout.classList.remove('view-mode');
+                    panel.classList.remove('hidden');
+                    editBtn.classList.add('active');
+                    viewBtn.classList.remove('active');
+                    this.canvas.style.cursor = 'crosshair';
+                } else {
+                    layout.classList.add('view-mode');
+                    panel.classList.add('hidden');
+                    viewBtn.classList.add('active');
+                    editBtn.classList.remove('active');
+                    this.canvas.style.cursor = 'grab';
+                }
+                this.resizeCanvas();
+            }
+
+            selectTool(tool) {
+                this.currentTool = tool;
+                document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            }
+
+            resizeCanvas() {
+                this.canvas.width = this.canvas.offsetWidth;
+                this.canvas.height = this.canvas.offsetHeight;
+            }
+
+            onMouseDown(e) {
+                const pos = this.getMousePos(e);
+
+                if (e.button === 2) {
+                    this.isPanning = true;
+                    this.panStartX = pos.x - this.panX;
+                    this.panStartY = pos.y - this.panY;
+                    return;
+                }
+
+                if (!this.editMode) return;
+
+                if (this.currentTool === 'zone') {
+                    this.isDrawing = true;
+                    this.currentPath = [this.screenToWorld(pos)];
+                }
+            }
+
+            onMouseMove(e) {
+                const pos = this.getMousePos(e);
+
+                if (this.isPanning) {
+                    this.panX = pos.x - this.panStartX;
+                    this.panY = pos.y - this.panStartY;
+                    this.constrainPan();
+                    return;
+                }
+
+                if (this.isDrawing && this.currentTool === 'zone') {
+                    this.currentPath.push(this.screenToWorld(pos));
+                }
+            }
+
+            onMouseUp(e) {
+                if (this.isPanning) {
+                    this.isPanning = false;
+                    return;
+                }
+
+                if (this.editMode && this.currentTool === 'bliper' && !this.isDrawing) {
+                    // Placer un bliper au mouseUp
+                    const pos = this.getMousePos(e);
+                    const worldPos = this.screenToWorld(pos);
+
+                    this.elements.push({
+                        id: Date.now(),
+                        type: 'bliper',
+                        x: worldPos.x,
+                        y: worldPos.y,
+                        bliperType: document.getElementById('bliperType').value,
+                        color: document.getElementById('bliperColor').value,
+                        name: document.getElementById('bliperName').value || `Bliper ${this.elements.filter(e => e.type === 'bliper').length + 1}`
+                    });
+                    this.saveToDB();
+                    document.getElementById('bliperName').value = '';
+                    return;
+                }
+
+                if (this.isDrawing && this.currentPath.length > 2) {
+                    // Fermer la zone automatiquement
+                    this.elements.push({
+                        id: Date.now(),
+                        type: 'zone',
+                        points: this.currentPath,
+                        color: document.getElementById('zoneColor').value,
+                        opacity: parseFloat(document.getElementById('zoneOpacity').value),
+                        name: document.getElementById('zoneName').value || `Zone ${this.elements.filter(e => e.type === 'zone').length + 1}`
+                    });
+                    this.saveToDB();
+                    document.getElementById('zoneName').value = '';
+                }
+
+                this.isDrawing = false;
+                this.isPanning = false;
+                this.currentPath = [];
+            }
+
+            onClick(e) {
+                if (!this.editMode || this.currentTool !== 'bliper') return;
+
+                const pos = this.getMousePos(e);
+                const worldPos = this.screenToWorld(pos);
+
+                this.elements.push({
+                    id: Date.now(),
+                    type: 'bliper',
+                    x: worldPos.x,
+                    y: worldPos.y,
+                    bliperType: document.getElementById('bliperType').value,
+                    color: document.getElementById('bliperColor').value,
+                    name: document.getElementById('bliperName').value || `Bliper ${this.elements.filter(e => e.type === 'bliper').length + 1}`
+                });
+                this.saveToDB();
+                document.getElementById('bliperName').value = '';
+            }
+
+            onZoom(e) {
+                e.preventDefault();
+                if (!this.mapImageLoaded) return;
+
+                const mousePos = this.getMousePos(e);
+
+                // Position du point sur la carte en coordonnées monde AVANT le zoom
+                const mapX = (mousePos.x - this.panX) / this.zoom;
+                const mapY = (mousePos.y - this.panY) / this.zoom;
+
+                // Appliquer le facteur de zoom
+                const factor = e.deltaY > 0 ? 0.9 : 1.1;
+                this.zoom = Math.max(0.1, Math.min(this.zoom * factor, 10));
+
+                // Recalculer la position du pan pour que le point reste sous la souris
+                this.panX = mousePos.x - mapX * this.zoom;
+                this.panY = mousePos.y - mapY * this.zoom;
+
+                // Appliquer les contraintes de pan
+                this.constrainPan();
+            }
+
+            constrainPan() {
+                if (!this.mapImageLoaded) return;
+
+                const mapWidth = this.mapImage.width * this.zoom;
+                const mapHeight = this.mapImage.height * this.zoom;
+                const canvasWidth = this.canvas.width;
+                const canvasHeight = this.canvas.height;
+
+                // Si la carte est plus petite que l'écran, la centrer
+                if (mapWidth <= canvasWidth) {
+                    this.panX = (canvasWidth - mapWidth) / 2;
+                } else {
+                    // Sinon, empêcher de dépasser les bords
+                    this.panX = Math.max(canvasWidth - mapWidth, Math.min(this.panX, 0));
+                }
+
+                if (mapHeight <= canvasHeight) {
+                    this.panY = (canvasHeight - mapHeight) / 2;
+                } else {
+                    this.panY = Math.max(canvasHeight - mapHeight, Math.min(this.panY, 0));
+                }
+            }
+
+            getMousePos(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            }
+
+            screenToWorld(p) {
+                return {
+                    x: (p.x - this.panX) / this.zoom,
+                    y: (p.y - this.panY) / this.zoom
+                };
+            }
+
+            loadMapImage(resetView = true) {
+                const mapNames = {
+                    'atlas': 'gta5-map-atlas.png',
+                    'sattelite': 'gta5-map-sattelite.png',
+                    'road': 'gta5-map-road.png'
+                };
+                const fileName = mapNames[this.mapStyle] || 'gta5-map-atlas.png';
+                const paths = [`./images/${fileName}`, `images/${fileName}`];
+                
+                const tryLoad = (i) => {
+                    if (i >= paths.length) return;
+                    this.mapImage.onload = () => {
+                        this.mapImageLoaded = true;
+                        if (resetView) this.resetView();
+                        console.log(`✓ Carte ${this.mapStyle} chargée`);
+                    };
+                    this.mapImage.onerror = () => tryLoad(i + 1);
+                    this.mapImage.src = paths[i];
+                };
+                tryLoad(0);
+            }
+
+            loadMapFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    this.mapImage.onload = () => {
+                        this.mapImageLoaded = true;
+                        this.resetView();
+                    };
+                    this.mapImage.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            resetView() {
+                if (this.mapImageLoaded) {
+                    const sx = this.canvas.width / this.mapImage.width;
+                    const sy = this.canvas.height / this.mapImage.height;
+                    this.zoom = Math.min(sx, sy) * 0.95;
+                    this.panX = (this.canvas.width - this.mapImage.width * this.zoom) / 2;
+                    this.panY = (this.canvas.height - this.mapImage.height * this.zoom) / 2;
+                    this.constrainPan();
+                }
+            }
+
+            saveToDB() {
+                localStorage.setItem('gta5-map', JSON.stringify(this.elements));
+            }
+
+            loadSavedData() {
+                const data = localStorage.getItem('gta5-map');
+                if (data) {
+                    try {
+                        this.elements = JSON.parse(data);
+                    } catch (e) {
+                        console.error('Erreur chargement', e);
+                    }
+                }
+            }
+
+            export() {
+                const a = document.createElement('a');
+                a.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(this.elements, null, 2));
+                a.download = `gta5-map-${Date.now()}.json`;
+                a.click();
+            }
+
+            import(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const data = JSON.parse(evt.target.result);
+                        if (Array.isArray(data)) {
+                            this.elements = data;
+                            this.saveToDB();
+                            alert('✓ Importé!');
+                        }
+                    } catch (err) {
+                        alert('Erreur: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                this.ctx.save();
+                this.ctx.translate(this.panX, this.panY);
+                this.ctx.scale(this.zoom, this.zoom);
+
+                if (this.mapImageLoaded) {
+                    this.ctx.drawImage(this.mapImage, 0, 0);
+                }
+
+                // Zones
+                this.elements.filter(e => e.type === 'zone').forEach(z => {
+                    this.ctx.fillStyle = this.hexToRgba(z.color, z.opacity);
+                    this.ctx.beginPath();
+                    z.points.forEach((p, i) => i === 0 ? this.ctx.moveTo(p.x, p.y) : this.ctx.lineTo(p.x, p.y));
+                    this.ctx.closePath();
+                    this.ctx.fill();
+
+                    this.ctx.strokeStyle = z.color;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                });
+
+                // Blippers
+                this.elements.filter(e => e.type === 'bliper').forEach(b => {
+                    this.ctx.fillStyle = b.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(b.x, b.y, 15, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    this.ctx.strokeStyle = '#fff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+
+                    // Afficher l'icône emoji du type de bliper
+                    this.ctx.save();
+                    this.ctx.font = 'bold 24px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.scale(1 / this.zoom, 1 / this.zoom);
+                    this.ctx.fillText(this.getBlipIcon(b.bliperType), (b.x * this.zoom), (b.y * this.zoom), 30);
+                    this.ctx.restore();
+                });
+
+                // Preview
+                if (this.currentPath.length > 1) {
+                    this.ctx.strokeStyle = '#FF6B6B';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.currentPath.forEach((p, i) => i === 0 ? this.ctx.moveTo(p.x, p.y) : this.ctx.lineTo(p.x, p.y));
+                    this.ctx.stroke();
+                }
+
+                this.ctx.restore();
+
+                // Afficher les noms des zones et blippers sur la carte (coordonnées écran, taille fixe)
+                this.elements.forEach(e => {
+                    let screenX, screenY;
+                    
+                    if (e.type === 'zone' && e.name && e.points && e.points.length > 0) {
+                        // Calculer le centre du polygone en coordonnées monde
+                        let cx = 0, cy = 0;
+                        e.points.forEach(p => { cx += p.x; cy += p.y; });
+                        cx /= e.points.length;
+                        cy /= e.points.length;
+                        screenX = this.panX + cx * this.zoom;
+                        screenY = this.panY + cy * this.zoom;
+                    } else if (e.type === 'bliper' && e.name) {
+                        // Position du bliper en coordonnées écran
+                        screenX = this.panX + e.x * this.zoom;
+                        screenY = this.panY + e.y * this.zoom - 30; // Au-dessus du bliper
+                    } else {
+                        return;
+                    }
+
+                    // Afficher le texte à taille fixe (ne change pas avec le zoom)
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = 'bold 16px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    
+                    // Fond semi-transparent pour meilleure lisibilité
+                    const textMetrics = this.ctx.measureText(e.name);
+                    const textWidth = textMetrics.width;
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                    this.ctx.fillRect(screenX - textWidth/2 - 5, screenY - 12, textWidth + 10, 24);
+                    
+                    // Texte blanc
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = 'bold 16px Arial';
+                    this.ctx.fillText(e.name, screenX, screenY);
+                });
+            }
+
+            hexToRgba(hex, alpha) {
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+
+            getBlipIcon(type) {
+                const bliper = this.blippers.find(b => b.id === type);
+                return bliper ? bliper.icon : '📍';
+            }
+
+            loop() {
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Ajouter la classe active au bon onglet de navbar (sams-common.js charge automatiquement les includes)
+            const currentPage = 'gta5-map';
+            setTimeout(() => {
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    if (tab.getAttribute('data-page') === currentPage) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+            }, 100);
+            
+            // Initialiser la map
+            new GTA5MapBuilder();
+        });
+    </script>
+</body>
+</html>

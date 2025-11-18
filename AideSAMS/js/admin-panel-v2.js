@@ -5,6 +5,7 @@ class AdminPanelV2 {
         this.grades = [];
         this.specialites = [];
         this.categories = [];
+        this.blippers = [];
         this.adminConfig = {};
         this.isAuthenticated = false;
         this.currentTab = 'manuels';
@@ -14,6 +15,9 @@ class AdminPanelV2 {
 
     async init() {
         try {
+            // Attendre que le gestionnaire de sync soit prêt
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             await this.loadAdminConfig();
             // Vérifier s'il y a une session active
             if (this.checkActiveSession(false)) {
@@ -183,7 +187,8 @@ class AdminPanelV2 {
                 this.loadManuels(),
                 this.loadGrades(),
                 this.loadSpecialites(),
-                this.loadCategories()
+                this.loadCategories(),
+                this.loadBlippers()
             ]);
             
             this.renderAll();
@@ -196,23 +201,28 @@ class AdminPanelV2 {
     }
 
     async loadManuels() {
-        const response = await fetch('json/manuels.json');
-        this.manuels = await response.json();
+        this.manuels = await dataSyncManager.load('manuels');
     }
 
     async loadGrades() {
-        const response = await fetch('json/grades.json');
-        this.grades = await response.json();
+        this.grades = await dataSyncManager.load('grades');
     }
 
     async loadSpecialites() {
-        const response = await fetch('json/specialites.json');
-        this.specialites = await response.json();
+        this.specialites = await dataSyncManager.load('specialites');
     }
 
     async loadCategories() {
-        const response = await fetch('json/categories.json');
-        this.categories = await response.json();
+        this.categories = await dataSyncManager.load('categories');
+    }
+
+    async loadBlippers() {
+        try {
+            this.blippers = await dataSyncManager.load('blippers');
+        } catch (error) {
+            console.error('Erreur lors du chargement des blippers:', error);
+            this.blippers = [];
+        }
     }
 
     // === CONFIGURATION DES EVENT LISTENERS ===
@@ -238,6 +248,12 @@ class AdminPanelV2 {
         document.getElementById('edit-categorie-form').addEventListener('submit', (e) => this.handleEditCategorieSubmit(e));
         document.getElementById('edit-grade-form').addEventListener('submit', (e) => this.handleEditGradeSubmit(e));
         document.getElementById('edit-specialite-form').addEventListener('submit', (e) => this.handleEditSpecialiteSubmit(e));
+
+        // Formulaires des blippers
+        const bliperForm = document.getElementById('bliper-form');
+        const editBliperForm = document.getElementById('edit-bliper-form');
+        if (bliperForm) bliperForm.addEventListener('submit', (e) => this.handleBliperSubmit(e));
+        if (editBliperForm) editBliperForm.addEventListener('submit', (e) => this.handleEditBliperSubmit(e));
 
         // Badges d'importance
         this.setupImportanceBadges();
@@ -359,6 +375,10 @@ class AdminPanelV2 {
                     const color = e.target.dataset.color;
                     if (picker.id === 'edit-categorie-color-picker') {
                         document.getElementById('edit-categorie-color').value = color;
+                    } else if (picker.id === 'bliper-color-picker') {
+                        document.getElementById('bliper-color').value = color;
+                    } else if (picker.id === 'edit-bliper-color-picker') {
+                        document.getElementById('edit-bliper-color').value = color;
                     } else if (picker.closest('#edit-categorie-modal')) {
                         document.getElementById('edit-categorie-color').value = color;
                     } else {
@@ -573,21 +593,8 @@ class AdminPanelV2 {
 
     async saveManuels() {
         try {
-            localStorage.setItem('sams_manuels_backup', JSON.stringify(this.manuels));
-            
-            try {
-                const response = await fetch('api/admin.php?type=manuels', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.manuels)
-                });
-                
-                if (response.ok) {
-                    console.log('Manuels sauvegardés sur le serveur');
-                }
-            } catch (serverError) {
-                console.warn('Serveur non disponible, sauvegarde locale uniquement');
-            }
+            const result = await dataSyncManager.save('manuels', this.manuels);
+            console.log(`✅ Manuels sauvegardés (source: ${result.source})`);
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -745,21 +752,8 @@ class AdminPanelV2 {
 
     async saveCategories() {
         try {
-            localStorage.setItem('sams_categories_backup', JSON.stringify(this.categories));
-            
-            try {
-                const response = await fetch('api/admin.php?type=categories', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.categories)
-                });
-                
-                if (response.ok) {
-                    console.log('Catégories sauvegardées sur le serveur');
-                }
-            } catch (serverError) {
-                console.warn('Serveur non disponible, sauvegarde locale uniquement');
-            }
+            const result = await dataSyncManager.save('categories', this.categories);
+            console.log(`✅ Catégories sauvegardées (source: ${result.source})`);
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -873,21 +867,8 @@ class AdminPanelV2 {
     // Continuer avec les autres méthodes pour grades, spécialités, etc...
     async saveGrades() {
         try {
-            localStorage.setItem('sams_grades_backup', JSON.stringify(this.grades));
-            
-            try {
-                const response = await fetch('api/admin.php?type=grades', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.grades)
-                });
-                
-                if (response.ok) {
-                    console.log('Grades sauvegardés sur le serveur');
-                }
-            } catch (serverError) {
-                console.warn('Serveur non disponible, sauvegarde locale uniquement');
-            }
+            const result = await dataSyncManager.save('grades', this.grades);
+            console.log(`✅ Grades sauvegardés (source: ${result.source})`);
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -967,21 +948,137 @@ class AdminPanelV2 {
 
     async saveSpecialites() {
         try {
-            localStorage.setItem('sams_specialites_backup', JSON.stringify(this.specialites));
+            const result = await dataSyncManager.save('specialites', this.specialites);
+            console.log(`✅ Spécialités sauvegardées (source: ${result.source})`);
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde:', error);
+            this.showNotification('Erreur lors de la sauvegarde', 'error');
+        }
+    }
+
+    // === GESTION DES BLIPPERS ===
+    async handleBliperSubmit(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('bliper-id').value.toLowerCase().trim();
+        const label = document.getElementById('bliper-label').value;
+        const icon = document.getElementById('bliper-icon').value;
+        const color = document.getElementById('bliper-color').value;
+        const description = document.getElementById('bliper-description').value;
+        
+        if (!id || !label || !icon) {
+            this.showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+            return;
+        }
+        
+        // Vérifier que l'ID n'existe pas déjà
+        if (this.blippers.some(b => b.id === id)) {
+            this.showNotification('Un bliper avec cet ID existe déjà', 'error');
+            return;
+        }
+        
+        this.blippers.push({
+            id,
+            label,
+            icon,
+            color,
+            description
+        });
+        
+        await this.saveBlippers();
+        this.renderBlippers();
+        this.clearBliperForm();
+        this.showNotification('Bliper ajouté avec succès', 'success');
+    }
+
+    async handleEditBliperSubmit(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('edit-bliper-id').value;
+        const label = document.getElementById('edit-bliper-label').value;
+        const icon = document.getElementById('edit-bliper-icon').value;
+        const color = document.getElementById('edit-bliper-color').value;
+        const description = document.getElementById('edit-bliper-description').value;
+        
+        if (!label || !icon) {
+            this.showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+            return;
+        }
+        
+        const bliper = this.blippers.find(b => b.id === id);
+        if (bliper) {
+            bliper.label = label;
+            bliper.icon = icon;
+            bliper.color = color;
+            bliper.description = description;
             
-            try {
-                const response = await fetch('api/admin.php?type=specialites', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.specialites)
-                });
-                
-                if (response.ok) {
-                    console.log('Spécialités sauvegardées sur le serveur');
-                }
-            } catch (serverError) {
-                console.warn('Serveur non disponible, sauvegarde locale uniquement');
+            await this.saveBlippers();
+            this.renderBlippers();
+            this.closeModal('edit-bliper-modal');
+            this.showNotification('Bliper modifié avec succès', 'success');
+        }
+    }
+
+    renderBlippers() {
+        const container = document.getElementById('blippers-list');
+        if (!container) return;
+        
+        if (this.blippers.length === 0) {
+            container.innerHTML = '<div style="color: #aaa; text-align: center; padding: 20px;">Aucun bliper</div>';
+            return;
+        }
+        
+        container.innerHTML = this.blippers.map(bliper => `
+            <div class="item">
+                <div class="item-info">
+                    <h4>${bliper.icon} ${bliper.label}</h4>
+                    <p>ID: <strong>${bliper.id}</strong> | Couleur: <strong style="color: ${bliper.color};">██████</strong></p>
+                    <p>${bliper.description || 'Pas de description'}</p>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-admin btn-warning" onclick="adminPanel.editBliper('${bliper.id}')">✏️ Éditer</button>
+                    <button class="btn-admin btn-danger" onclick="adminPanel.deleteBliper('${bliper.id}')">🗑️ Supprimer</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    editBliper(id) {
+        const bliper = this.blippers.find(b => b.id === id);
+        if (!bliper) return;
+        
+        document.getElementById('edit-bliper-id').value = bliper.id;
+        document.getElementById('edit-bliper-label').value = bliper.label;
+        document.getElementById('edit-bliper-icon').value = bliper.icon;
+        document.getElementById('edit-bliper-description').value = bliper.description || '';
+        
+        // Mettre à jour la couleur sélectionnée
+        const colorPicker = document.getElementById('edit-bliper-color-picker');
+        colorPicker.querySelectorAll('.color-option').forEach(option => {
+            option.classList.remove('selected');
+            if (option.dataset.color === bliper.color) {
+                option.classList.add('selected');
             }
+        });
+        document.getElementById('edit-bliper-color').value = bliper.color;
+        
+        this.openModal('edit-bliper-modal');
+    }
+
+    async deleteBliper(id) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce bliper ?')) {
+            this.blippers = this.blippers.filter(b => b.id !== id);
+            await this.saveBlippers();
+            this.renderBlippers();
+            this.showNotification('Bliper supprimé avec succès', 'success');
+        }
+    }
+
+    async saveBlippers() {
+        try {
+            const result = await dataSyncManager.save('blippers', this.blippers);
+            console.log(`✅ Blippers sauvegardés (source: ${result.source})`);
+            this.showNotification('Blippers sauvegardés ✓', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -1072,6 +1169,7 @@ class AdminPanelV2 {
         this.renderCategories();
         this.renderGrades();
         this.renderSpecialites();
+        this.renderBlippers();
     }
 
     showNotification(message, type = 'success') {
@@ -1320,6 +1418,27 @@ function clearSpecialiteForm() {
 
 function clearSpecialiteMembreForm() {
     if (window.adminPanel) adminPanel.clearSpecialiteMembreForm();
+}
+
+function clearBliperForm() {
+    if (window.adminPanel) {
+        document.getElementById('bliper-id').value = '';
+        document.getElementById('bliper-label').value = '';
+        document.getElementById('bliper-icon').value = '';
+        document.getElementById('bliper-color').value = '#0066cc';
+        document.getElementById('bliper-description').value = '';
+        
+        // Réinitialiser la couleur sélectionnée
+        const colorPicker = document.getElementById('bliper-color-picker');
+        if (colorPicker) {
+            colorPicker.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.color === '#0066cc') {
+                    option.classList.add('selected');
+                }
+            });
+        }
+    }
 }
 
 function closeModal(modalId) {

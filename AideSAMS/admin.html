@@ -632,6 +632,7 @@
                 <button class="tab-btn" onclick="switchTab('categories')">🏷️ Catégories</button>
                 <button class="tab-btn" onclick="switchTab('grades')">🏆 Grades</button>
                 <button class="tab-btn" onclick="switchTab('specialites')">⭐ Spécialités</button>
+                <button class="tab-btn" onclick="switchTab('blippers')">📍 Blippers</button>
                 <button class="tab-btn" onclick="switchTab('config')">⚙️ Configuration</button>
             </div>
 
@@ -827,6 +828,56 @@
                 </div>
             </div>
 
+            <!-- Section Blippers -->
+            <div id="blippers-tab" class="tab-content">
+                <div class="admin-sections">
+                    <div class="admin-section">
+                        <h2>📍 Ajouter un Bliper</h2>
+                        <form id="bliper-form">
+                            <div class="form-group">
+                                <label for="bliper-id">ID (identifiant unique) *</label>
+                                <input type="text" id="bliper-id" placeholder="ex: police, hospital, bar..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bliper-label">Label (texte affiché) *</label>
+                                <input type="text" id="bliper-label" placeholder="ex: 🚔 Police" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bliper-icon">Icône/Emoji *</label>
+                                <input type="text" id="bliper-icon" placeholder="ex: 🚔" maxlength="2" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bliper-color">Couleur *</label>
+                                <div class="color-picker" id="bliper-color-picker">
+                                    <div class="color-option selected" style="background: #0066cc;" data-color="#0066cc"></div>
+                                    <div class="color-option" style="background: #ff0000;" data-color="#ff0000"></div>
+                                    <div class="color-option" style="background: #00cc00;" data-color="#00cc00"></div>
+                                    <div class="color-option" style="background: #ff6600;" data-color="#ff6600"></div>
+                                    <div class="color-option" style="background: #ffff00;" data-color="#ffff00"></div>
+                                    <div class="color-option" style="background: #cc0000;" data-color="#cc0000"></div>
+                                    <div class="color-option" style="background: #4a9eff;" data-color="#4a9eff"></div>
+                                    <div class="color-option" style="background: #9d4edd;" data-color="#9d4edd"></div>
+                                </div>
+                                <input type="hidden" id="bliper-color" value="#0066cc">
+                            </div>
+                            <div class="form-group">
+                                <label for="bliper-description">Description</label>
+                                <textarea id="bliper-description" placeholder="Description du bliper (optionnel)"></textarea>
+                            </div>
+                            <button type="submit" class="btn-admin">Ajouter le Bliper</button>
+                            <button type="button" class="btn-admin btn-warning" onclick="clearBliperForm()">Effacer</button>
+                        </form>
+                    </div>
+
+                    <div class="admin-section">
+                        <h2>📋 Liste des Blippers</h2>
+                        <div class="items-list" id="blippers-list">
+                            <!-- Blippers seront chargés ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Section Configuration -->
             <div id="config-tab" class="tab-content">
                 <div class="admin-sections">
@@ -1005,7 +1056,51 @@
         </div>
     </div>
 
+    <!-- Modal pour éditer un bliper -->
+    <div id="edit-bliper-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier le Bliper</h3>
+                <span class="close" onclick="closeModal('edit-bliper-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-bliper-form">
+                    <input type="hidden" id="edit-bliper-id">
+                    <div class="form-group">
+                        <label for="edit-bliper-label">Label (texte affiché) *</label>
+                        <input type="text" id="edit-bliper-label" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bliper-icon">Icône/Emoji *</label>
+                        <input type="text" id="edit-bliper-icon" maxlength="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur *</label>
+                        <div class="color-picker" id="edit-bliper-color-picker">
+                            <div class="color-option selected" style="background: #0066cc;" data-color="#0066cc"></div>
+                            <div class="color-option" style="background: #ff0000;" data-color="#ff0000"></div>
+                            <div class="color-option" style="background: #00cc00;" data-color="#00cc00"></div>
+                            <div class="color-option" style="background: #ff6600;" data-color="#ff6600"></div>
+                            <div class="color-option" style="background: #ffff00;" data-color="#ffff00"></div>
+                            <div class="color-option" style="background: #cc0000;" data-color="#cc0000"></div>
+                            <div class="color-option" style="background: #4a9eff;" data-color="#4a9eff"></div>
+                            <div class="color-option" style="background: #9d4edd;" data-color="#9d4edd"></div>
+                        </div>
+                        <input type="hidden" id="edit-bliper-color">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bliper-description">Description</label>
+                        <textarea id="edit-bliper-description"></textarea>
+                    </div>
+                    <button type="submit" class="btn-admin">Sauvegarder</button>
+                    <button type="button" class="btn-admin btn-warning" onclick="closeModal('edit-bliper-modal')">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="js/sams-common.js"></script>
+    <script src="js/data-sync.js"></script>
     <script src="js/admin-panel-v2.js"></script>
 </body>
 

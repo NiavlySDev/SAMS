@@ -1,5 +1,71 @@
 [ 
   {
+    "version": "v1.15.0",
+    "date": "18/11/2025 - 00:00",
+    "changes": [
+      {
+        "text": "🗄️ INTÉGRATION MYSQL : Synchronisation complète avec base de données MySQL (we01io_sams) avec fallback automatique localStorage + JSON",
+        "type": "global"
+      },
+      {
+        "text": "📍 GESTION DES BLIPPERS : Nouvel onglet admin panel pour ajouter/modifier/supprimer des blippers avec interface complète",
+        "type": "global"
+      },
+      {
+        "text": "⚙️ SYSTÈME DE SYNC : Gestionnaire DataSyncManager pour coordonner chargement depuis BDD → localStorage → JSON avec priorités intelligentes",
+        "type": "global"
+      },
+      {
+        "text": "🔄 CRÉATION TABLES AUTO : Tables MySQL créées automatiquement (blippers, manuels, grades, spécialités, catégories) au premier accès",
+        "type": "global"
+      },
+      {
+        "text": "💾 PERSISTANCE MULTICOUCHE : Données sauvegardées en cascade BDD + localStorage + JSON pour robustesse maximale",
+        "type": "global"
+      },
+      {
+        "text": "🎨 COLOR PICKER BLIPPERS : Sélection de couleurs avec palette prédéfinie pour personnaliser chaque bliper",
+        "type": "secondaire"
+      },
+      {
+        "text": "🗺️ CHARGEMENT DYNAMIQUE CARTE : Les blippers se mettent à jour automatiquement depuis la BDD/JSON sur la carte GTA5",
+        "type": "secondaire"
+      },
+      {
+        "text": "📊 LOGS CONSOLE DÉTAILLÉS : Messages de synchronisation (✅ BDD, 💾 localStorage, 📄 JSON) pour débogage facilité",
+        "type": "secondaire"
+      },
+      {
+        "text": "🛡️ SÉCURITÉ SQL : Requêtes préparées contre injections, UTF-8mb4, validation côté serveur complète",
+        "type": "secondaire"
+      },
+      {
+        "text": "📖 DOCUMENTATION COMPLÈTE : Guides DATABASE_SYNC_GUIDE.md et README_ADMIN.md pour utilisation et architecture",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔗 API DB.PHP : Nouvelle API PHP complète pour lectures/écritures BDD avec transactions MySQL",
+        "type": "secondaire"
+      },
+      {
+        "text": "✅ VALIDATION IDS UNIQUES : Prévention des doublons d'IDs blippers au niveau UI et BDD",
+        "type": "secondaire"
+      },
+      {
+        "text": "⚡ MODAL ÉDITION BLIPPERS : Interface modale pour modifier les blippers existants avec sauvegarde en BDD/localStorage/JSON",
+        "type": "secondaire"
+      },
+      {
+        "text": "📋 AFFICHAGE BLIPPERS LISTE : Rendu complet avec actions inline (✏️ Éditer, 🗑️ Supprimer) et métadonnées affichées",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔍 VÉRIFICATION CONNEXION BDD : Détection automatique de la disponibilité de la BDD avec fallback transparent",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.14.18",
     "date": "04/11/2025 - 18:00",
     "changes": [

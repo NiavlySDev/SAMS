@@ -60,6 +60,10 @@ function getJsonFile($type) {
             return 'json/grades.json';
         case 'specialites':
             return 'json/specialites.json';
+        case 'categories':
+            return 'json/categories.json';
+        case 'blippers':
+            return 'json/blippers.json';
         default:
             return null;
     }
