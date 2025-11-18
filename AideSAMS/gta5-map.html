@@ -387,7 +387,8 @@
                     <h2>Actions</h2>
                     <button class="action-btn" id="saveBtn" style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%); border-color: #4CAF50; color: #4CAF50;">💾 Sauvegarder</button>
                     <button class="action-btn" id="resetViewBtn">🔄 Reset Vue</button>
-                    <button class="action-btn" id="clearBtn">🗑️ Effacer</button>
+                    <button class="action-btn" id="clearLocalBtn" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%); border-color: #FF9800; color: #FF9800;">🗑️ Effacer Local</button>
+                    <button class="action-btn" id="clearDBBtn" style="background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%); border-color: #F44336; color: #F44336;">🔴 Effacer BDD</button>
                 </section>
             </aside>
 
@@ -515,10 +516,19 @@
                 // Actions
                 document.getElementById('saveBtn').addEventListener('click', () => this.saveToDB());
                 document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
-                document.getElementById('clearBtn').addEventListener('click', () => {
-                    if (confirm('Effacer tous?')) {
+                document.getElementById('clearLocalBtn').addEventListener('click', () => {
+                    if (confirm('Effacer tous les éléments localement?')) {
                         this.elements = [];
-                        this.saveToDB();
+                        localStorage.setItem('gta5-map', JSON.stringify([]));
+                        this.draw();
+                        console.log('✅ Données effacées localement');
+                    }
+                });
+                document.getElementById('clearDBBtn').addEventListener('click', () => {
+                    if (confirm('⚠️ ATTENTION! Ceci va effacer TOUS les éléments de la BDD pour tous les utilisateurs!')) {
+                        this.elements = [];
+                        this.saveToDB(); // Sauvegarde un tableau vide en BDD
+                        console.log('✅ Données effacées de la BDD');
                     }
                 });
 
