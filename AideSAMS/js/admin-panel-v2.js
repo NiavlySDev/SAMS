@@ -851,33 +851,35 @@ class AdminPanelV2 {
     renderGrades() {
         const container = document.getElementById('grades-list');
         
-        if (this.grades.length === 0) {
+        if (!this.grades || this.grades.length === 0) {
             container.innerHTML = '<p>Aucun grade disponible</p>';
             return;
         }
 
-        container.innerHTML = this.grades.map((grade, gradeIndex) => `
+        container.innerHTML = this.grades.map((grade, gradeIndex) => {
+            const membres = grade.membres || [];
+            return `
             <div class="grade-item">
                 <div class="grade-header">
                     <div class="grade-title">
-                        <h4>🏆 ${grade.grade}</h4>
-                        <div class="member-count">${grade.membres.length}</div>
+                        <h4>🏆 ${grade.grade || grade.name || 'Grade'}</h4>
+                        <div class="member-count">${membres.length}</div>
                     </div>
                     <div class="grade-actions">
                         <button class="btn-admin btn-warning" onclick="adminPanel.editGrade(${gradeIndex})">Modifier</button>
                         <button class="btn-admin btn-danger" onclick="adminPanel.deleteGrade(${gradeIndex})">Supprimer</button>
                     </div>
                 </div>
-                ${grade.membres.length > 0 ? `
+                ${membres.length > 0 ? `
                     <div class="members-container">
                         <div class="member-list">
-                            ${grade.membres.map((membre, membreIndex) => {
+                            ${membres.map((membre, membreIndex) => {
                                 const [nom, id] = membre.split(' | ');
                                 return `
                                     <div class="member-item">
                                         <div class="member-info">
-                                            <div class="member-name">${nom}</div>
-                                            <div class="member-id">ID: ${id}</div>
+                                            <div class="member-name">${nom || 'Inconnu'}</div>
+                                            <div class="member-id">ID: ${id || 'N/A'}</div>
                                         </div>
                                         <button class="btn-admin btn-danger" style="padding: 5px 8px; font-size: 11px;" onclick="adminPanel.deleteMembre(${gradeIndex}, ${membreIndex})">🗑️</button>
                                     </div>
@@ -887,7 +889,7 @@ class AdminPanelV2 {
                     </div>
                 ` : '<p style="padding: 15px; color: #aaa; font-style: italic; margin: 0;">Aucun membre assigné</p>'}
             </div>
-        `).join('');
+        `}).join('');
     }
 
     // Continuer avec les autres méthodes pour grades, spécialités, etc...

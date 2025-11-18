@@ -1,0 +1,60 @@
+# 🚀 QUICK START - Production
+
+## 3 étapes pour mettre en ligne
+
+### 1️⃣ Upload sur Infomaniak
+- FTP/SFTP tous les fichiers
+- Vérifier que `config/config.json` existe avec les bons IDs
+
+### 2️⃣ Initialiser (UNE SEULE FOIS)
+```
+Visiter: https://votre-domaine.com/AideSAMS/api/init-from-json.php
+```
+
+Réponse attendue:
+```json
+{
+  "status": "success",
+  "message": "Base de données initialisée avec succès depuis les JSON"
+}
+```
+
+### 3️⃣ Vérifier
+```
+Visiter: https://votre-domaine.com/AideSAMS/
+Console F12 → logs
+```
+
+Vous devriez voir:
+```
+✅ Connexion BDD établie - Synchronisation active
+📍 Serveur: we01io.myd.infomaniak.com | Base: we01io_sams
+✅ Application prête
+```
+
+## 📊 Données chargées automatiquement
+
+- ✅ 8 Blippers
+- ✅ 5 Catégories  
+- ✅ 5 Spécialités avec 11 membres
+- ✅ 7 Grades avec 6 membres
+- ✅ 34 Manuels
+- ✅ 10 Zones GTA5
+
+## 🔗 URLs utiles
+
+| URL | Description |
+|-----|-------------|
+| `/AideSAMS/api/ping.php` | Test connexion simple |
+| `/AideSAMS/api/test-system.php` | Test complet système |
+| `/AideSAMS/api/init-from-json.php` | Réinitialiser données |
+
+## ⚠️ Problème?
+
+1. Vérifier `/AideSAMS/api/ping.php`
+2. Consulter `DEPLOY.txt`
+3. Consulter `INIT_GUIDE.md`
+
+---
+
+C'est tout! 🎉 L'application est en production!

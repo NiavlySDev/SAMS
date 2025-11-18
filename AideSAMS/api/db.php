@@ -148,78 +148,100 @@ function connectDB() {
 }
 
 /**
- * Créer les tables nécessaires
+ * Créer les tables nécessaires avec support des membres grades
  */
 function createTables() {
     global $db;
     
     $tables = [
         // Table des blippers
-        "CREATE TABLE IF NOT EXISTS blippers (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            bliper_id VARCHAR(50) UNIQUE NOT NULL,
-            label VARCHAR(100) NOT NULL,
-            icon VARCHAR(10) NOT NULL,
-            color VARCHAR(7) NOT NULL,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `blippers` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `bliper_id` VARCHAR(50) UNIQUE NOT NULL,
+            `label` VARCHAR(100) NOT NULL,
+            `icon` VARCHAR(10) NOT NULL,
+            `color` VARCHAR(7) NOT NULL,
+            `description` TEXT,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
         // Table des manuels
-        "CREATE TABLE IF NOT EXISTS manuels (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            title VARCHAR(255) NOT NULL,
-            description TEXT,
-            link VARCHAR(500),
-            importance INT DEFAULT 5,
-            categorie VARCHAR(100),
-            cat_color VARCHAR(7),
-            auteur VARCHAR(100),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `manuels` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `title` VARCHAR(255) NOT NULL,
+            `description` TEXT,
+            `link` VARCHAR(500),
+            `importance` INT DEFAULT 5,
+            `categorie` VARCHAR(100),
+            `cat_color` VARCHAR(7),
+            `auteur` VARCHAR(100),
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
         // Table des grades
-        "CREATE TABLE IF NOT EXISTS grades (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `grades` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `grade` VARCHAR(100) NOT NULL UNIQUE,
+            `order` INT DEFAULT 0,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
-        // Table des spécialités
-        "CREATE TABLE IF NOT EXISTS specialites (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        // Table des membres de grades
+        "CREATE TABLE IF NOT EXISTS `membres_grades` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `grade_id` INT NOT NULL,
+            `nom` VARCHAR(100) NOT NULL,
+            `char_id` INT NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (`grade_id`) REFERENCES `grades`(`id`) ON DELETE CASCADE,
+            UNIQUE KEY `unique_grade_member` (`grade_id`, `char_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        
+        // Specialites
+        "CREATE TABLE IF NOT EXISTS `specialites` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `name` VARCHAR(100) NOT NULL UNIQUE,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        
+        // Membres de spécialités
+        "CREATE TABLE IF NOT EXISTS `specialite_membres` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `specialite_id` INT NOT NULL,
+            `nom` VARCHAR(100) NOT NULL,
+            `char_id` INT NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (`specialite_id`) REFERENCES `specialites`(`id`) ON DELETE CASCADE,
+            UNIQUE KEY `unique_spec_member` (`specialite_id`, `char_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
         // Table des catégories
-        "CREATE TABLE IF NOT EXISTS categories (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(100) NOT NULL UNIQUE,
-            color VARCHAR(7) NOT NULL,
-            visible BOOLEAN DEFAULT 1,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        "CREATE TABLE IF NOT EXISTS `categories` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `name` VARCHAR(100) NOT NULL UNIQUE,
+            `color` VARCHAR(7) NOT NULL,
+            `visible` BOOLEAN DEFAULT 1,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
-        // Table des membres de spécialité
-        "CREATE TABLE IF NOT EXISTS specialite_membres (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            specialite_id INT NOT NULL,
-            nom VARCHAR(255) NOT NULL,
-            discord_id VARCHAR(50),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (specialite_id) REFERENCES specialites(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+        // Table des zones GTA5
+        "CREATE TABLE IF NOT EXISTS `gta5_zones` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `name` VARCHAR(100) NOT NULL,
+            `zone_data` JSON,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ];
     
     foreach ($tables as $sql) {
         if (!$db->query($sql)) {
-            error_log('Erreur création table: ' . $db->error);
+            error_log('SAMS - Erreur création table: ' . $db->error);
         }
     }
 }
@@ -239,18 +261,78 @@ function loadFromDB($type) {
             case 'blippers':
                 $result = $db->query("SELECT bliper_id as id, label, icon, color, description FROM blippers ORDER BY id");
                 break;
+                
             case 'manuels':
                 $result = $db->query("SELECT id, title, description as desc, link, importance, categorie, cat_color as catColor, auteur FROM manuels ORDER BY importance DESC, id");
                 break;
+                
             case 'grades':
-                $result = $db->query("SELECT id, name FROM grades ORDER BY name");
-                break;
+                // Récupérer les grades avec leurs membres
+                $result = $db->query("SELECT g.id, g.grade, g.`order` FROM grades g ORDER BY g.`order`, g.grade");
+                if (!$result) throw new Exception($db->error);
+                
+                $data = [];
+                while ($row = $result->fetch_assoc()) {
+                    $gradeId = $row['id'];
+                    // Récupérer les membres de ce grade
+                    $memberResult = $db->query("SELECT nom, char_id FROM membres_grades WHERE grade_id = $gradeId ORDER BY nom");
+                    $membres = [];
+                    if ($memberResult) {
+                        while ($member = $memberResult->fetch_assoc()) {
+                            $membres[] = $member['nom'] . ' | ' . $member['char_id'];
+                        }
+                    }
+                    
+                    $data[] = [
+                        'id' => $row['id'],
+                        'grade' => $row['grade'],
+                        'membres' => $membres,
+                        'order' => $row['order']
+                    ];
+                }
+                return $data;
+                
             case 'specialites':
-                $result = $db->query("SELECT id, name FROM specialites ORDER BY name");
-                break;
+                // Récupérer les spécialités avec leurs membres
+                $result = $db->query("SELECT s.id, s.name FROM specialites s ORDER BY s.name");
+                if (!$result) throw new Exception($db->error);
+                
+                $data = [];
+                while ($row = $result->fetch_assoc()) {
+                    $specId = $row['id'];
+                    // Récupérer les membres de cette spécialité
+                    $memberResult = $db->query("SELECT nom, char_id FROM specialite_membres WHERE specialite_id = $specId ORDER BY nom");
+                    $membres = [];
+                    if ($memberResult) {
+                        while ($member = $memberResult->fetch_assoc()) {
+                            $membres[] = $member['nom'] . ' | ' . $member['char_id'];
+                        }
+                    }
+                    
+                    $data[] = [
+                        'id' => $row['id'],
+                        'specialite' => $row['name'],
+                        'name' => $row['name'],
+                        'membres' => $membres
+                    ];
+                }
+                return $data;
+                
             case 'categories':
                 $result = $db->query("SELECT id, name, color, visible FROM categories ORDER BY name");
                 break;
+                
+            case 'gta5-zones':
+                $result = $db->query("SELECT name, zone_data FROM gta5_zones ORDER BY name");
+                if (!$result) throw new Exception($db->error);
+                
+                $data = [];
+                while ($row = $result->fetch_assoc()) {
+                    $zoneData = json_decode($row['zone_data'], true);
+                    $data[$row['name']] = $zoneData ?: $row['zone_data'];
+                }
+                return $data;
+                
             default:
                 return null;
         }
@@ -266,7 +348,7 @@ function loadFromDB($type) {
         
         return $data;
     } catch (Exception $e) {
-        error_log('Erreur lecture DB: ' . $e->getMessage());
+        error_log('SAMS - Erreur lecture DB: ' . $e->getMessage());
         return null;
     }
 }
@@ -286,6 +368,47 @@ function saveToDB($type, $data) {
         $db->begin_transaction();
         
         switch ($type) {
+            case 'grades':
+                // Gérer les grades avec leurs membres
+                foreach ($data as $grade) {
+                    $gradeName = $db->real_escape_string($grade['grade'] ?? '');
+                    $order = intval($grade['order'] ?? 0);
+                    
+                    // Vérifier si le grade existe
+                    $check = $db->query("SELECT id FROM grades WHERE grade = '$gradeName'");
+                    if ($check && $check->num_rows > 0) {
+                        // Mettre à jour
+                        $db->query("UPDATE grades SET `order` = $order, updated_at = NOW() WHERE grade = '$gradeName'");
+                        $gradeRow = $check->fetch_assoc();
+                        $gradeId = $gradeRow['id'];
+                    } else {
+                        // Insérer
+                        if (!$db->query("INSERT INTO grades (grade, `order`) VALUES ('$gradeName', $order)")) {
+                            throw new Exception($db->error);
+                        }
+                        $gradeId = $db->insert_id;
+                    }
+                    
+                    // Gérer les membres
+                    if (isset($grade['membres']) && is_array($grade['membres'])) {
+                        // Supprimer les anciens membres
+                        $db->query("DELETE FROM membres_grades WHERE grade_id = $gradeId");
+                        
+                        // Ajouter les nouveaux
+                        foreach ($grade['membres'] as $membre) {
+                            preg_match('/(.+)\s*\|\s*(\d+)/', $membre, $matches);
+                            if (count($matches) > 2) {
+                                $nom = $db->real_escape_string(trim($matches[1]));
+                                $charId = intval($matches[2]);
+                                if (!$db->query("INSERT INTO membres_grades (grade_id, nom, char_id) VALUES ($gradeId, '$nom', $charId)")) {
+                                    throw new Exception($db->error);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+                
             case 'blippers':
                 // Vider et recharger
                 $db->query("TRUNCATE TABLE blippers");
@@ -325,17 +448,6 @@ function saveToDB($type, $data) {
                 }
                 break;
                 
-            case 'grades':
-                $db->query("TRUNCATE TABLE grades");
-                foreach ($data as $item) {
-                    $name = $db->real_escape_string($item['name']);
-                    $sql = "INSERT INTO grades (name) VALUES ('$name')";
-                    if (!$db->query($sql)) {
-                        throw new Exception($db->error);
-                    }
-                }
-                break;
-                
             case 'specialites':
                 $db->query("TRUNCATE TABLE specialites");
                 foreach ($data as $item) {
@@ -365,7 +477,7 @@ function saveToDB($type, $data) {
         return true;
     } catch (Exception $e) {
         $db->rollback();
-        error_log('Erreur sauvegarde DB: ' . $e->getMessage());
+        error_log('SAMS - Erreur sauvegarde DB: ' . $e->getMessage());
         return false;
     }
 }
