@@ -1,8 +1,7 @@
 <?php
-@error_reporting(0);
-@ini_set('display_errors', 0);
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+error_reporting(0);
+ini_set('display_errors', 0);
+header('Content-Type: application/json');
 
 $tests = array();
 $errors = array();
@@ -11,27 +10,25 @@ $recommendations = array();
 // Test 1: mysqli
 $mysqli_ok = extension_loaded('mysqli');
 $tests[] = array(
-    'name' => 'Extension mysqli',
-    'status' => $mysqli_ok ? 'OK' : 'FAIL',
-    'value' => $mysqli_ok ? 'Disponible' : 'Non disponible'
+    'name' => 'mysqli extension',
+    'status' => $mysqli_ok ? 'OK' : 'FAIL'
 );
 if (!$mysqli_ok) {
-    $errors[] = 'Extension mysqli manquante - Contacter l\'hébergeur';
+    $errors[] = 'mysqli not available';
 }
 
 // Test 2: DNS
 $ip = @gethostbyname('we01io.myd.infomaniak.com');
-$dns_ok = ($ip !== 'we01io.myd.infomaniak.com');
+$dns_ok = ($ip && $ip !== 'we01io.myd.infomaniak.com');
 $tests[] = array(
-    'name' => 'Résolution DNS',
-    'status' => $dns_ok ? 'OK' : 'FAIL',
-    'value' => $dns_ok ? $ip : 'Impossible à résoudre'
+    'name' => 'DNS resolution',
+    'status' => $dns_ok ? 'OK' : 'FAIL'
 );
 if (!$dns_ok) {
-    $errors[] = 'DNS ne se résout pas - Vérifier la connexion Internet';
+    $errors[] = 'DNS failed';
 }
 
-// Test 3-6: Connexion MySQL (seulement si mysqli ok)
+// Test 3-6: MySQL connection
 $conn_ok = false;
 $db_ok = false;
 $query_ok = false;
@@ -41,47 +38,33 @@ if ($mysqli_ok) {
     $conn_ok = !$mysqli->connect_error;
     
     $tests[] = array(
-        'name' => 'Connexion serveur MySQL',
-        'status' => $conn_ok ? 'OK' : 'FAIL',
-        'value' => $conn_ok ? 'Connecté' : (isset($mysqli->connect_error) ? $mysqli->connect_error : 'Erreur connexion')
+        'name' => 'MySQL connection',
+        'status' => $conn_ok ? 'OK' : 'FAIL'
     );
     
     if (!$conn_ok) {
-        $errors[] = 'Impossible de se connecter à MySQL - Vérifier identifiants ou accès réseau';
+        $errors[] = 'MySQL connection failed';
     } else {
-        // Test 4
         $db_ok = @$mysqli->select_db('we01io_sams');
         $tests[] = array(
-            'name' => 'Sélection base de données',
-            'status' => $db_ok ? 'OK' : 'FAIL',
-            'value' => $db_ok ? 'we01io_sams sélectionnée' : $mysqli->error
+            'name' => 'Database selection',
+            'status' => $db_ok ? 'OK' : 'FAIL'
         );
         
         if (!$db_ok) {
-            $errors[] = 'Base de données non trouvée ou pas d\'accès - Vérifier les droits';
+            $errors[] = 'Database not found';
         } else {
-            // Test 5
-            $result = @$mysqli->query('SELECT 1 as test');
+            $result = @$mysqli->query('SELECT 1');
             $query_ok = ($result !== false);
             $tests[] = array(
-                'name' => 'Requête SELECT 1',
-                'status' => $query_ok ? 'OK' : 'FAIL',
-                'value' => $query_ok ? 'Succès' : $mysqli->error
+                'name' => 'SELECT query',
+                'status' => $query_ok ? 'OK' : 'FAIL'
             );
             
             if ($query_ok) {
-                // Test 6
-                $tables_result = @$mysqli->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'we01io_sams'");
-                $table_count = 0;
-                if ($tables_result) {
-                    $table_count = $tables_result->num_rows;
-                }
-                
-                $tests[] = array(
-                    'name' => 'Tables existantes',
-                    'status' => $table_count > 0 ? 'OK' : 'WARN',
-                    'value' => $table_count > 0 ? $table_count . ' table(s)' : 'Aucune table'
-                );
+                $recommendations[] = 'All tests passed';
+            } else {
+                $errors[] = 'Query failed';
             }
         }
         
@@ -89,27 +72,27 @@ if ($mysqli_ok) {
     }
 }
 
-// Recommandations
+// Recommendations
 if (count($errors) === 0 && $query_ok) {
-    $recommendations[] = 'Tous les tests sont passes! Votre BDD est accessible.';
+    $recommendations[] = 'BDD connection successful';
 } else {
     if (!$mysqli_ok) {
-        $recommendations[] = 'Contacter votre hebergeur pour activer extension mysqli';
+        $recommendations[] = 'Enable mysqli extension';
     }
     if (!$dns_ok) {
-        $recommendations[] = 'Verifier votre connexion Internet';
+        $recommendations[] = 'Check internet connection';
     }
     if (!$conn_ok) {
-        $recommendations[] = 'Demander a Infomaniak d\'autoriser acces remote MySQL';
+        $recommendations[] = 'Request remote MySQL access from Infomaniak';
     }
     if ($conn_ok && !$db_ok) {
-        $recommendations[] = 'Verifier que base we01io_sams existe';
+        $recommendations[] = 'Check database exists';
     }
 }
 
 $output = array(
     'timestamp' => date('Y-m-d H:i:s'),
-    'overall_status' => (count($errors) === 0 && isset($query_ok) && $query_ok) ? 'SUCCESS' : 'FAILURE',
+    'overall_status' => (count($errors) === 0 && $query_ok) ? 'SUCCESS' : 'FAILURE',
     'error_count' => count($errors),
     'tests' => $tests,
     'errors' => $errors,
