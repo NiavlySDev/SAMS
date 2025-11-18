@@ -393,18 +393,16 @@ switch ($action) {
         ];
         
         if (!$connected) {
-            http_response_code(503);
-            $response['error'] = 'Impossible de se connecter à la base de données';
-            $response['debug'] = [
-                'host' => DB_HOST,
-                'port' => DB_PORT,
-                'suggestions' => [
-                    'Vérifier les identifiants (user: ' . DB_USER . ', database: ' . DB_NAME . ')',
-                    'Vérifier l\'accès réseau au serveur MySQL',
-                    'Vérifier que le port 3306 est accessible',
-                    'Vérifier les logs du serveur MySQL'
-                ]
+            // Toujours retourner 200 OK pour que le JavaScript puisse traiter la réponse
+            $response['error'] = 'Base de données indisponible';
+            $response['fallback_mode'] = true;
+            $response['suggestions'] = [
+                'Mode fallback actif',
+                'Données chargées depuis JSON/LocalStorage'
             ];
+        } else {
+            $response['fallback_mode'] = false;
+            $response['status'] = 'Base de données opérationnelle';
         }
         
         echo json_encode($response);
@@ -418,12 +416,11 @@ switch ($action) {
             if ($data !== null) {
                 echo json_encode(['success' => true, 'source' => 'database', 'data' => $data]);
             } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'Erreur de chargement']);
+                echo json_encode(['success' => false, 'source' => 'database', 'error' => 'Erreur de chargement BDD']);
             }
         } else {
-            http_response_code(503);
-            echo json_encode(['success' => false, 'error' => 'Base de données indisponible']);
+            // Mode fallback - retourner 200 avec indicateur d'échec
+            echo json_encode(['success' => false, 'source' => 'fallback', 'error' => 'Base de données indisponible', 'fallback_mode' => true]);
         }
         break;
         
@@ -435,14 +432,13 @@ switch ($action) {
         connectDB();
         if ($dbConnected) {
             if (saveToDB($type, $data)) {
-                echo json_encode(['success' => true, 'message' => 'Données sauvegardées en BDD']);
+                echo json_encode(['success' => true, 'message' => 'Données sauvegardées en BDD', 'source' => 'database']);
             } else {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'error' => 'Erreur lors de la sauvegarde']);
+                echo json_encode(['success' => false, 'error' => 'Erreur lors de la sauvegarde BDD', 'source' => 'database']);
             }
         } else {
-            http_response_code(503);
-            echo json_encode(['success' => false, 'error' => 'Base de données indisponible']);
+            // Mode fallback - retourner 200 avec indicateur d'échec
+            echo json_encode(['success' => false, 'error' => 'Base de données indisponible', 'source' => 'fallback', 'fallback_mode' => true]);
         }
         break;
         

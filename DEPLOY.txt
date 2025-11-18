@@ -17,19 +17,45 @@ Visitez : `https://votre-domaine.com/AideSAMS/api/init.php`
 Cette URL va créer automatiquement toutes les tables nécessaires.
 
 ### 4. Test de connexion
-Visitez : `https://votre-domaine.com/AideSAMS/api/ping.php`
-Cela vous dira si la connexion à la base de données fonctionne.
+- `https://votre-domaine.com/AideSAMS/api/ping.php` : Test simple de connexion
+- `https://votre-domaine.com/AideSAMS/api/db.php?action=check` : Test détaillé avec infos système
 
 ### 5. Lancement de l'application
 Visitez : `https://votre-domaine.com/AideSAMS/`
 
-## Fichiers importants
-- `config/config.json` : Configuration de la base de données
-- `AideSAMS/api/db.php` : Gestion de la base de données
-- `AideSAMS/api/init.php` : Initialisation (première fois)
-- `AideSAMS/api/ping.php` : Test de connexion
+## Fonctionnement de l'application
 
-## Sécurité
-- Le dossier `config/` est protégé par `.htaccess`
-- Les logs d'erreurs sont activés mais pas l'affichage public
-- Connexion avec retry automatique en cas d'échec temporaire
+### Mode Base de Données (production normale)
+- Connexion directe à MySQL Infomaniak
+- Synchronisation automatique des données
+- Performances optimales
+
+### Mode Fallback (si BDD indisponible)
+- Chargement depuis les fichiers JSON locaux
+- Sauvegarde en LocalStorage du navigateur
+- Fonctionnement complet mais sans synchronisation inter-utilisateurs
+
+### Gestion d'erreurs améliorée
+- Plus d'erreurs 503 bloquantes
+- Messages d'état clairs dans la console
+- Basculement automatique en mode fallback
+
+## Fichiers importants
+- `config/config.json` : Configuration de la base de données (protégé)
+- `AideSAMS/api/db.php` : API principale avec gestion fallback
+- `AideSAMS/api/init.php` : Initialisation (première fois)
+- `AideSAMS/api/ping.php` : Test de connexion simple
+- `AideSAMS/js/data-sync.js` : Gestion de la synchronisation côté client
+
+## Sécurité et optimisations
+- Dossier `config/` protégé par `.htaccess`
+- Logs d'erreurs activés, affichage public désactivé
+- Connexion avec retry automatique (2 tentatives)
+- Timeout optimisé pour Infomaniak (20 secondes)
+- Gestion propre des erreurs de connexion
+
+## Debugging en cas de problème
+1. Vérifier les logs d'erreur PHP du serveur
+2. Tester l'API : `/api/ping.php` puis `/api/db.php?action=check`
+3. Ouvrir la console navigateur pour voir les messages SAMS
+4. Vérifier la configuration dans `config/config.json`

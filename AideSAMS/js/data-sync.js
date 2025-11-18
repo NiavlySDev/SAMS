@@ -23,17 +23,33 @@ class DataSyncManager {
      */
     async checkDatabaseConnection() {
         try {
-            const response = await fetch(this.dbCheckUrl, { timeout: 3000 });
+            const response = await fetch(this.dbCheckUrl, { 
+                timeout: 5000,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const result = await response.json();
             this.dbAvailable = result.connected === true;
             
             if (this.dbAvailable) {
                 console.log('✅ Connexion BDD établie - Synchronisation active');
+                console.log(`📍 Serveur: ${result.server} | Base: ${result.database}`);
             } else {
-                console.warn('⚠️ BDD indisponible - Mode fallback (LocalStorage/JSON)');
+                console.warn('⚠️ BDD indisponible - Mode fallback actif (LocalStorage/JSON)');
+                if (result.error) {
+                    console.warn(`📋 Raison: ${result.error}`);
+                }
             }
         } catch (error) {
-            console.warn('⚠️ BDD inaccessible - Mode fallback activé:', error.message);
+            console.warn('⚠️ API inaccessible - Mode fallback activé');
+            console.warn(`📋 Erreur: ${error.message}`);
             this.dbAvailable = false;
         }
     }
