@@ -37,21 +37,40 @@ function connectDB() {
     global $db, $dbConnected;
     
     try {
-        $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+        // Augmenter le timeout de connexion
+        ini_set('default_socket_timeout', 5);
+        
+        $db = new mysqli(
+            DB_HOST, 
+            DB_USER, 
+            DB_PASS, 
+            DB_NAME, 
+            DB_PORT
+        );
         
         if ($db->connect_error) {
-            throw new Exception('Erreur de connexion: ' . $db->connect_error);
+            throw new Exception('Connexion échouée: ' . $db->connect_error);
         }
         
         $db->set_charset('utf8mb4');
+        
+        // Vérifier que la BDD est vraiment accessible
+        $result = $db->query('SELECT 1');
+        if (!$result) {
+            throw new Exception('Requête de test échouée: ' . $db->error);
+        }
+        
         $dbConnected = true;
         
-        // Créer les tables si elles n'existent pas
-        createTables();
+        // Créer les tables si elles n'existent pas (une seule fois)
+        if (!isset($_SESSION['tables_created'])) {
+            createTables();
+            $_SESSION['tables_created'] = true;
+        }
         
         return true;
     } catch (Exception $e) {
-        error_log('Erreur DB: ' . $e->getMessage());
+        error_log('Erreur DB Connection (' . date('Y-m-d H:i:s') . '): ' . $e->getMessage());
         $dbConnected = false;
         return false;
     }
@@ -292,8 +311,21 @@ switch ($action) {
     case 'check':
         // Vérifier si on peut se connecter à la BDD
         $connected = connectDB();
-        http_response_code($connected ? 200 : 503);
-        echo json_encode(['connected' => $connected]);
+        
+        $response = [
+            'connected' => $connected,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'server' => DB_HOST,
+            'database' => DB_NAME
+        ];
+        
+        if (!$connected) {
+            http_response_code(503);
+            $response['error'] = 'Impossible de se connecter à la base de données';
+            $response['tips'] = 'Vérifier: Host, User, Password, Network access';
+        }
+        
+        echo json_encode($response);
         break;
         
     case 'load':

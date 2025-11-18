@@ -490,7 +490,7 @@
                 // Canvas
                 this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
                 this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
-                this.canvas.addEventListener('mouseup', () => this.onMouseUp());
+                this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
                 this.canvas.addEventListener('click', (e) => this.onClick(e));
                 this.canvas.addEventListener('wheel', (e) => this.onZoom(e));
                 this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
