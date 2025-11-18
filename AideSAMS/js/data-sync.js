@@ -305,3 +305,4 @@ class DataSyncManager {
 
 // Instance globale
 const dataSyncManager = new DataSyncManager();
+window.dataSyncManager = dataSyncManager;

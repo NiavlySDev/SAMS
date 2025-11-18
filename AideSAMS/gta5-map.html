@@ -440,7 +440,7 @@
                     // Essayer de charger depuis la BDD d'abord (pour avoir les nouveaux types de blippers du panel admin)
                     if (window.dataSyncManager) {
                         try {
-                            const bippersFromDB = await dataSyncManager.load('blippers');
+                            const bippersFromDB = await window.dataSyncManager.load('blippers');
                             if (bippersFromDB && Array.isArray(bippersFromDB) && bippersFromDB.length > 0) {
                                 this.blippers = bippersFromDB;
                                 console.log(`✅ Blippers chargés depuis BDD: ${this.blippers.length} items`);
@@ -755,17 +755,19 @@
                     
                     // Sauvegarder les zones
                     if (zones.length > 0 || blippersInstances.length > 0) {
-                        dataSyncManager.save('gta5-zones', this.elements)
+                        window.dataSyncManager.save('gta5-zones', this.elements)
                             .then(() => console.log('✅ Zones sauvegardées en BDD'))
                             .catch(err => console.warn('Erreur save zones BDD:', err.message));
                     }
                     
                     // Sauvegarder les blippers instances séparément pour qu'elles soient accessibles par tous
                     if (blippersInstances.length > 0) {
-                        dataSyncManager.save('gta5-blippers', blippersInstances)
+                        window.dataSyncManager.save('gta5-blippers', blippersInstances)
                             .then(() => console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length))
                             .catch(err => console.warn('Erreur save blippers BDD:', err.message));
                     }
+                } else {
+                    console.warn('⚠️ dataSyncManager non disponible - données sauvegardées en localStorage seulement');
                 }
             }
 
@@ -774,8 +776,8 @@
                 if (window.dataSyncManager) {
                     // Charger à la fois zones et blippers instances
                     Promise.all([
-                        dataSyncManager.load('gta5-zones').catch(() => null),
-                        dataSyncManager.load('gta5-blippers').catch(() => null)
+                        window.dataSyncManager.load('gta5-zones').catch(() => null),
+                        window.dataSyncManager.load('gta5-blippers').catch(() => null)
                     ])
                     .then(([zonesData, blippersData]) => {
                         const allElements = [];
