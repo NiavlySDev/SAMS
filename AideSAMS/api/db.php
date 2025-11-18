@@ -4,6 +4,9 @@
  * Gère les blippers, manuels, grades, spécialités et catégories
  */
 
+// Démarrer la session avant toute sortie
+session_start();
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -36,11 +39,17 @@ $dbConnected = false;
 function connectDB() {
     global $db, $dbConnected;
     
+    // Éviter les connexions répétées
+    if ($dbConnected && $db) {
+        return true;
+    }
+    
     try {
         // Augmenter le timeout de connexion
-        ini_set('default_socket_timeout', 5);
+        ini_set('default_socket_timeout', 10);
+        ini_set('mysql.connect_timeout', 10);
         
-        $db = new mysqli(
+        $db = @new mysqli(
             DB_HOST, 
             DB_USER, 
             DB_PASS, 
@@ -49,15 +58,23 @@ function connectDB() {
         );
         
         if ($db->connect_error) {
-            throw new Exception('Connexion échouée: ' . $db->connect_error);
+            error_log('❌ Connexion MySQL échouée: ' . $db->connect_error);
+            $dbConnected = false;
+            return false;
         }
         
-        $db->set_charset('utf8mb4');
+        // Définir le charset
+        if (!$db->set_charset('utf8mb4')) {
+            error_log('⚠️ Erreur charset: ' . $db->error);
+        }
         
         // Vérifier que la BDD est vraiment accessible
-        $result = $db->query('SELECT 1');
+        $result = @$db->query('SELECT 1');
         if (!$result) {
-            throw new Exception('Requête de test échouée: ' . $db->error);
+            error_log('❌ Test requête échouée: ' . $db->error);
+            $db->close();
+            $dbConnected = false;
+            return false;
         }
         
         $dbConnected = true;
@@ -70,7 +87,7 @@ function connectDB() {
         
         return true;
     } catch (Exception $e) {
-        error_log('Erreur DB Connection (' . date('Y-m-d H:i:s') . '): ' . $e->getMessage());
+        error_log('❌ Exception DB Connection: ' . $e->getMessage());
         $dbConnected = false;
         return false;
     }
@@ -316,13 +333,24 @@ switch ($action) {
             'connected' => $connected,
             'timestamp' => date('Y-m-d H:i:s'),
             'server' => DB_HOST,
-            'database' => DB_NAME
+            'database' => DB_NAME,
+            'php_version' => phpversion(),
+            'mysqli_version' => mysqli_get_client_version()
         ];
         
         if (!$connected) {
             http_response_code(503);
             $response['error'] = 'Impossible de se connecter à la base de données';
-            $response['tips'] = 'Vérifier: Host, User, Password, Network access';
+            $response['debug'] = [
+                'host' => DB_HOST,
+                'port' => DB_PORT,
+                'suggestions' => [
+                    'Vérifier les identifiants (user: ' . DB_USER . ', database: ' . DB_NAME . ')',
+                    'Vérifier l\'accès réseau au serveur MySQL',
+                    'Vérifier que le port 3306 est accessible',
+                    'Vérifier les logs du serveur MySQL'
+                ]
+            ];
         }
         
         echo json_encode($response);

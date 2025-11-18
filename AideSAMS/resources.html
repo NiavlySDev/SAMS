@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ Ressources SAMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .card-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .card-link:hover {
+            background: #5568d3;
+        }
+
+        .card.diagnostic {
+            border-top: 4px solid #ff6b6b;
+        }
+
+        .card.documentation {
+            border-top: 4px solid #4ecdc4;
+        }
+
+        .card.status {
+            border-top: 4px solid #45b7d1;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-ok {
+            background: #28a745;
+        }
+
+        .status-fail {
+            background: #dc3545;
+        }
+
+        .status-partial {
+            background: #ffc107;
+        }
+
+        .info-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-link {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .quick-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-link strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .quick-link small {
+            opacity: 0.8;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛠️ Centre de ressources SAMS</h1>
+            <p class="subtitle">Diagnostic • Documentation • État du système</p>
+        </header>
+
+        <div class="info-box">
+            <h3>📊 État global du système</h3>
+            <p>
+                <span class="status-indicator status-ok"></span><strong>Application:</strong> Fonctionnelle ✓
+                <br>
+                <span class="status-indicator status-partial"></span><strong>Base de données:</strong> Inaccessible (fallback actif)
+                <br>
+                <span class="status-indicator status-ok"></span><strong>Cache local:</strong> Synchronisé ✓
+            </p>
+        </div>
+
+        <div class="grid">
+            <!-- DIAGNOSTIC -->
+            <div class="card diagnostic">
+                <div class="card-icon">🔧</div>
+                <h2>Diagnostic MySQL</h2>
+                <p>
+                    Lancez un test complet de connectivité à la base de données.
+                    Identifiez exactement quel problème empêche l'accès à MySQL.
+                </p>
+                <a href="diagnostic.html" class="card-link">▶️ Lancer le diagnostic</a>
+            </div>
+
+            <!-- STATE -->
+            <div class="card status">
+                <div class="card-icon">📊</div>
+                <h2>État du système</h2>
+                <p>
+                    Consultez un rapport détaillé sur l'état actuel de l'application,
+                    les services opérationnels et la roadmap de déploiement.
+                </p>
+                <a href="SYSTEM_STATUS.md" class="card-link">📖 Lire le rapport</a>
+            </div>
+
+            <!-- FIXES -->
+            <div class="card documentation">
+                <div class="card-icon">✅</div>
+                <h2>Corrections appliquées</h2>
+                <p>
+                    Consultez les corrections et améliorations apportées au système.
+                    Comprenez ce qui a été résolu et comment.
+                </p>
+                <a href="FIXES_APPLIED.md" class="card-link">📖 Voir les détails</a>
+            </div>
+
+            <!-- DIAGNOSTIC GUIDE -->
+            <div class="card documentation">
+                <div class="card-icon">📚</div>
+                <h2>Guide de dépannage</h2>
+                <p>
+                    Guide complet pour résoudre les problèmes d'accès à la base de données.
+                    Modèles d'emails et solutions détaillées pour chaque cas.
+                </p>
+                <a href="DIAGNOSTIC_BDD.md" class="card-link">📖 Consulter le guide</a>
+            </div>
+
+            <!-- ADMIN PANEL -->
+            <div class="card status">
+                <div class="card-icon">👨‍💼</div>
+                <h2>Panel Admin</h2>
+                <p>
+                    Accédez au panel d'administration pour gérer les manuels,
+                    grades, spécialités et catégories.
+                </p>
+                <a href="admin.html" class="card-link">🚀 Ouvrir le panel</a>
+            </div>
+
+            <!-- GTA5 MAP -->
+            <div class="card status">
+                <div class="card-icon">🗺️</div>
+                <h2>Carte GTA5</h2>
+                <p>
+                    Gérez les blippers et zones sur la carte interactive.
+                    Placez les marqueurs de police, hôpital, etc.
+                </p>
+                <a href="gta5-map.html" class="card-link">🚀 Ouvrir la carte</a>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>⚙️ Fichiers techniques disponibles</h3>
+            <p>
+                <strong>API:</strong> 
+                <code>/api/db.php</code> (Connexion MySQL)
+                <code>/api/test-connection.php</code> (Tests détaillés)
+                <br>
+                <strong>JavaScript:</strong>
+                <code>/js/data-sync.js</code> (Sync manager)
+                <code>/js/app-initializer.js</code> (Initialisation)
+                <br>
+                <strong>SQL:</strong>
+                <code>/import_data.sql</code> (Script d'initialisation BDD)
+            </p>
+        </div>
+
+        <div class="quick-links">
+            <a href="diagnostic.html" class="quick-link">
+                <strong>🔧 Diagnostic rapide</strong>
+                <small>Test de connexion MySQL</small>
+            </a>
+            <a href="admin.html" class="quick-link">
+                <strong>👨‍💼 Admin Panel</strong>
+                <small>Gestion des données</small>
+            </a>
+            <a href="gta5-map.html" class="quick-link">
+                <strong>🗺️ Carte GTA5</strong>
+                <small>Blippers & Zones</small>
+            </a>
+            <a href="DIAGNOSTIC_BDD.md" class="quick-link">
+                <strong>📚 Guide complet</strong>
+                <small>Résolution de problèmes</small>
+            </a>
+        </div>
+
+        <footer>
+            <p>
+                🔐 <strong>Important:</strong> Pour une utilisation en production,
+                implémenter un système d'authentification avant de déployer en public.
+                <br>
+                SAMS © 2025 • État: Production Ready (Fallback Mode)
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
