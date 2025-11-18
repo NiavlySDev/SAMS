@@ -8,7 +8,7 @@ $errors = array();
 $recommendations = array();
 
 // Load config
-$config_path = '../../config/config.json';
+$config_path = __DIR__ . '/../../config/config.json';
 $config = null;
 
 if (file_exists($config_path)) {

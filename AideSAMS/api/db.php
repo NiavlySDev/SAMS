@@ -4,6 +4,25 @@
  * Gère les blippers, manuels, grades, spécialités et catégories
  */
 
+// Capture les erreurs PHP
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Handler pour capturer les erreurs PHP et les envoyer en JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile:$errline");
+    if (php_sapi_name() !== 'cli') {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'PHP Error',
+            'message' => $errstr,
+            'code' => $errno
+        ]);
+        exit;
+    }
+});
+
 // Démarrer la session avant toute sortie
 session_start();
 
@@ -13,18 +32,28 @@ header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Charger la configuration depuis le fichier externe
-$config_path = '../../config/config.json';
+$config_path = __DIR__ . '/../../config/config.json';
 $config = null;
 
+// Debug: log le chemin cherché
+error_log("Config path: " . $config_path . " exists: " . (file_exists($config_path) ? 'YES' : 'NO'));
+
 if (file_exists($config_path)) {
-    $config = json_decode(file_get_contents($config_path), true);
-    define('DB_HOST', $config['db_host']);
-    define('DB_USER', $config['db_user']);
-    define('DB_PASS', $config['db_password']);
-    define('DB_NAME', $config['db_name']);
+    $json_content = file_get_contents($config_path);
+    $config = json_decode($json_content, true);
+    
+    if ($config === null) {
+        error_log("Config JSON decode failed: " . json_last_error_msg());
+    }
+    
+    define('DB_HOST', $config['db_host'] ?? 'we01io.myd.infomaniak.com');
+    define('DB_USER', $config['db_user'] ?? 'we01io_sams');
+    define('DB_PASS', $config['db_password'] ?? 'RBM91210chat!');
+    define('DB_NAME', $config['db_name'] ?? 'we01io_sams');
     define('DB_PORT', 3306);
 } else {
     // Fallback si config.json n'existe pas
+    error_log("Config file not found at: " . $config_path);
     define('DB_HOST', 'we01io.myd.infomaniak.com');
     define('DB_USER', 'we01io_sams');
     define('DB_PASS', 'RBM91210chat!');

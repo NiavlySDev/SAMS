@@ -7,7 +7,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 // Charger la configuration
-$config_path = '../../config/config.json';
+$config_path = __DIR__ . '/../../config/config.json';
 $config = null;
 
 if (file_exists($config_path)) {
