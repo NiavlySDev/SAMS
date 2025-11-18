@@ -439,8 +439,22 @@
 
             async loadBlippers() {
                 try {
-                    // Charger directement depuis le JSON (pas de BDD)
-                    // Les couleurs et noms restent fixes depuis le JSON
+                    // Essayer de charger depuis la BDD d'abord (pour avoir les nouveaux types de blippers du panel admin)
+                    if (window.dataSyncManager) {
+                        try {
+                            const bippersFromDB = await dataSyncManager.load('blippers');
+                            if (bippersFromDB && Array.isArray(bippersFromDB) && bippersFromDB.length > 0) {
+                                this.blippers = bippersFromDB;
+                                console.log(`✅ Blippers chargés depuis BDD: ${this.blippers.length} items`);
+                                this.populateBliperSelect();
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn('BDD indisponible, fallback sur JSON:', e);
+                        }
+                    }
+                    
+                    // Fallback: charger directement depuis le JSON
                     const response = await fetch('json/blippers.json');
                     this.blippers = await response.json();
                     console.log(`✅ Blippers chargés depuis JSON: ${this.blippers.length} items`);
@@ -482,7 +496,6 @@
                 this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
                 this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
                 this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
-                this.canvas.addEventListener('click', (e) => this.onClick(e));
                 this.canvas.addEventListener('wheel', (e) => this.onZoom(e));
                 this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
@@ -629,25 +642,6 @@
                 this.currentPath = [];
             }
 
-            onClick(e) {
-                if (!this.editMode || this.currentTool !== 'bliper') return;
-
-                const pos = this.getMousePos(e);
-                const worldPos = this.screenToWorld(pos);
-
-                this.elements.push({
-                    id: Date.now(),
-                    type: 'bliper',
-                    x: worldPos.x,
-                    y: worldPos.y,
-                    bliperType: document.getElementById('bliperType').value,
-                    color: document.getElementById('bliperColor').value,
-                    name: document.getElementById('bliperName').value || `Bliper ${this.elements.filter(e => e.type === 'bliper').length + 1}`
-                });
-                this.saveToDB();
-                document.getElementById('bliperName').value = '';
-            }
-
             onZoom(e) {
                 e.preventDefault();
                 if (!this.mapImageLoaded) return;
@@ -764,12 +758,39 @@
             }
 
             loadSavedData() {
+                // Essayer de charger depuis la BDD en priorité via dataSyncManager
+                if (window.dataSyncManager) {
+                    dataSyncManager.load('gta5-zones')
+                        .then(data => {
+                            if (data && Array.isArray(data)) {
+                                this.elements = data;
+                                console.log('✅ Éléments chargés depuis BDD');
+                            } else {
+                                // Fallback: charger depuis localStorage
+                                this.loadFromLocalStorage();
+                            }
+                            this.draw();
+                        })
+                        .catch(err => {
+                            console.warn('BDD non disponible, chargement depuis localStorage:', err);
+                            this.loadFromLocalStorage();
+                            this.draw();
+                        });
+                } else {
+                    // Fallback: charger depuis localStorage
+                    this.loadFromLocalStorage();
+                    this.draw();
+                }
+            }
+
+            loadFromLocalStorage() {
                 const data = localStorage.getItem('gta5-map');
                 if (data) {
                     try {
                         this.elements = JSON.parse(data);
+                        console.log('✅ Éléments chargés depuis localStorage');
                     } catch (e) {
-                        console.error('Erreur chargement', e);
+                        console.error('Erreur chargement localStorage:', e);
                     }
                 }
             }
