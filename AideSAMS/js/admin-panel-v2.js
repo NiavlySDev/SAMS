@@ -314,11 +314,16 @@ class AdminPanelV2 {
     // === CONFIGURATION DES EVENT LISTENERS ===
     setupEventListeners() {
         // Login
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('admin-password').value;
-            await this.handleLogin(password);
-        });
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = document.getElementById('admin-password').value;
+                await this.handleLogin(password);
+            });
+        } else {
+            console.warn('⚠️ Formulaire de login non trouvé!');
+        }
 
         // Formulaires principaux
         document.getElementById('manuel-form').addEventListener('submit', (e) => this.handleManuelSubmit(e));

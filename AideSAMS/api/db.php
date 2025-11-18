@@ -644,6 +644,43 @@ function checkConnection() {
 // Routeur des requêtes
 switch ($action) {
     case 'check':
+        // Si on vérifie le mot de passe admin
+        if ($type === 'admin-password') {
+            connectDB();
+            $input = json_decode(file_get_contents('php://input'), true);
+            $providedPassword = $input['password'] ?? '';
+            
+            // Charger le mot de passe admin depuis la BDD
+            if ($dbConnected) {
+                $result = $db->query("SELECT config_value FROM admin_config WHERE config_key = 'password' LIMIT 1");
+                if ($result) {
+                    $row = $result->fetch_assoc();
+                    $storedPassword = $row ? $row['config_value'] : 'admin123';
+                    
+                    // Essayer de décoder si c'est du JSON
+                    try {
+                        $decoded = json_decode($storedPassword, true);
+                        if ($decoded && isset($decoded['password'])) {
+                            $storedPassword = $decoded['password'];
+                        }
+                    } catch (Exception $e) {
+                        // Garder la valeur telle quelle si pas du JSON
+                    }
+                } else {
+                    $storedPassword = 'admin123';
+                }
+            } else {
+                $storedPassword = 'admin123';
+            }
+            
+            if ($providedPassword === $storedPassword && !empty($providedPassword)) {
+                echo json_encode(['success' => true, 'authenticated' => true, 'message' => 'Authentification réussie']);
+            } else {
+                echo json_encode(['success' => false, 'authenticated' => false, 'message' => 'Mot de passe incorrect']);
+            }
+            break;
+        }
+        
         // Vérifier si on peut se connecter à la BDD
         $connected = connectDB();
         

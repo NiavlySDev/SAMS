@@ -539,6 +539,54 @@
             }
 
             setMode(editMode) {
+                // Si on essaie d'entrer en mode édition, demander le mot de passe admin
+                if (editMode && !this.editMode) {
+                    this.promptAdminPassword();
+                    return;
+                }
+                
+                // Si on quitte le mode édition, pas besoin de confirmation
+                if (!editMode && this.editMode) {
+                    this.exitEditMode();
+                    return;
+                }
+                
+                this.applyModeChange(editMode);
+            }
+
+            async promptAdminPassword() {
+                const password = prompt('🔒 Mot de passe admin pour accéder au mode édition:');
+                if (password === null) return; // Annulé
+
+                // Vérifier le mot de passe (appeler l'API)
+                try {
+                    const response = await fetch('api/db.php?action=check&type=admin-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password: password })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success || result.authenticated) {
+                        console.log('✅ Authentification réussie - Accès au mode édition');
+                        this.applyModeChange(true);
+                    } else {
+                        alert('❌ Mot de passe incorrect!');
+                        console.warn('⚠️ Tentative échouée d\'accès au mode édition');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Erreur vérification mot de passe:', error);
+                    alert('❌ Erreur lors de la vérification du mot de passe');
+                }
+            }
+
+            exitEditMode() {
+                console.log('🔓 Quitter le mode édition');
+                this.applyModeChange(false);
+            }
+
+            applyModeChange(editMode) {
                 this.editMode = editMode;
                 const layout = document.querySelector('.main-layout');
                 const panel = document.querySelector('.control-panel');
