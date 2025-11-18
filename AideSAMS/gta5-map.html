@@ -439,17 +439,8 @@
 
             async loadBlippers() {
                 try {
-                    // Charger via le DataSyncManager (BDD > LocalStorage > JSON)
-                    if (window.dataSyncManager) {
-                        this.blippers = await dataSyncManager.load('blippers');
-                        if (this.blippers && this.blippers.length > 0) {
-                            console.log(`✅ Blippers chargés: ${this.blippers.length} items`);
-                            this.populateBliperSelect();
-                            return;
-                        }
-                    }
-                    
-                    // Fallback: charger directement depuis le JSON
+                    // Charger directement depuis le JSON (pas de BDD)
+                    // Les couleurs et noms restent fixes depuis le JSON
                     const response = await fetch('json/blippers.json');
                     this.blippers = await response.json();
                     console.log(`✅ Blippers chargés depuis JSON: ${this.blippers.length} items`);

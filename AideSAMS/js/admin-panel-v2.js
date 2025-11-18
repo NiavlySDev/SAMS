@@ -62,6 +62,37 @@ class AdminPanelV2 {
     // === AUTHENTIFICATION ===
     async loadAdminConfig() {
         try {
+            // Essayer de charger depuis la BDD d'abord
+            try {
+                const response = await fetch('api/db.php?action=load&type=admin-config');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        // Convertir le tableau de config en objet
+                        const config = {};
+                        if (Array.isArray(result.data)) {
+                            result.data.forEach(item => {
+                                config[item.config_key] = item.config_value;
+                            });
+                        } else {
+                            Object.assign(config, result.data);
+                        }
+                        
+                        // Fusionner avec les valeurs par défaut
+                        this.adminConfig = {
+                            password: config.password || 'admin123',
+                            lastChanged: config.lastChanged || new Date().toISOString(),
+                            attempts: config.attempts || 0,
+                            lockoutUntil: config.lockoutUntil || null
+                        };
+                        return;
+                    }
+                }
+            } catch (dbError) {
+                console.warn('BDD indisponible, chargement depuis JSON:', dbError);
+            }
+            
+            // Fallback: charger depuis le JSON
             const response = await fetch('json/admin-config.json');
             this.adminConfig = await response.json();
         } catch (error) {
@@ -187,16 +218,22 @@ class AdminPanelV2 {
         try {
             localStorage.setItem('sams_admin_config_backup', JSON.stringify(this.adminConfig));
             
-            // Tentative de sauvegarde sur le serveur
+            // Tentative de sauvegarde en BDD via l'API
             try {
-                const response = await fetch('api/admin.php?type=admin-config', {
+                const response = await fetch('api/db.php?action=save-admin-config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(this.adminConfig)
+                    body: JSON.stringify({
+                        password: this.adminConfig.password,
+                        lastChanged: this.adminConfig.lastChanged
+                    })
                 });
                 
                 if (response.ok) {
-                    console.log('Configuration admin sauvegardée sur le serveur');
+                    const result = await response.json();
+                    if (result.success) {
+                        console.log('Configuration admin sauvegardée dans la BDD');
+                    }
                 }
             } catch (serverError) {
                 console.warn('Serveur non disponible, sauvegarde locale uniquement');
@@ -419,8 +456,8 @@ class AdminPanelV2 {
     async handleManuelSubmit(e) {
         e.preventDefault();
         
-        const categoryId = parseInt(document.getElementById('manuel-categorie').value);
-        const category = this.categories.find(c => c.id === categoryId);
+        const categoryName = document.getElementById('manuel-categorie').value;
+        const category = this.categories.find(c => c.name === categoryName);
         
         if (!category) {
             this.showNotification('Catégorie invalide', 'error');
@@ -451,8 +488,8 @@ class AdminPanelV2 {
         e.preventDefault();
         
         const index = parseInt(document.getElementById('edit-manuel-index').value);
-        const categoryId = parseInt(document.getElementById('edit-manuel-categorie').value);
-        const category = this.categories.find(c => c.id === categoryId);
+        const categoryName = document.getElementById('edit-manuel-categorie').value;
+        const category = this.categories.find(c => c.name === categoryName);
         
         if (!category) {
             this.showNotification('Catégorie invalide', 'error');
@@ -989,13 +1026,15 @@ class AdminPanelV2 {
         e.preventDefault();
         
         const id = document.getElementById('bliper-id').value.toLowerCase().trim();
-        const label = document.getElementById('bliper-label').value;
+        // Le label est optionnel - on utilise l'ID s'il n'y a pas de label
+        const labelInput = document.getElementById('bliper-label').value.trim();
+        const label = labelInput || id.charAt(0).toUpperCase() + id.slice(1);
         const icon = document.getElementById('bliper-icon').value;
         const color = document.getElementById('bliper-color').value;
         const description = document.getElementById('bliper-description').value;
         
-        if (!id || !label || !icon) {
-            this.showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+        if (!id || !icon) {
+            this.showNotification('Veuillez remplir tous les champs obligatoires (ID et Icône)', 'error');
             return;
         }
         
@@ -1167,7 +1206,7 @@ class AdminPanelV2 {
         
         const currentValue = select.value;
         select.innerHTML = '<option value="">Sélectionner une catégorie</option>' +
-            this.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+            this.categories.map((cat, idx) => `<option value="${cat.name || idx}">${cat.name}</option>`).join('');
         
         if (currentValue) {
             select.value = currentValue;

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="update-notifier.js"></script>
     <script src="js/sams-common.js"></script>
+    <script src="js/data-sync.js"></script>
     <style>
         .hierarchy-section {
             width: 100%;
@@ -281,19 +282,13 @@
         // Chargement des données
         async function loadData() {
             try {
-                // Chargement des grades
+                // Chargement des grades via dataSyncManager (avec fallback JSON)
                 document.getElementById('grades-container').innerHTML = '<div class="loading-state">🔄 Chargement des grades...</div>';
-                
-                const gradesResponse = await fetch('json/grades.json');
-                if (!gradesResponse.ok) throw new Error('Erreur de chargement des grades');
-                gradesData = await gradesResponse.json();
+                gradesData = await dataSyncManager.load('grades');
 
-                // Chargement des spécialités
+                // Chargement des spécialités via dataSyncManager (avec fallback JSON)
                 document.getElementById('specialites-container').innerHTML = '<div class="loading-state">🔄 Chargement des spécialités...</div>';
-                
-                const specialitesResponse = await fetch('json/specialites.json');
-                if (!specialitesResponse.ok) throw new Error('Erreur de chargement des spécialités');
-                specialitesData = await specialitesResponse.json();
+                specialitesData = await dataSyncManager.load('specialites');
 
                 // Affichage des données
                 renderGrades();

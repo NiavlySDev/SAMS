@@ -236,6 +236,15 @@ function createTables() {
             `zone_data` JSON,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        
+        // Configuration admin
+        "CREATE TABLE IF NOT EXISTS `admin_config` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `config_key` VARCHAR(100) NOT NULL UNIQUE,
+            `config_value` LONGTEXT,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ];
     
@@ -333,6 +342,10 @@ function loadFromDB($type) {
                 }
                 return $data;
                 
+            case 'admin-config':
+                // Charger la configuration admin
+                return loadAdminConfig();
+                
             default:
                 return null;
         }
@@ -350,6 +363,64 @@ function loadFromDB($type) {
     } catch (Exception $e) {
         error_log('SAMS - Erreur lecture DB: ' . $e->getMessage());
         return null;
+    }
+}
+
+/**
+ * Charger la configuration admin
+ */
+function loadAdminConfig() {
+    global $db, $dbConnected;
+    
+    if (!$dbConnected) {
+        return null;
+    }
+    
+    try {
+        $result = $db->query("SELECT config_key, config_value FROM admin_config");
+        if (!$result) {
+            return null;
+        }
+        
+        $config = [];
+        while ($row = $result->fetch_assoc()) {
+            $config[] = [
+                'config_key' => $row['config_key'],
+                'config_value' => $row['config_value']
+            ];
+        }
+        
+        return $config;
+    } catch (Exception $e) {
+        error_log('SAMS - Erreur lecture config admin: ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Sauvegarder la configuration admin
+ */
+function saveAdminConfig($key, $value) {
+    global $db, $dbConnected;
+    
+    if (!$dbConnected) {
+        return false;
+    }
+    
+    try {
+        $key = $db->real_escape_string($key);
+        $value_str = is_array($value) || is_object($value) ? json_encode($value) : $value;
+        $value_str = $db->real_escape_string($value_str);
+        
+        // INSERT ... ON DUPLICATE KEY UPDATE pour upsert
+        $sql = "INSERT INTO admin_config (config_key, config_value) 
+                VALUES ('$key', '$value_str')
+                ON DUPLICATE KEY UPDATE config_value = '$value_str', updated_at = NOW()";
+        
+        return $db->query($sql);
+    } catch (Exception $e) {
+        error_log('SAMS - Erreur sauvegarde config admin: ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -550,6 +621,31 @@ switch ($action) {
             }
         } else {
             // Mode fallback - retourner 200 avec indicateur d'échec
+            echo json_encode(['success' => false, 'error' => 'Base de données indisponible', 'source' => 'fallback', 'fallback_mode' => true]);
+        }
+        break;
+        
+    case 'save-admin-config':
+        // Sauvegarder la configuration admin (mot de passe, etc.)
+        $input = file_get_contents('php://input');
+        $config = json_decode($input, true);
+        
+        connectDB();
+        if ($dbConnected) {
+            $success = true;
+            foreach ($config as $key => $value) {
+                if (!saveAdminConfig($key, $value)) {
+                    $success = false;
+                    break;
+                }
+            }
+            
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Configuration admin sauvegardée', 'source' => 'database']);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Erreur lors de la sauvegarde de la configuration', 'source' => 'database']);
+            }
+        } else {
             echo json_encode(['success' => false, 'error' => 'Base de données indisponible', 'source' => 'fallback', 'fallback_mode' => true]);
         }
         break;

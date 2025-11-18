@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="update-notifier.js"></script>
     <script src="js/sams-common.js"></script>
+    <script src="js/data-sync.js"></script>
     <style>
         .manuals-container {
             display: flex;
@@ -221,14 +222,15 @@
             container.innerHTML = `<div class="category-group-container">${groupHtml}</div>`;
         }
 
-        fetch('json/manuels.json')
-            .then(res => res.json())
+        // Charger les manuels via dataSyncManager (avec fallback JSON)
+        dataSyncManager.load('manuels')
             .then(data => {
-                manuals = data;
+                manuals = data || [];
                 renderCategoryFilters("all");
                 renderManuals("all");
             })
-            .catch(() => {
+            .catch(error => {
+                console.error('Erreur lors du chargement des manuels:', error);
                 document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">Impossible de charger les manuels.</div>';
             });
 
