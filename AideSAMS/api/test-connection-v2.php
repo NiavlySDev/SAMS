@@ -91,30 +91,30 @@ if ($mysqli_ok) {
 
 // Recommandations
 if (count($errors) === 0 && $query_ok) {
-    $recommendations[] = '✅ Tous les tests sont passés! Votre BDD est accessible.';
+    $recommendations[] = 'Tous les tests sont passes! Votre BDD est accessible.';
 } else {
     if (!$mysqli_ok) {
-        $recommendations[] = '1️⃣ Contacter votre hébergeur pour activer l\'extension mysqli';
+        $recommendations[] = 'Contacter votre hebergeur pour activer extension mysqli';
     }
     if (!$dns_ok) {
-        $recommendations[] = '2️⃣ Vérifier votre connexion Internet';
+        $recommendations[] = 'Verifier votre connexion Internet';
     }
     if (!$conn_ok) {
-        $recommendations[] = '3️⃣ Demander à Infomaniak d\'autoriser l\'accès remote MySQL';
+        $recommendations[] = 'Demander a Infomaniak d\'autoriser acces remote MySQL';
     }
     if ($conn_ok && !$db_ok) {
-        $recommendations[] = '4️⃣ Vérifier que la base we01io_sams existe';
+        $recommendations[] = 'Verifier que base we01io_sams existe';
     }
 }
 
-$response = array(
+$output = array(
     'timestamp' => date('Y-m-d H:i:s'),
-    'overall_status' => (count($errors) === 0 && $query_ok) ? 'SUCCESS' : 'FAILURE',
+    'overall_status' => (count($errors) === 0 && isset($query_ok) && $query_ok) ? 'SUCCESS' : 'FAILURE',
     'error_count' => count($errors),
     'tests' => $tests,
     'errors' => $errors,
-    'recommendations' => empty($recommendations) ? array('Statut inconnu') : $recommendations
+    'recommendations' => $recommendations
 );
 
-echo json_encode($response);
+echo json_encode($output);
 ?>
