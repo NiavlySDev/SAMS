@@ -235,7 +235,7 @@
             resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Test en cours...</p></div>';
             
             try {
-                const response = await fetch('api/test-connection.php');
+                const response = await fetch('api/test-connection-v2.php');
                 const data = await response.json();
                 
                 let html = '';

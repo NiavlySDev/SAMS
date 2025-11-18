@@ -4,10 +4,14 @@
  * Ce fichier teste étape par étape la connectivité
  */
 
-header('Content-Type: application/json; charset=utf-8');
-
+// Initialiser directement avant toute erreur
 $tests = [];
 $errors = [];
+$recommendations = [];
+
+// STRICT: Headers avant toute sortie
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 
 // Test 1: Vérifier si mysqli est installé
 $tests[] = [
