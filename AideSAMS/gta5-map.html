@@ -860,7 +860,23 @@
             }
 
             loadSavedData() {
-                // Essayer de charger depuis la BDD en priorité via dataSyncManager
+                // D'abord vérifier localStorage - c'est la source locale prioritaire
+                const localStorageData = localStorage.getItem('gta5-map');
+                
+                if (localStorageData) {
+                    try {
+                        const parsed = JSON.parse(localStorageData);
+                        // Si localStorage a des données (même vides), les utiliser
+                        this.elements = parsed || [];
+                        console.log('✅ Données chargées depuis localStorage:', this.elements.length, 'items');
+                        this.draw();
+                        return; // Ne pas charger depuis la BDD si localStorage a été utilisé
+                    } catch (e) {
+                        console.error('Erreur parsing localStorage:', e);
+                    }
+                }
+                
+                // Si localStorage est vide/invalide, essayer la BDD
                 if (window.dataSyncManager) {
                     // Charger à la fois zones et blippers instances
                     Promise.all([
@@ -882,11 +898,13 @@
                             console.log('✅ Blippers chargés depuis BDD:', blippersData.length);
                         }
                         
-                        // Si rien n'a été chargé, utiliser localStorage
+                        // Si rien n'a été chargé, utiliser localStorage par défaut
                         if (allElements.length === 0) {
                             this.loadFromLocalStorage();
                         } else {
                             this.elements = allElements;
+                            // Sauvegarder aussi en localStorage comme backup
+                            localStorage.setItem('gta5-map', JSON.stringify(this.elements));
                         }
                         this.draw();
                     })
