@@ -32,6 +32,19 @@ try {
     // Désactiver les vérifications de contraintes étrangères
     $db->query("SET FOREIGN_KEY_CHECKS = 0");
     
+    // Récréer toutes les tables pour s'assurer de la bonne structure
+    $db->query("DROP TABLE IF EXISTS `membres_grades`");
+    $db->query("DROP TABLE IF EXISTS `specialite_membres`");
+    $db->query("DROP TABLE IF EXISTS `manuels`");
+    $db->query("DROP TABLE IF EXISTS `grades`");
+    $db->query("DROP TABLE IF EXISTS `specialites`");
+    $db->query("DROP TABLE IF EXISTS `categories`");
+    $db->query("DROP TABLE IF EXISTS `gta5_zones`");
+    $db->query("DROP TABLE IF EXISTS `blippers`");
+    
+    // Recréer les tables avec la bonne structure
+    createTables();
+    
     // BLIPPERS
     if (file_exists($jsonDir . 'blippers.json')) {
         $blippers = json_decode(file_get_contents($jsonDir . 'blippers.json'), true);
