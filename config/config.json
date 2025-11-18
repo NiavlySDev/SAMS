@@ -1,7 +1,7 @@
 {
   "db_host": "we01io.myd.infomaniak.com",
-  "db_user": "we01io_sams",
-  "db_password": "RBM91210chat!",
+  "db_user": "we01io_sylvain",
+  "db_password": "RBM91210chat",
   "db_name": "we01io_sams",
   "email": {
     "address": "no-reply@tfe91.fr",
