@@ -768,6 +768,46 @@ switch ($action) {
         }
         break;
         
+    case 'clear':
+        // Effacer toutes les données des tables gta5_zones et gta5_blippers_instances
+        connectDB();
+        if ($dbConnected) {
+            try {
+                // Commencer une transaction
+                $db->begin_transaction();
+                
+                // Effacer les tables
+                $db->query("TRUNCATE TABLE gta5_zones");
+                if ($db->error) {
+                    throw new Exception("Erreur TRUNCATE gta5_zones: " . $db->error);
+                }
+                
+                $db->query("TRUNCATE TABLE gta5_blippers_instances");
+                if ($db->error) {
+                    throw new Exception("Erreur TRUNCATE gta5_blippers_instances: " . $db->error);
+                }
+                
+                // Valider la transaction
+                $db->commit();
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Toutes les données ont été effacées de la BDD',
+                    'tables_cleared' => ['gta5_zones', 'gta5_blippers_instances']
+                ]);
+            } catch (Exception $e) {
+                $db->rollback();
+                error_log('SAMS - Erreur lors de l\'effacement BDD: ' . $e->getMessage());
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Erreur lors de l\'effacement: ' . $e->getMessage()
+                ]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Base de données indisponible']);
+        }
+        break;
+        
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Action invalide']);

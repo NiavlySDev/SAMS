@@ -526,9 +526,7 @@
                 });
                 document.getElementById('clearDBBtn').addEventListener('click', () => {
                     if (confirm('⚠️ ATTENTION! Ceci va effacer TOUS les éléments de la BDD pour tous les utilisateurs!')) {
-                        this.elements = [];
-                        this.saveToDB(); // Sauvegarde un tableau vide en BDD
-                        console.log('✅ Données effacées de la BDD');
+                        this.clearDatabase();
                     }
                 });
 
@@ -826,6 +824,33 @@
                     }
                 } else {
                     console.warn('⚠️ dataSyncManager non disponible - données sauvegardées en localStorage seulement');
+                }
+            }
+
+            async clearDatabase() {
+                // Efface vraiment la BDD en appelant l'API
+                try {
+                    const response = await fetch('api/db.php?action=clear', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.elements = [];
+                        localStorage.setItem('gta5-map', JSON.stringify([]));
+                        this.draw();
+                        console.log('✅ Données effacées de la BDD et localement');
+                        alert('✅ Toutes les données ont été effacées de la BDD!');
+                    } else {
+                        console.error('❌ Erreur lors de l\'effacement BDD:', result.message);
+                        alert('❌ Erreur: ' + (result.message || 'Impossible d\'effacer la BDD'));
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur lors de la requête d\'effacement:', error);
+                    alert('❌ Erreur de connexion: impossible de contacter le serveur');
                 }
             }
 
