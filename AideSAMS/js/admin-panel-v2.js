@@ -1495,14 +1495,7 @@ function exportBackup() {
     adminPanel.showNotification('Sauvegarde exportée avec succès!');
 }
 
-function runDiagnostic() {
-    console.log('🔍 Diagnostic du système administrateur...');
-    if (window.adminDiagnostic && window.adminDiagnostic.runDiagnostic) {
-        window.adminDiagnostic.runDiagnostic();
-    } else {
-        console.log('⚠️ Outil de diagnostic non disponible');
-    }
-}
+// Fonctions utilitaires pour l'administration
 
 function clearAllData() {
     if (!window.adminPanel) return;

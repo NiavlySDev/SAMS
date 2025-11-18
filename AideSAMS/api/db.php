@@ -1,57 +1,59 @@
 <?php
 /**
- * API de synchronisation avec la base de données MySQL
+ * API de synchronisation avec la base de données MySQL - Production
  * Gère les blippers, manuels, grades, spécialités et catégories
  */
 
-// Capture les erreurs PHP
-error_reporting(E_ALL);
+// Configuration de production
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
+ini_set('max_execution_time', 30);
+ini_set('memory_limit', '128M');
 
-// Démarrer la session avant toute sortie
+// Démarrer la session
 session_start();
 
+// Headers CORS et JSON
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Charger la configuration depuis le fichier externe
+// Charger la configuration
 $config_path = __DIR__ . '/../../config/config.json';
 $config = null;
 
-// Si le chemin __DIR__ ne fonctionne pas, essayer une approche alternative
+// Chemins possibles pour le fichier de configuration
 if (!file_exists($config_path)) {
-    // Essayer depuis le root du projet web
     $possible_paths = array(
         $_SERVER['DOCUMENT_ROOT'] . '/../config/config.json',
         dirname(dirname(dirname(__FILE__))) . '/config/config.json',
-        '../../config/config.json'
+        realpath(__DIR__ . '/../../config/config.json')
     );
     
     foreach ($possible_paths as $path) {
-        if (file_exists($path)) {
+        if ($path && file_exists($path)) {
             $config_path = $path;
             break;
         }
     }
 }
 
-error_log("Final config path: " . $config_path . " (exists: " . (file_exists($config_path) ? 'YES' : 'NO') . ")");
-
 if (file_exists($config_path)) {
     $json_content = file_get_contents($config_path);
     $config = json_decode($json_content, true);
     
     if ($config === null) {
-        error_log("Config JSON decode failed: " . json_last_error_msg());
-        // Utiliser les valeurs par défaut
+        error_log("SAMS - Erreur décodage config JSON: " . json_last_error_msg());
         $config = array();
     }
+} else {
+    error_log("SAMS - Fichier config introuvable: " . $config_path);
+    $config = array();
 }
 
-// Définir les constantes avec fallback
+// Configuration de la base de données Infomaniak
 define('DB_HOST', isset($config['db_host']) ? $config['db_host'] : 'we01io.myd.infomaniak.com');
 define('DB_USER', isset($config['db_user']) ? $config['db_user'] : 'we01io_sams');
 define('DB_PASS', isset($config['db_password']) ? $config['db_password'] : 'RBM91210chat!');
@@ -73,44 +75,57 @@ $db = null;
 $dbConnected = false;
 
 /**
- * Tenter de se connecter à la base de données
+ * Connexion optimisée à la base de données Infomaniak
  */
 function connectDB() {
     global $db, $dbConnected;
     
     // Éviter les connexions répétées
-    if ($dbConnected && $db) {
+    if ($dbConnected && $db && $db->ping()) {
         return true;
     }
     
     try {
-        // Augmenter le timeout de connexion
-        ini_set('default_socket_timeout', 10);
-        ini_set('mysql.connect_timeout', 10);
+        // Configuration timeout optimisée pour Infomaniak
+        ini_set('default_socket_timeout', 20);
+        ini_set('mysql.connect_timeout', 20);
         
-        $db = @new mysqli(
-            DB_HOST, 
-            DB_USER, 
-            DB_PASS, 
-            DB_NAME, 
-            DB_PORT
-        );
+        // Connexion avec retry en cas d'échec temporaire
+        $retry = 0;
+        $maxRetries = 2;
         
-        if ($db->connect_error) {
-            error_log('❌ Connexion MySQL échouée: ' . $db->connect_error);
-            $dbConnected = false;
-            return false;
-        }
+        do {
+            $db = new mysqli(
+                DB_HOST, 
+                DB_USER, 
+                DB_PASS, 
+                DB_NAME, 
+                DB_PORT
+            );
+            
+            if ($db->connect_error) {
+                $retry++;
+                if ($retry < $maxRetries) {
+                    usleep(500000); // Attendre 0.5 seconde
+                    continue;
+                } else {
+                    error_log('SAMS - Connexion MySQL échouée après ' . $maxRetries . ' tentatives: ' . $db->connect_error);
+                    $dbConnected = false;
+                    return false;
+                }
+            }
+            break;
+        } while ($retry < $maxRetries);
         
-        // Définir le charset
-        if (!$db->set_charset('utf8mb4')) {
-            error_log('⚠️ Erreur charset: ' . $db->error);
-        }
+        // Configuration optimale pour la production
+        $db->set_charset('utf8mb4');
+        $db->autocommit(true);
+        $db->options(MYSQLI_OPT_CONNECT_TIMEOUT, 20);
         
-        // Vérifier que la BDD est vraiment accessible
-        $result = @$db->query('SELECT 1');
+        // Test de connectivité
+        $result = $db->query('SELECT 1');
         if (!$result) {
-            error_log('❌ Test requête échouée: ' . $db->error);
+            error_log('SAMS - Test de connectivité échoué: ' . $db->error);
             $db->close();
             $dbConnected = false;
             return false;
@@ -118,15 +133,15 @@ function connectDB() {
         
         $dbConnected = true;
         
-        // Créer les tables si elles n'existent pas (une seule fois)
-        if (!isset($_SESSION['tables_created'])) {
+        // Initialiser les tables une seule fois par session
+        if (!isset($_SESSION['sams_tables_init'])) {
             createTables();
-            $_SESSION['tables_created'] = true;
+            $_SESSION['sams_tables_init'] = true;
         }
         
         return true;
     } catch (Exception $e) {
-        error_log('❌ Exception DB Connection: ' . $e->getMessage());
+        error_log('SAMS - Exception connexion DB: ' . $e->getMessage());
         $dbConnected = false;
         return false;
     }

@@ -1,0 +1,54 @@
+{
+  "zones": [
+    {
+      "id": 1,
+      "name": "Downtown Vinewood",
+      "description": "Centre-ville avec petits magasins et appartements"
+    },
+    {
+      "id": 2,
+      "name": "Vinewood Hills",
+      "description": "Quartier riche avec villas et propriétés de luxe"
+    },
+    {
+      "id": 3,
+      "name": "Sandy Shores",
+      "description": "Petite ville du désert avec caractère rural"
+    },
+    {
+      "id": 4,
+      "name": "Paleto Bay",
+      "description": "Village côtier au nord de la map"
+    },
+    {
+      "id": 5,
+      "name": "Grapeseed",
+      "description": "Zone agricole avec fermes et petits commerces"
+    },
+    {
+      "id": 6,
+      "name": "Del Perro",
+      "description": "Plage populaire avec promenades et restaurants"
+    },
+    {
+      "id": 7,
+      "name": "Pillbox Hill",
+      "description": "Centre-ville avec hôpital et bâtiments publics"
+    },
+    {
+      "id": 8,
+      "name": "Weazel Plaza",
+      "description": "Centre commercial et bureaux"
+    },
+    {
+      "id": 9,
+      "name": "MRPD Station",
+      "description": "Station de police - Mission Row"
+    },
+    {
+      "id": 10,
+      "name": "Fort Zancudo",
+      "description": "Base militaire - Zone d'accès limité"
+    }
+  ]
+}

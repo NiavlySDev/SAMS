@@ -1,0 +1,15 @@
+# Protection du dossier de configuration
+Order deny,allow
+Deny from all
+
+# Empêcher l'accès direct aux fichiers de configuration
+<Files "*.json">
+    Order deny,allow
+    Deny from all
+</Files>
+
+# Bloquer les tentatives d'accès aux backups
+<FilesMatch "\.(bak|backup|old|tmp)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>

@@ -1,0 +1,35 @@
+# Déploiement SAMS - Production
+
+## Instructions de déploiement
+
+### 1. Upload des fichiers
+- Téléchargez tous les fichiers sur votre serveur Infomaniak
+- Assurez-vous que le fichier `config/config.json` contient les bonnes informations de connexion
+
+### 2. Configuration de la base de données
+- Les paramètres de connexion Infomaniak sont déjà configurés dans `config/config.json`
+- Host: we01io.myd.infomaniak.com
+- Database: we01io_sams
+- User: we01io_sams
+
+### 3. Initialisation (première fois uniquement)
+Visitez : `https://votre-domaine.com/AideSAMS/api/init.php`
+Cette URL va créer automatiquement toutes les tables nécessaires.
+
+### 4. Test de connexion
+Visitez : `https://votre-domaine.com/AideSAMS/api/ping.php`
+Cela vous dira si la connexion à la base de données fonctionne.
+
+### 5. Lancement de l'application
+Visitez : `https://votre-domaine.com/AideSAMS/`
+
+## Fichiers importants
+- `config/config.json` : Configuration de la base de données
+- `AideSAMS/api/db.php` : Gestion de la base de données
+- `AideSAMS/api/init.php` : Initialisation (première fois)
+- `AideSAMS/api/ping.php` : Test de connexion
+
+## Sécurité
+- Le dossier `config/` est protégé par `.htaccess`
+- Les logs d'erreurs sont activés mais pas l'affichage public
+- Connexion avec retry automatique en cas d'échec temporaire
