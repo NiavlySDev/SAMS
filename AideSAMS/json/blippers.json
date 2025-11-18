@@ -1,0 +1,58 @@
+[
+    {
+        "id": "police",
+        "label": "🚔 Police",
+        "icon": "🚔",
+        "color": "#0066cc",
+        "description": "Station de police"
+    },
+    {
+        "id": "hospital",
+        "label": "🏥 Hôpital",
+        "icon": "🏥",
+        "color": "#ff0000",
+        "description": "Hôpital d'urgence"
+    },
+    {
+        "id": "fire",
+        "label": "🚒 Pompiers",
+        "icon": "🚒",
+        "color": "#ff6600",
+        "description": "Station de pompiers"
+    },
+    {
+        "id": "store",
+        "label": "🏪 Magasin",
+        "icon": "🏪",
+        "color": "#00cc00",
+        "description": "Magasin d'approvisionnement"
+    },
+    {
+        "id": "bar",
+        "label": "🍻 Bar",
+        "icon": "🍻",
+        "color": "#ffaa00",
+        "description": "Bar - Zone de loisirs"
+    },
+    {
+        "id": "marker",
+        "label": "📍 Marqueur",
+        "icon": "📍",
+        "color": "#ffff00",
+        "description": "Marqueur personnalisé"
+    },
+    {
+        "id": "garage",
+        "label": "🚗 Garage",
+        "icon": "🚗",
+        "color": "#00ffff",
+        "description": "Garage de réparation"
+    },
+    {
+        "id": "helipad",
+        "label": "🚁 Héliport",
+        "icon": "🚁",
+        "color": "#9900ff",
+        "description": "Zone d'atterrissage hélicoptère"
+    }
+]

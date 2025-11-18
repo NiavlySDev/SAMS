@@ -15,8 +15,8 @@ class AdminPanelV2 {
 
     async init() {
         try {
-            // Attendre que le gestionnaire de sync soit prêt
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Attendre que l'application soit initialisée
+            await this.waitForAppReady();
             
             await this.loadAdminConfig();
             // Vérifier s'il y a une session active
@@ -31,6 +31,32 @@ class AdminPanelV2 {
             console.error('Erreur lors de l\'initialisation:', error);
             this.showNotification('Erreur lors de l\'initialisation', 'error');
         }
+    }
+
+    /**
+     * Attendre que l'app soit prête
+     */
+    async waitForAppReady(timeout = 10000) {
+        return new Promise((resolve, reject) => {
+            if (window.appInitializer?.ready) {
+                resolve();
+                return;
+            }
+
+            const handleAppReady = () => {
+                window.removeEventListener('appReady', handleAppReady);
+                clearTimeout(timeoutId);
+                resolve();
+            };
+
+            const timeoutId = setTimeout(() => {
+                window.removeEventListener('appReady', handleAppReady);
+                console.warn('⚠️ AppInitializer timeout - continuant sans attendre');
+                resolve();
+            }, timeout);
+
+            window.addEventListener('appReady', handleAppReady);
+        });
     }
 
     // === AUTHENTIFICATION ===

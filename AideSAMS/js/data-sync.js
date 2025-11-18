@@ -1,6 +1,7 @@
 /**
  * Gestionnaire de synchronisation des données
- * Priorité: BDD MySQL > LocalStorage > JSON
+ * Priorité de chargement: BDD MySQL > LocalStorage > JSON
+ * Priorité de sauvegarde: BDD + LocalStorage + JSON
  */
 
 class DataSyncManager {
@@ -8,6 +9,7 @@ class DataSyncManager {
         this.dbAvailable = false;
         this.dbCheckUrl = 'api/db.php?action=check';
         this.cache = {};
+        this.defaultTypes = ['manuels', 'grades', 'specialites', 'categories', 'blippers', 'gta5-zones'];
         this.init();
     }
 
@@ -21,57 +23,103 @@ class DataSyncManager {
      */
     async checkDatabaseConnection() {
         try {
-            const response = await fetch(this.dbCheckUrl);
+            const response = await fetch(this.dbCheckUrl, { timeout: 3000 });
             const result = await response.json();
-            this.dbAvailable = result.connected;
+            this.dbAvailable = result.connected === true;
             
             if (this.dbAvailable) {
-                console.log('✅ Connexion BDD établie');
+                console.log('✅ Connexion BDD établie - Synchronisation active');
             } else {
-                console.warn('⚠️ BDD indisponible - utilisation du fallback');
+                console.warn('⚠️ BDD indisponible - Mode fallback (LocalStorage/JSON)');
             }
         } catch (error) {
-            console.warn('⚠️ BDD inaccessible:', error);
+            console.warn('⚠️ BDD inaccessible - Mode fallback activé:', error.message);
             this.dbAvailable = false;
         }
     }
 
     /**
+     * Importer TOUTES les données au démarrage
+     */
+    async importAllData() {
+        console.log('📥 Début de l\'importation des données...');
+        const results = {};
+        
+        for (const type of this.defaultTypes) {
+            try {
+                const data = await this.load(type);
+                results[type] = {
+                    success: true,
+                    count: Array.isArray(data) ? data.length : Object.keys(data).length,
+                    data: data
+                };
+            } catch (error) {
+                console.error(`❌ Erreur importation ${type}:`, error);
+                results[type] = { success: false, error: error.message };
+            }
+        }
+        
+        console.log('✅ Importation terminée', results);
+        return results;
+    }
+
+    /**
      * Charger les données avec priorité: BDD > LocalStorage > JSON
+     * Utilise un système intelligent de fallback
      */
     async load(type) {
-        // 1. Essayer de charger depuis la BDD
+        // Si déjà en cache, retourner
+        if (this.cache[type] && Array.isArray(this.cache[type])) {
+            console.log(`🔄 ${type} récupéré depuis le cache`);
+            return this.cache[type];
+        }
+
+        // 1. Essayer de charger depuis la BDD en priorité
         if (this.dbAvailable) {
             try {
                 const data = await this.loadFromDB(type);
-                if (data) {
-                    console.log(`📊 ${type} chargé depuis la BDD`);
+                if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+                    console.log(`📊 ${type} chargé depuis la BDD (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
                     this.cache[type] = data;
+                    // Aussi sauvegarder en localStorage pour plus tard
+                    this.saveToLocalStorage(type, data);
                     return data;
                 }
             } catch (error) {
-                console.warn(`Erreur chargement BDD (${type}):`, error);
+                console.warn(`⚠️ Erreur chargement BDD (${type}):`, error.message);
+                // Continuer avec les fallbacks
             }
         }
 
-        // 2. Essayer de charger depuis localStorage
+        // 2. Essayer de charger depuis localStorage (données locales)
         const localData = this.loadFromLocalStorage(type);
-        if (localData) {
+        if (localData && (Array.isArray(localData) ? localData.length > 0 : Object.keys(localData).length > 0)) {
             console.log(`💾 ${type} chargé depuis localStorage`);
             this.cache[type] = localData;
             return localData;
         }
 
-        // 3. Charger depuis le fichier JSON
+        // 3. Charger depuis le fichier JSON (source d'origine)
         try {
             const data = await this.loadFromJSON(type);
-            console.log(`📄 ${type} chargé depuis le JSON`);
-            this.cache[type] = data;
-            return data;
+            if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+                console.log(`📄 ${type} chargé depuis le JSON (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
+                this.cache[type] = data;
+                // Sauvegarder en localStorage pour la prochaine fois
+                this.saveToLocalStorage(type, data);
+                // Si la BDD est disponible, la mettre à jour aussi
+                if (this.dbAvailable) {
+                    this.saveToDB(type, data).catch(e => console.warn('Erreur sync BDD:', e.message));
+                }
+                return data;
+            }
         } catch (error) {
-            console.error(`❌ Impossible de charger ${type}:`, error);
-            return [];
+            console.error(`❌ Impossible de charger ${type} depuis JSON:`, error.message);
         }
+
+        // 4. Aucune donnée trouvée
+        console.error(`🚫 Aucune donnée disponible pour ${type}`);
+        return [];
     }
 
     /**
@@ -122,40 +170,57 @@ class DataSyncManager {
     }
 
     /**
-     * Sauvegarder les données avec fallback
+     * Sauvegarder les données partout (BDD + LocalStorage + JSON)
      */
     async save(type, data) {
+        if (!data) {
+            console.error(`❌ Tentative de sauvegarde avec données vides pour ${type}`);
+            return { success: false, error: 'Données vides' };
+        }
+
         this.cache[type] = data;
-        
-        // 1. Essayer de sauvegarder en BDD
+        const saveResults = [];
+
+        // 1. Sauvegarder en BDD (priorité haute)
         if (this.dbAvailable) {
             try {
                 const success = await this.saveToDB(type, data);
                 if (success) {
                     console.log(`✅ ${type} sauvegardé en BDD`);
-                    // Aussi sauvegarder en localStorage comme backup
-                    this.saveToLocalStorage(type, data);
-                    return { success: true, source: 'database' };
+                    saveResults.push('database');
+                } else {
+                    console.warn(`⚠️ Erreur BDD pour ${type}`);
                 }
             } catch (error) {
-                console.warn(`Erreur sauvegarde BDD (${type}):`, error);
-                // Continuer avec les autres méthodes
+                console.warn(`⚠️ Erreur sauvegarde BDD (${type}):`, error.message);
             }
         }
 
-        // 2. Sauvegarder en localStorage
-        this.saveToLocalStorage(type, data);
-        console.log(`💾 ${type} sauvegardé en localStorage`);
-        
-        // 3. Sauvegarder en JSON (via API si disponible)
+        // 2. Sauvegarder en localStorage (toujours, comme backup)
         try {
-            await this.saveToJSON(type, data);
-            console.log(`📄 ${type} sauvegardé en JSON`);
-            return { success: true, source: 'localStorage+json' };
+            this.saveToLocalStorage(type, data);
+            console.log(`💾 ${type} sauvegardé en localStorage`);
+            saveResults.push('localStorage');
         } catch (error) {
-            console.warn(`Erreur sauvegarde JSON (${type}):`, error);
-            return { success: true, source: 'localStorage' };
+            console.error(`❌ Erreur localStorage (${type}):`, error.message);
         }
+
+        // 3. Sauvegarder en JSON (via API)
+        try {
+            const success = await this.saveToJSON(type, data);
+            if (success) {
+                console.log(`📄 ${type} sauvegardé en JSON`);
+                saveResults.push('json');
+            }
+        } catch (error) {
+            console.warn(`⚠️ Erreur sauvegarde JSON (${type}):`, error.message);
+        }
+
+        return {
+            success: saveResults.length > 0,
+            savedTo: saveResults,
+            message: `${type} sauvegardé dans: ${saveResults.join(', ')}`
+        };
     }
 
     /**

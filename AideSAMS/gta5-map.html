@@ -439,12 +439,24 @@
 
             async loadBlippers() {
                 try {
+                    // Charger via le DataSyncManager (BDD > LocalStorage > JSON)
+                    if (window.dataSyncManager) {
+                        this.blippers = await dataSyncManager.load('blippers');
+                        if (this.blippers && this.blippers.length > 0) {
+                            console.log(`✅ Blippers chargés: ${this.blippers.length} items`);
+                            this.populateBliperSelect();
+                            return;
+                        }
+                    }
+                    
+                    // Fallback: charger directement depuis le JSON
                     const response = await fetch('json/blippers.json');
                     this.blippers = await response.json();
+                    console.log(`✅ Blippers chargés depuis JSON: ${this.blippers.length} items`);
                     this.populateBliperSelect();
                 } catch (error) {
                     console.error('Erreur lors du chargement des blippers:', error);
-                    // Fallback: blippers par défaut
+                    // Fallback final: blippers par défaut
                     this.blippers = [
                         { id: 'police', label: '🚔 Police', icon: '🚔', color: '#0066cc' },
                         { id: 'hospital', label: '🏥 Hôpital', icon: '🏥', color: '#ff0000' },
@@ -452,6 +464,7 @@
                         { id: 'bar', label: '🍻 Bar', icon: '🍻', color: '#ff6600' },
                         { id: 'marker', label: '📍 Marqueur', icon: '📍', color: '#ffff00' }
                     ];
+                    console.warn('⚠️ Blippers par défaut chargés');
                     this.populateBliperSelect();
                 }
             }
@@ -749,7 +762,14 @@
             }
 
             saveToDB() {
+                // Sauvegarder localement d'abord
                 localStorage.setItem('gta5-map', JSON.stringify(this.elements));
+                
+                // Puis synchroniser avec la BDD si le manager est disponible
+                if (window.dataSyncManager) {
+                    dataSyncManager.save('gta5-zones', this.elements)
+                        .catch(err => console.warn('Erreur sync BDD (non bloquant):', err.message));
+                }
             }
 
             loadSavedData() {
@@ -921,5 +941,7 @@
             new GTA5MapBuilder();
         });
     </script>
+    <script src="js/data-sync.js"></script>
+    <script src="js/app-initializer.js"></script>
 </body>
 </html>
