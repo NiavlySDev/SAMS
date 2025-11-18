@@ -29,6 +29,9 @@ $jsonDir = __DIR__ . '/../json/';
 $results = [];
 
 try {
+    // Désactiver les vérifications de contraintes étrangères
+    $db->query("SET FOREIGN_KEY_CHECKS = 0");
+    
     // BLIPPERS
     if (file_exists($jsonDir . 'blippers.json')) {
         $blippers = json_decode(file_get_contents($jsonDir . 'blippers.json'), true);
@@ -183,6 +186,9 @@ try {
         $results['gta5_zones'] = "$zoneCount zones importées";
     }
     
+    // Réactiver les vérifications de contraintes étrangères
+    $db->query("SET FOREIGN_KEY_CHECKS = 1");
+    
     // Fermer la connexion
     if ($db && $dbConnected) {
         $db->close();
@@ -199,6 +205,11 @@ try {
     ]);
     
 } catch (Exception $e) {
+    // Réactiver les contraintes en cas d'erreur
+    if ($db && isset($db)) {
+        @$db->query("SET FOREIGN_KEY_CHECKS = 1");
+    }
+    
     error_log('SAMS - Erreur initialisation: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
