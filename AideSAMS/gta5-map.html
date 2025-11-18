@@ -482,9 +482,13 @@
                 this.blippers.forEach(bliper => {
                     const option = document.createElement('option');
                     option.value = bliper.id;
-                    option.textContent = bliper.label;
+                    // Utiliser label ou name ou id comme fallback
+                    const displayName = bliper.label || bliper.name || bliper.id;
+                    option.textContent = displayName;
                     select.appendChild(option);
                 });
+                
+                console.log('✅ Blippers dropdown populated:', this.blippers.length, 'items');
             }
 
             setupEvents() {
@@ -752,30 +756,62 @@
                 
                 // Puis synchroniser avec la BDD si le manager est disponible
                 if (window.dataSyncManager) {
-                    dataSyncManager.save('gta5-zones', this.elements)
-                        .catch(err => console.warn('Erreur sync BDD (non bloquant):', err.message));
+                    // Séparer les zones et les blippers instances
+                    const zones = this.elements.filter(e => e.type === 'zone');
+                    const blippersInstances = this.elements.filter(e => e.type === 'bliper');
+                    
+                    // Sauvegarder les zones
+                    if (zones.length > 0 || blippersInstances.length > 0) {
+                        dataSyncManager.save('gta5-zones', this.elements)
+                            .then(() => console.log('✅ Zones sauvegardées en BDD'))
+                            .catch(err => console.warn('Erreur save zones BDD:', err.message));
+                    }
+                    
+                    // Sauvegarder les blippers instances séparément pour qu'elles soient accessibles par tous
+                    if (blippersInstances.length > 0) {
+                        dataSyncManager.save('gta5-blippers', blippersInstances)
+                            .then(() => console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length))
+                            .catch(err => console.warn('Erreur save blippers BDD:', err.message));
+                    }
                 }
             }
 
             loadSavedData() {
                 // Essayer de charger depuis la BDD en priorité via dataSyncManager
                 if (window.dataSyncManager) {
-                    dataSyncManager.load('gta5-zones')
-                        .then(data => {
-                            if (data && Array.isArray(data)) {
-                                this.elements = data;
-                                console.log('✅ Éléments chargés depuis BDD');
-                            } else {
-                                // Fallback: charger depuis localStorage
-                                this.loadFromLocalStorage();
-                            }
-                            this.draw();
-                        })
-                        .catch(err => {
-                            console.warn('BDD non disponible, chargement depuis localStorage:', err);
+                    // Charger à la fois zones et blippers instances
+                    Promise.all([
+                        dataSyncManager.load('gta5-zones').catch(() => null),
+                        dataSyncManager.load('gta5-blippers').catch(() => null)
+                    ])
+                    .then(([zonesData, blippersData]) => {
+                        const allElements = [];
+                        
+                        // Ajouter les zones
+                        if (zonesData && Array.isArray(zonesData)) {
+                            allElements.push(...zonesData);
+                            console.log('✅ Zones chargées depuis BDD:', zonesData.length);
+                        }
+                        
+                        // Ajouter les blippers instances
+                        if (blippersData && Array.isArray(blippersData)) {
+                            allElements.push(...blippersData);
+                            console.log('✅ Blippers chargés depuis BDD:', blippersData.length);
+                        }
+                        
+                        // Si rien n'a été chargé, utiliser localStorage
+                        if (allElements.length === 0) {
                             this.loadFromLocalStorage();
-                            this.draw();
-                        });
+                        } else {
+                            this.elements = allElements;
+                        }
+                        this.draw();
+                    })
+                    .catch(err => {
+                        console.warn('Erreur chargement BDD, fallback localStorage:', err);
+                        this.loadFromLocalStorage();
+                        this.draw();
+                    });
                 } else {
                     // Fallback: charger depuis localStorage
                     this.loadFromLocalStorage();

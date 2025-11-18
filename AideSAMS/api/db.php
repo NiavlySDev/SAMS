@@ -11,7 +11,7 @@ ini_set('log_errors', 1);
 ini_set('max_execution_time', 30);
 ini_set('memory_limit', '128M');
 
-// Démarrer la session
+// Démarrage de la session
 session_start();
 
 // Headers CORS et JSON
@@ -238,6 +238,22 @@ function createTables() {
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         
+        // Blippers instances (créés sur la carte)
+        "CREATE TABLE IF NOT EXISTS `gta5_blippers_instances` (
+            `id` INT PRIMARY KEY AUTO_INCREMENT,
+            `bliper_id` BIGINT NOT NULL,
+            `type` VARCHAR(50) DEFAULT 'bliper',
+            `x` FLOAT NOT NULL,
+            `y` FLOAT NOT NULL,
+            `bliperType` VARCHAR(50),
+            `color` VARCHAR(7),
+            `name` VARCHAR(255),
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_bliper_id (bliper_id),
+            INDEX idx_type (type)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        
         // Configuration admin
         "CREATE TABLE IF NOT EXISTS `admin_config` (
             `id` INT PRIMARY KEY AUTO_INCREMENT,
@@ -339,6 +355,20 @@ function loadFromDB($type) {
                 while ($row = $result->fetch_assoc()) {
                     $zoneData = json_decode($row['zone_data'], true);
                     $data[$row['name']] = $zoneData ?: $row['zone_data'];
+                }
+                return $data;
+                
+            case 'gta5-blippers':
+                // Charger les blippers instances depuis la table gta5_blippers_instances
+                $result = $db->query("SELECT id, type, x, y, bliperType, color, name FROM gta5_blippers_instances ORDER BY created_at");
+                if (!$result) {
+                    return [];
+                }
+                
+                $data = [];
+                while ($row = $result->fetch_assoc()) {
+                    // Garder 'id' pour compatibilité avec le frontend
+                    $data[] = $row;
                 }
                 return $data;
                 
@@ -539,6 +569,57 @@ function saveToDB($type, $data) {
                     $sql = "INSERT INTO categories (name, color, visible) VALUES ('$name', '$color', $visible)";
                     if (!$db->query($sql)) {
                         throw new Exception($db->error);
+                    }
+                }
+                break;
+                
+            case 'gta5-zones':
+                // Sauvegarder les zones GTA5
+                if (!is_array($data)) {
+                    throw new Exception('gta5-zones data must be an array');
+                }
+                
+                // Truncate et recharger les zones
+                $db->query("TRUNCATE TABLE gta5_zones");
+                foreach ($data as $item) {
+                    if ($item['type'] === 'zone') {
+                        $name = $db->real_escape_string($item['name'] ?? 'Zone');
+                        $zoneData = json_encode($item);
+                        $zoneData = $db->real_escape_string($zoneData);
+                        
+                        $sql = "INSERT INTO gta5_zones (name, zone_data) VALUES ('$name', '$zoneData')";
+                        if (!$db->query($sql)) {
+                            throw new Exception($db->error);
+                        }
+                    }
+                }
+                break;
+                
+            case 'gta5-blippers':
+                // Sauvegarder les blippers instances (créées sur la carte) dans gta5_blippers_instances
+                if (!is_array($data)) {
+                    throw new Exception('gta5-blippers data must be an array');
+                }
+                
+                // Vider et recharger les blippers instances
+                $db->query("TRUNCATE TABLE gta5_blippers_instances");
+                
+                foreach ($data as $item) {
+                    if (isset($item['type']) && $item['type'] === 'bliper') {
+                        $bliper_id = intval($item['id'] ?? 0);
+                        $type = $db->real_escape_string($item['type'] ?? 'bliper');
+                        $x = floatval($item['x'] ?? 0);
+                        $y = floatval($item['y'] ?? 0);
+                        $bliperType = $db->real_escape_string($item['bliperType'] ?? '');
+                        $color = $db->real_escape_string($item['color'] ?? '#000000');
+                        $name = $db->real_escape_string($item['name'] ?? '');
+                        
+                        $sql = "INSERT INTO gta5_blippers_instances (bliper_id, type, x, y, bliperType, color, name) 
+                                VALUES ($bliper_id, '$type', $x, $y, '$bliperType', '$color', '$name')";
+                        
+                        if (!$db->query($sql)) {
+                            throw new Exception($db->error);
+                        }
                     }
                 }
                 break;
