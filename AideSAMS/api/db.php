@@ -9,20 +9,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// Handler pour capturer les erreurs PHP et les envoyer en JSON
-set_error_handler(function($errno, $errstr, $errfile, $errline) {
-    error_log("PHP Error [$errno]: $errstr in $errfile:$errline");
-    if (php_sapi_name() !== 'cli') {
-        http_response_code(500);
-        echo json_encode([
-            'error' => 'PHP Error',
-            'message' => $errstr,
-            'code' => $errno
-        ]);
-        exit;
-    }
-});
-
 // Démarrer la session avant toute sortie
 session_start();
 
@@ -35,8 +21,24 @@ header('Access-Control-Allow-Headers: Content-Type');
 $config_path = __DIR__ . '/../../config/config.json';
 $config = null;
 
-// Debug: log le chemin cherché
-error_log("Config path: " . $config_path . " exists: " . (file_exists($config_path) ? 'YES' : 'NO'));
+// Si le chemin __DIR__ ne fonctionne pas, essayer une approche alternative
+if (!file_exists($config_path)) {
+    // Essayer depuis le root du projet web
+    $possible_paths = array(
+        $_SERVER['DOCUMENT_ROOT'] . '/../config/config.json',
+        dirname(dirname(dirname(__FILE__))) . '/config/config.json',
+        '../../config/config.json'
+    );
+    
+    foreach ($possible_paths as $path) {
+        if (file_exists($path)) {
+            $config_path = $path;
+            break;
+        }
+    }
+}
+
+error_log("Final config path: " . $config_path . " (exists: " . (file_exists($config_path) ? 'YES' : 'NO') . ")");
 
 if (file_exists($config_path)) {
     $json_content = file_get_contents($config_path);
@@ -44,22 +46,17 @@ if (file_exists($config_path)) {
     
     if ($config === null) {
         error_log("Config JSON decode failed: " . json_last_error_msg());
+        // Utiliser les valeurs par défaut
+        $config = array();
     }
-    
-    define('DB_HOST', $config['db_host'] ?? 'we01io.myd.infomaniak.com');
-    define('DB_USER', $config['db_user'] ?? 'we01io_sams');
-    define('DB_PASS', $config['db_password'] ?? 'RBM91210chat!');
-    define('DB_NAME', $config['db_name'] ?? 'we01io_sams');
-    define('DB_PORT', 3306);
-} else {
-    // Fallback si config.json n'existe pas
-    error_log("Config file not found at: " . $config_path);
-    define('DB_HOST', 'we01io.myd.infomaniak.com');
-    define('DB_USER', 'we01io_sams');
-    define('DB_PASS', 'RBM91210chat!');
-    define('DB_NAME', 'we01io_sams');
-    define('DB_PORT', 3306);
 }
+
+// Définir les constantes avec fallback
+define('DB_HOST', isset($config['db_host']) ? $config['db_host'] : 'we01io.myd.infomaniak.com');
+define('DB_USER', isset($config['db_user']) ? $config['db_user'] : 'we01io_sams');
+define('DB_PASS', isset($config['db_password']) ? $config['db_password'] : 'RBM91210chat!');
+define('DB_NAME', isset($config['db_name']) ? $config['db_name'] : 'we01io_sams');
+define('DB_PORT', 3306);
 
 // Gérer les requêtes OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
