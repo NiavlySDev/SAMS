@@ -20,6 +20,7 @@
         <div style="flex:1; display:flex; gap:4px;">
             <button class="sub-nav-btn active" id="tab-suggestion" onclick="switchType('suggestion')">💡 Suggestions</button>
             <button class="sub-nav-btn" id="tab-bug" onclick="switchType('bug')">🐛 Bugs</button>
+            <button class="sub-nav-btn" id="tab-question" onclick="switchType('question')">❓ Questions</button>
         </div>
         <div style="display:flex; gap:8px;">
             <button class="btn" onclick="clearCurrentForm()" style="background:#f59e0b;color:#fff;">🧹 Vider le formulaire</button>
@@ -80,6 +81,16 @@
             timestamp: new Date().toISOString()
         });
 
+        const defaultQuestion = () => ({
+            type: 'question',
+            prenomNom: '',
+            userId: '',
+            discordUsername: '',
+            subject: '',
+            question: '',
+            timestamp: new Date().toISOString()
+        });
+
         function switchType(type) {
             currentType = type;
             
@@ -93,8 +104,10 @@
             // Afficher le bon formulaire
             if (type === 'suggestion') {
                 showSuggestionForm();
-            } else {
+            } else if (type === 'bug') {
                 showBugForm();
+            } else if (type === 'question') {
+                showQuestionForm();
             }
         }
 
@@ -108,13 +121,21 @@
                     <p style="margin-bottom: 8px;">• Votre suggestion sera automatiquement envoyée sur Discord</p>
                     <p style="margin: 0;">• Proposez éventuellement comment l'implémenter</p>
                 `;
-            } else {
+            } else if (type === 'bug') {
                 instructionsContainer.innerHTML = `
                     <p style="margin-bottom: 12px;">🐛 <strong>Signaler un bug</strong></p>
                     <p style="margin-bottom: 8px;">• Décrivez le problème rencontré de manière précise</p>
                     <p style="margin-bottom: 8px;">• Indiquez les étapes pour reproduire le bug</p>
                     <p style="margin-bottom: 8px;">• Votre rapport sera automatiquement envoyé sur Discord</p>
                     <p style="margin: 0;">• Précisez votre navigateur et les circonstances</p>
+                `;
+            } else if (type === 'question') {
+                instructionsContainer.innerHTML = `
+                    <p style="margin-bottom: 12px;">❓ <strong>Poser une question</strong></p>
+                    <p style="margin-bottom: 8px;">• Posez votre question de manière claire et détaillée</p>
+                    <p style="margin-bottom: 8px;">• Spécifiez le sujet ou le domaine concerné</p>
+                    <p style="margin-bottom: 8px;">• Votre question sera automatiquement envoyée sur Discord</p>
+                    <p style="margin: 0;">• Un admin répondra à votre question dès que possible</p>
                 `;
             }
         }
@@ -238,6 +259,54 @@
             prefillUserData('bug');
         }
 
+        function showQuestionForm() {
+            const container = document.getElementById('form-container');
+            container.innerHTML = `
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>👤 Vos informations</h3>
+                        <div class="form-group">
+                            <label for="question-prenomNom">Prénom et Nom (RP) :</label>
+                            <input type="text" id="question-prenomNom" placeholder="Ex: John Doe" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="question-userId">Votre ID :</label>
+                            <input type="text" id="question-userId" placeholder="Ex: 12345" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="question-discordUsername">Nom d'utilisateur Discord :</label>
+                            <input type="text" id="question-discordUsername" placeholder="Ex: johndoe123" value="">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>❓ Votre question</h3>
+                        <div class="form-group">
+                            <label for="question-subject">Sujet :</label>
+                            <select id="question-subject">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="general">Questions générales</option>
+                                <option value="fonctionnement">Fonctionnement</option>
+                                <option value="technique">Problème technique</option>
+                                <option value="utilisation">Utilisation</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card" style="flex-basis: 100%;">
+                        <h3>📝 Votre question</h3>
+                        <div class="form-group">
+                            <label for="question-question">Posez votre question :</label>
+                            <textarea id="question-question" rows="8" placeholder="Décrivez votre question en détail..." style="width: 100%; min-height: 150px; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadSavedData('question');
+            prefillUserData('question');
+        }
+
         function prefillUserData(type) {
             // Récupérer les données des paramètres utilisateur
             const params = JSON.parse(localStorage.getItem('sams_params') || '{}');
@@ -310,6 +379,16 @@
             };
         }
 
+        function collectQuestionData() {
+            return {
+                prenomNom: document.getElementById('question-prenomNom')?.value || '',
+                userId: document.getElementById('question-userId')?.value || '',
+                discordUsername: document.getElementById('question-discordUsername')?.value || '',
+                subject: document.getElementById('question-subject')?.value || '',
+                question: document.getElementById('question-question')?.value || ''
+            };
+        }
+
         function clearCurrentForm() {
             // Effacer les champs
             document.querySelectorAll('#form-container input, #form-container select, #form-container textarea').forEach(field => {
@@ -336,7 +415,7 @@
         }
 
         async function submitCurrentReport() {
-            const data = currentType === 'suggestion' ? collectSuggestionData() : collectBugData();
+            const data = currentType === 'suggestion' ? collectSuggestionData() : currentType === 'bug' ? collectBugData() : collectQuestionData();
             
             // Validation basique
             if (!data.prenomNom.trim()) {
@@ -351,16 +430,25 @@
                 return;
             }
             
-            if (!data.title.trim()) {
-                return;
+            if (currentType === 'suggestion' || currentType === 'bug') {
+                if (!data.title.trim()) {
+                    return;
+                }
             }
             
-            if (!data.description.trim()) {
-                return;
+            if (currentType === 'suggestion' || currentType === 'question') {
+                if (!data.description && !data.question) {
+                    return;
+                }
             }
             
-            if (currentType === 'bug' && !data.steps.trim()) {
-                return;
+            if (currentType === 'bug') {
+                if (!data.description.trim()) {
+                    return;
+                }
+                if (!data.steps.trim()) {
+                    return;
+                }
             }
             
             // Ajouter les métadonnées
@@ -439,7 +527,8 @@
             // URLs des webhooks
             const webhookUrls = {
                 suggestion: 'https://discord.com/api/webhooks/1425024899075936267/WefXXxjlLByGVEDnteb9yxO07TrKK1_9YK-LhhtRXMiD6FBDSm3vpp5-D5FUlmjqdnp3',
-                bug: 'https://discord.com/api/webhooks/1425024782021169272/O5GO5J3kbOHgEOK51Hrt7CgnFihz_j2uCtAZyhBlm_ECeXbXWL55wqoR25yW0nNn7FH6'
+                bug: 'https://discord.com/api/webhooks/1425024782021169272/O5GO5J3kbOHgEOK51Hrt7CgnFihz_j2uCtAZyhBlm_ECeXbXWL55wqoR25yW0nNn7FH6',
+                question: 'https://discord.com/api/webhooks/1440674433898381352/NfxIrsF_Fok8jd9CocLtS07RBel9l3rPas3nFaeRjDvsFql9RNJeOFR_preFdASht36E'
             };
             
             const webhook = webhookUrls[data.type];
@@ -474,24 +563,34 @@
         function createDiscordEmbed(data) {
             const timestamp = new Date(data.timestamp).toISOString();
             const issuggestion = data.type === 'suggestion';
+            const isbug = data.type === 'bug';
+            const isquestion = data.type === 'question';
             
             // Couleurs
             const colors = {
                 suggestion: 0x22c55e, // Vert
-                bug: 0xef4444 // Rouge
+                bug: 0xef4444, // Rouge
+                question: 0x4a9eff // Bleu
             };
             
             // Emojis et titres
-            const typeEmoji = issuggestion ? '💡' : '🐛';
-            const typeText = issuggestion ? 'NOUVELLE SUGGESTION' : 'NOUVEAU BUG REPORT';
+            let typeEmoji = '💡';
+            let typeText = 'NOUVELLE SUGGESTION';
+            if (isbug) {
+                typeEmoji = '🐛';
+                typeText = 'NOUVEAU BUG REPORT';
+            } else if (isquestion) {
+                typeEmoji = '❓';
+                typeText = 'NOUVELLE QUESTION';
+            }
             
             let embed = {
                 title: `${typeEmoji} ${typeText}`,
-                description: `**${data.title}**`,
+                description: `**${data.title || data.subject || 'Pas de sujet'}**`,
                 color: colors[data.type],
                 timestamp: timestamp,
                 footer: {
-                    text: `AideSAMS v${document.querySelector('.header span')?.textContent || '1.9.0'} • ${data.type === 'suggestion' ? 'Suggestion' : 'Bug Report'}`,
+                    text: `AideSAMS v${document.querySelector('.header span')?.textContent || '1.9.0'} • ${data.type === 'suggestion' ? 'Suggestion' : data.type === 'bug' ? 'Bug Report' : 'Question'}`,
                     icon_url: 'https://cdn.discordapp.com/emojis/1234567890123456789.png' // Optionnel
                 },
                 fields: []
@@ -534,7 +633,7 @@
                     inline: false
                 });
                 
-            } else {
+            } else if (isbug) {
                 // Champs spécifiques aux bugs
                 embed.fields.push({
                     name: '🔥 Gravité',
@@ -565,6 +664,23 @@
                         data.steps || 'Aucune étape spécifiée',
                     inline: false
                 });
+            } else if (isquestion) {
+                // Champs spécifiques aux questions
+                if (data.subject) {
+                    embed.fields.push({
+                        name: '📂 Sujet',
+                        value: data.subject.charAt(0).toUpperCase() + data.subject.slice(1),
+                        inline: true
+                    });
+                }
+                
+                embed.fields.push({
+                    name: '❓ Question',
+                    value: data.question.length > 1000 ? 
+                        data.question.substring(0, 997) + '...' : 
+                        data.question || 'Aucune question',
+                    inline: false
+                });
             }
             
             return embed;
@@ -590,23 +706,27 @@
         }
 
         function generateContactMessage(data) {
-            const typeEmoji = data.type === 'suggestion' ? '💡' : '🐛';
-            const typeText = data.type === 'suggestion' ? 'SUGGESTION' : 'BUG REPORT';
+            const typeEmoji = data.type === 'suggestion' ? '💡' : data.type === 'bug' ? '🐛' : '❓';
+            const typeText = data.type === 'suggestion' ? 'SUGGESTION' : data.type === 'bug' ? 'BUG REPORT' : 'QUESTION';
             
             let message = `${typeEmoji} **${typeText}** ${typeEmoji}\\n\\n`;
             message += `**De :** ${data.prenomNom} (ID: ${data.userId})`;
             message += `\\n**Discord :** @${data.discordUsername}`;
-            message += `\\n**Titre :** ${data.title}\\n\\n`;
             
             if (data.type === 'suggestion') {
+                message += `\\n**Titre :** ${data.title}\\n\\n`;
                 if (data.category) message += `**Catégorie :** ${data.category}\\n`;
                 message += `**Priorité :** ${data.priority}\\n\\n`;
                 message += `**Description :**\\n${data.description}\\n\\n`;
-            } else {
+            } else if (data.type === 'bug') {
+                message += `\\n**Titre :** ${data.title}\\n\\n`;
                 message += `**Gravité :** ${data.severity}\\n`;
                 if (data.browser) message += `**Navigateur :** ${data.browser}\\n\\n`;
                 message += `**Description du problème :**\\n${data.description}\\n\\n`;
                 message += `**Étapes pour reproduire :**\\n${data.steps}\\n\\n`;
+            } else if (data.type === 'question') {
+                if (data.subject) message += `\\n**Sujet :** ${data.subject}\\n\\n`;
+                message += `**Question :**\\n${data.question}\\n\\n`;
             }
             
             message += `**Timestamp :** ${new Date(data.timestamp).toLocaleString('fr-FR')}`;

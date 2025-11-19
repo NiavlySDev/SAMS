@@ -326,19 +326,32 @@ class AdminPanelV2 {
         }
 
         // Formulaires principaux
-        document.getElementById('manuel-form').addEventListener('submit', (e) => this.handleManuelSubmit(e));
-        document.getElementById('categorie-form').addEventListener('submit', (e) => this.handleCategorieSubmit(e));
-        document.getElementById('grade-form').addEventListener('submit', (e) => this.handleGradeSubmit(e));
-        document.getElementById('membre-form').addEventListener('submit', (e) => this.handleMembreSubmit(e));
-        document.getElementById('specialite-form').addEventListener('submit', (e) => this.handleSpecialiteSubmit(e));
-        document.getElementById('specialite-membre-form').addEventListener('submit', (e) => this.handleSpecialiteMembreSubmit(e));
-        document.getElementById('password-form').addEventListener('submit', (e) => this.handlePasswordChange(e));
+        const manuelForm = document.getElementById('manuel-form');
+        const categorieForm = document.getElementById('categorie-form');
+        const gradeForm = document.getElementById('grade-form');
+        const membreForm = document.getElementById('membre-form');
+        const specialiteForm = document.getElementById('specialite-form');
+        const specialiteMembreForm = document.getElementById('specialite-membre-form');
+        const passwordForm = document.getElementById('password-form');
+        
+        if (manuelForm) manuelForm.addEventListener('submit', (e) => this.handleManuelSubmit(e));
+        if (categorieForm) categorieForm.addEventListener('submit', (e) => this.handleCategorieSubmit(e));
+        if (gradeForm) gradeForm.addEventListener('submit', (e) => this.handleGradeSubmit(e));
+        if (membreForm) membreForm.addEventListener('submit', (e) => this.handleMembreSubmit(e));
+        if (specialiteForm) specialiteForm.addEventListener('submit', (e) => this.handleSpecialiteSubmit(e));
+        if (specialiteMembreForm) specialiteMembreForm.addEventListener('submit', (e) => this.handleSpecialiteMembreSubmit(e));
+        if (passwordForm) passwordForm.addEventListener('submit', (e) => this.handlePasswordChange(e));
 
         // Formulaires d'édition
-        document.getElementById('edit-manuel-form').addEventListener('submit', (e) => this.handleEditManuelSubmit(e));
-        document.getElementById('edit-categorie-form').addEventListener('submit', (e) => this.handleEditCategorieSubmit(e));
-        document.getElementById('edit-grade-form').addEventListener('submit', (e) => this.handleEditGradeSubmit(e));
-        document.getElementById('edit-specialite-form').addEventListener('submit', (e) => this.handleEditSpecialiteSubmit(e));
+        const editManuelForm = document.getElementById('edit-manuel-form');
+        const editCategorieForm = document.getElementById('edit-categorie-form');
+        const editGradeForm = document.getElementById('edit-grade-form');
+        const editSpecialiteForm = document.getElementById('edit-specialite-form');
+        
+        if (editManuelForm) editManuelForm.addEventListener('submit', (e) => this.handleEditManuelSubmit(e));
+        if (editCategorieForm) editCategorieForm.addEventListener('submit', (e) => this.handleEditCategorieSubmit(e));
+        if (editGradeForm) editGradeForm.addEventListener('submit', (e) => this.handleEditGradeSubmit(e));
+        if (editSpecialiteForm) editSpecialiteForm.addEventListener('submit', (e) => this.handleEditSpecialiteSubmit(e));
 
         // Formulaires des blippers
         const bliperForm = document.getElementById('bliper-form');

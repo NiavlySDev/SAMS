@@ -1,7 +1,29 @@
 [ 
   {
+    "version": "v1.16.1",
+    "date" : "19/11/2025 - 13:00",
+    "changes" : [
+      {
+        "text": "Ajout d'une section 'Questions' dans la page suggestions.html qui permet de poser des questions sur le fonctionnement du site.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout de l'image des questions dans le tuto.",
+        "type": "secondaire"
+      },
+      {
+        "text": "Retrait des derniers commentaires visibles sur les pages html, qui ne devraient pas êtres visibles.",
+        "type": "secondaire"
+      },
+      {
+        "text": "En cours: Correction de la connexion au panel admin.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.0",
-    "date" : "19/11/2025 - 11:00",
+    "date" : "19/11/2025 - 8-12:30",
     "changes" : [
       {
         "text": "Retrait de PDS et FDS dans Service, car c'est inutile.",
@@ -27,7 +49,7 @@
   },
   {
     "version": "v1.15.0",
-    "date": "18/11/2025 - 00:00",
+    "date": "18/11/2025 - 8-18:00",
     "changes": [
       {
         "text": "🗄️ INTÉGRATION MYSQL : Synchronisation complète avec base de données MySQL (we01io_sams) avec fallback automatique localStorage + JSON",
