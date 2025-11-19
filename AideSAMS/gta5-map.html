@@ -346,6 +346,8 @@
                     <div class="tool-buttons">
                         <button class="tool-btn active" data-tool="zone">🎨 Dessiner Zone</button>
                         <button class="tool-btn" data-tool="bliper">📍 Ajouter Bliper</button>
+                        <button class="tool-btn" data-tool="delete-bliper">🗑️ Supprimer Bliper</button>
+                        <button class="tool-btn" data-tool="delete-zone">🗑️ Supprimer Zone</button>
                     </div>
                 </section>
 
@@ -385,6 +387,10 @@
 
                 <section class="section">
                     <h2>Actions</h2>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <button class="action-btn" id="undoBtn" style="flex: 1; background: linear-gradient(135deg, rgba(100, 150, 255, 0.2) 0%, rgba(100, 150, 255, 0.1) 100%); border-color: #6496FF; color: #6496FF;">↶ Undo</button>
+                        <button class="action-btn" id="redoBtn" style="flex: 1; background: linear-gradient(135deg, rgba(100, 150, 255, 0.2) 0%, rgba(100, 150, 255, 0.1) 100%); border-color: #6496FF; color: #6496FF;">↷ Redo</button>
+                    </div>
                     <button class="action-btn" id="saveBtn" style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%); border-color: #4CAF50; color: #4CAF50;">💾 Sauvegarder</button>
                     <button class="action-btn" id="resetViewBtn">🔄 Reset Vue</button>
                     <button class="action-btn" id="clearLocalBtn" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%); border-color: #FF9800; color: #FF9800;">🗑️ Effacer Local</button>
@@ -407,6 +413,11 @@
                 this.editMode = false;
                 this.elements = [];
                 this.blippers = []; // Tableau des blippers disponibles
+                
+                // Historique pour undo/redo
+                this.history = [];
+                this.historyIndex = -1;
+                this.maxHistorySize = 50; // Limite du nombre d'actions stockées
                 
                 this.mapImage = new Image();
                 this.mapImageLoaded = false;
@@ -516,17 +527,13 @@
                 // Actions
                 document.getElementById('saveBtn').addEventListener('click', () => this.saveToDB());
                 document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
+                document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+                document.getElementById('redoBtn').addEventListener('click', () => this.redo());
                 document.getElementById('clearLocalBtn').addEventListener('click', () => {
-                    if (confirm('Effacer tous les éléments localement?')) {
+                    if (confirm('Effacer tous les éléments de la session?')) {
                         this.elements = [];
-                        localStorage.setItem('gta5-map', JSON.stringify([]));
-                        // Aussi vider le cache du dataSyncManager pour que ça ne recharge pas depuis BDD
-                        if (window.dataSyncManager && window.dataSyncManager.cache) {
-                            window.dataSyncManager.cache['gta5-zones'] = [];
-                            window.dataSyncManager.cache['gta5-blippers'] = [];
-                        }
                         this.draw();
-                        console.log('✅ Données effacées localement et du cache');
+                        console.log('✅ Données effacées de la session');
                     }
                 });
                 document.getElementById('clearDBBtn').addEventListener('click', () => {
@@ -538,6 +545,20 @@
                 // Opacity
                 document.getElementById('zoneOpacity').addEventListener('input', (e) => {
                     document.getElementById('opacityValue').textContent = Math.round(e.target.value * 100) + '%';
+                });
+
+                // Raccourcis clavier
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+Z pour Undo
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.undo();
+                    }
+                    // Ctrl+Y ou Ctrl+Shift+Z pour Redo
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                        e.preventDefault();
+                        this.redo();
+                    }
                 });
             }
 
@@ -662,6 +683,58 @@
                     return;
                 }
 
+                // Outil de suppression de bliper
+                if (this.editMode && this.currentTool === 'delete-bliper' && !this.isDrawing) {
+                    const pos = this.getMousePos(e);
+                    const worldPos = this.screenToWorld(pos);
+
+                    // Trouver le bliper le plus proche
+                    let closestBliper = null;
+                    let minDistance = 20; // Distance en pixels monde
+
+                    this.elements.filter(el => el.type === 'bliper').forEach(bliper => {
+                        const dx = bliper.x - worldPos.x;
+                        const dy = bliper.y - worldPos.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestBliper = bliper;
+                        }
+                    });
+
+                    if (closestBliper) {
+                        this.elements = this.elements.filter(el => el.id !== closestBliper.id);
+                        this.saveToHistory();
+                        this.saveToDB();
+                        console.log('✅ Bliper supprimé');
+                    }
+                    return;
+                }
+
+                // Outil de suppression de zone
+                if (this.editMode && this.currentTool === 'delete-zone' && !this.isDrawing) {
+                    const pos = this.getMousePos(e);
+                    const worldPos = this.screenToWorld(pos);
+
+                    // Trouver la zone sous la souris
+                    let zoneToDelete = null;
+                    for (let zone of this.elements.filter(el => el.type === 'zone')) {
+                        if (this.isPointInPolygon(worldPos, zone.points)) {
+                            zoneToDelete = zone;
+                            break;
+                        }
+                    }
+
+                    if (zoneToDelete) {
+                        this.elements = this.elements.filter(el => el.id !== zoneToDelete.id);
+                        this.saveToHistory();
+                        this.saveToDB();
+                        console.log('✅ Zone supprimée');
+                    }
+                    return;
+                }
+
                 if (this.editMode && this.currentTool === 'bliper' && !this.isDrawing) {
                     // Placer un bliper au mouseUp
                     const pos = this.getMousePos(e);
@@ -676,6 +749,7 @@
                         color: document.getElementById('bliperColor').value,
                         name: document.getElementById('bliperName').value || `Bliper ${this.elements.filter(e => e.type === 'bliper').length + 1}`
                     });
+                    this.saveToHistory();
                     this.saveToDB();
                     document.getElementById('bliperName').value = '';
                     return;
@@ -691,6 +765,7 @@
                         opacity: parseFloat(document.getElementById('zoneOpacity').value),
                         name: document.getElementById('zoneName').value || `Zone ${this.elements.filter(e => e.type === 'zone').length + 1}`
                     });
+                    this.saveToHistory();
                     this.saveToDB();
                     document.getElementById('zoneName').value = '';
                 }
@@ -805,30 +880,38 @@
             }
 
             saveToDB() {
-                // Sauvegarder localement d'abord
-                localStorage.setItem('gta5-map', JSON.stringify(this.elements));
+                // Sauvegarder UNIQUEMENT en BDD, pas en localStorage
                 
-                // Puis synchroniser avec la BDD si le manager est disponible
                 if (window.dataSyncManager) {
                     // Séparer les zones et les blippers instances
                     const zones = this.elements.filter(e => e.type === 'zone');
                     const blippersInstances = this.elements.filter(e => e.type === 'bliper');
                     
                     // Sauvegarder les zones
-                    if (zones.length > 0 || blippersInstances.length > 0) {
-                        window.dataSyncManager.save('gta5-zones', this.elements)
-                            .then(() => console.log('✅ Zones sauvegardées en BDD'))
-                            .catch(err => console.warn('Erreur save zones BDD:', err.message));
+                    if (zones.length > 0) {
+                        window.dataSyncManager.save('gta5-zones', zones)
+                            .then(() => console.log('✅ Zones sauvegardées en BDD:', zones.length))
+                            .catch(err => console.warn('❌ Erreur save zones BDD:', err.message));
+                    } else {
+                        // Si pas de zones, sauvegarder un tableau vide pour effacer les anciennes
+                        window.dataSyncManager.save('gta5-zones', [])
+                            .then(() => console.log('✅ Zones BDD vidées'))
+                            .catch(err => console.warn('❌ Erreur clear zones BDD:', err.message));
                     }
                     
-                    // Sauvegarder les blippers instances séparément pour qu'elles soient accessibles par tous
+                    // Sauvegarder les blippers instances
                     if (blippersInstances.length > 0) {
                         window.dataSyncManager.save('gta5-blippers', blippersInstances)
                             .then(() => console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length))
-                            .catch(err => console.warn('Erreur save blippers BDD:', err.message));
+                            .catch(err => console.warn('❌ Erreur save blippers BDD:', err.message));
+                    } else {
+                        // Si pas de blippers, sauvegarder un tableau vide pour effacer les anciens
+                        window.dataSyncManager.save('gta5-blippers', [])
+                            .then(() => console.log('✅ Blippers BDD vidés'))
+                            .catch(err => console.warn('❌ Erreur clear blippers BDD:', err.message));
                     }
                 } else {
-                    console.warn('⚠️ dataSyncManager non disponible - données sauvegardées en localStorage seulement');
+                    console.warn('⚠️ dataSyncManager non disponible - impossible de sauvegarder en BDD');
                 }
             }
 
@@ -860,75 +943,57 @@
             }
 
             loadSavedData() {
-                // D'abord vérifier localStorage - c'est la source locale prioritaire
-                const localStorageData = localStorage.getItem('gta5-map');
-                
-                if (localStorageData) {
-                    try {
-                        const parsed = JSON.parse(localStorageData);
-                        // Si localStorage a des données (même vides), les utiliser
-                        this.elements = parsed || [];
-                        console.log('✅ Données chargées depuis localStorage:', this.elements.length, 'items');
-                        this.draw();
-                        return; // Ne pas charger depuis la BDD si localStorage a été utilisé
-                    } catch (e) {
-                        console.error('Erreur parsing localStorage:', e);
-                    }
-                }
-                
-                // Si localStorage est vide/invalide, essayer la BDD
+                // Charger UNIQUEMENT depuis la BDD via dataSyncManager
                 if (window.dataSyncManager) {
                     // Charger à la fois zones et blippers instances
                     Promise.all([
-                        window.dataSyncManager.load('gta5-zones').catch(() => null),
-                        window.dataSyncManager.load('gta5-blippers').catch(() => null)
+                        window.dataSyncManager.load('gta5-zones').catch(() => []),
+                        window.dataSyncManager.load('gta5-blippers').catch(() => [])
                     ])
                     .then(([zonesData, blippersData]) => {
                         const allElements = [];
                         
                         // Ajouter les zones
-                        if (zonesData && Array.isArray(zonesData)) {
+                        if (zonesData && Array.isArray(zonesData) && zonesData.length > 0) {
                             allElements.push(...zonesData);
                             console.log('✅ Zones chargées depuis BDD:', zonesData.length);
                         }
                         
                         // Ajouter les blippers instances
-                        if (blippersData && Array.isArray(blippersData)) {
+                        if (blippersData && Array.isArray(blippersData) && blippersData.length > 0) {
                             allElements.push(...blippersData);
                             console.log('✅ Blippers chargés depuis BDD:', blippersData.length);
                         }
                         
-                        // Si rien n'a été chargé, utiliser localStorage par défaut
+                        this.elements = allElements;
+                        
+                        // Afficher un message si aucune donnée n'a été chargée
                         if (allElements.length === 0) {
-                            this.loadFromLocalStorage();
-                        } else {
-                            this.elements = allElements;
-                            // Sauvegarder aussi en localStorage comme backup
-                            localStorage.setItem('gta5-map', JSON.stringify(this.elements));
+                            console.log('ℹ️ Aucune donnée trouvée en BDD - carte vierge');
                         }
+                        
+                        // Initialiser l'historique avec l'état actuel
+                        this.history = [JSON.parse(JSON.stringify(this.elements))];
+                        this.historyIndex = 0;
+                        this.updateHistoryButtons();
+                        
                         this.draw();
                     })
                     .catch(err => {
-                        console.warn('Erreur chargement BDD, fallback localStorage:', err);
-                        this.loadFromLocalStorage();
+                        console.error('❌ Erreur chargement BDD:', err);
+                        this.elements = [];
+                        this.history = [[]];
+                        this.historyIndex = 0;
+                        this.updateHistoryButtons();
                         this.draw();
                     });
                 } else {
-                    // Fallback: charger depuis localStorage
-                    this.loadFromLocalStorage();
+                    console.warn('⚠️ dataSyncManager non disponible - impossible de charger les données');
+                    this.elements = [];
+                    this.history = [[]];
+                    this.historyIndex = 0;
+                    this.updateHistoryButtons();
                     this.draw();
-                }
-            }
-
-            loadFromLocalStorage() {
-                const data = localStorage.getItem('gta5-map');
-                if (data) {
-                    try {
-                        this.elements = JSON.parse(data);
-                        console.log('✅ Éléments chargés depuis localStorage');
-                    } catch (e) {
-                        console.error('Erreur chargement localStorage:', e);
-                    }
                 }
             }
 
@@ -1039,6 +1104,86 @@
             getBlipIcon(type) {
                 const bliper = this.blippers.find(b => b.id === type);
                 return bliper ? bliper.icon : '📍';
+            }
+
+            isPointInPolygon(point, polygon) {
+                // Algorithme de ray casting pour déterminer si un point est dans un polygone
+                let inside = false;
+                let p1x = polygon[0].x, p1y = polygon[0].y;
+                
+                for (let i = 1; i < polygon.length; i++) {
+                    let p2x = polygon[i].x, p2y = polygon[i].y;
+                    if (point.y > Math.min(p1y, p2y)) {
+                        if (point.y <= Math.max(p1y, p2y)) {
+                            if (point.x <= Math.max(p1x, p2x)) {
+                                if (p1y !== p2y) {
+                                    let xinters = (point.y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x;
+                                    if (p1x === p2x || point.x <= xinters) {
+                                        inside = !inside;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    p1x = p2x;
+                    p1y = p2y;
+                }
+                
+                return inside;
+            }
+
+            // === GESTION DE L'HISTORIQUE ===
+            saveToHistory() {
+                // Supprimer tous les éléments après l'index courant (pour les redo)
+                this.history = this.history.slice(0, this.historyIndex + 1);
+                
+                // Ajouter le nouvel état
+                this.history.push(JSON.parse(JSON.stringify(this.elements)));
+                
+                // Limiter la taille de l'historique
+                if (this.history.length > this.maxHistorySize) {
+                    this.history.shift();
+                } else {
+                    this.historyIndex++;
+                }
+                
+                this.updateHistoryButtons();
+                console.log(`📝 État sauvegardé (${this.historyIndex + 1}/${this.history.length})`);
+            }
+
+            undo() {
+                if (this.historyIndex > 0) {
+                    this.historyIndex--;
+                    this.elements = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+                    this.updateHistoryButtons();
+                    console.log(`↶ Undo: ${this.historyIndex + 1}/${this.history.length}`);
+                    this.draw();
+                }
+            }
+
+            redo() {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.elements = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+                    this.updateHistoryButtons();
+                    console.log(`↷ Redo: ${this.historyIndex + 1}/${this.history.length}`);
+                    this.draw();
+                }
+            }
+
+            updateHistoryButtons() {
+                const undoBtn = document.getElementById('undoBtn');
+                const redoBtn = document.getElementById('redoBtn');
+                
+                if (undoBtn) {
+                    undoBtn.disabled = this.historyIndex <= 0;
+                    undoBtn.style.opacity = this.historyIndex <= 0 ? '0.5' : '1';
+                }
+                
+                if (redoBtn) {
+                    redoBtn.disabled = this.historyIndex >= this.history.length - 1;
+                    redoBtn.style.opacity = this.historyIndex >= this.history.length - 1 ? '0.5' : '1';
+                }
             }
 
             loop() {

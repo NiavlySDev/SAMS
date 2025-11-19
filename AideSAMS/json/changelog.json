@@ -1,6 +1,16 @@
 [ 
   {
     "version": "v1.16.1.0",
+    "date" : "19/11/2025 - 13:30",
+    "changes" : [
+      {
+        "text": "Ajout des boutons de suppression et de undo/redo dans la carte.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.1.0",
     "date" : "19/11/2025 - 13:00",
     "changes" : [
       {
