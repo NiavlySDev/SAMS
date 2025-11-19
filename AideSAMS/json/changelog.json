@@ -1,5 +1,31 @@
 [ 
   {
+    "version": "v1.16.0",
+    "date" : "19/11/2025 - 11:00",
+    "changes" : [
+      {
+        "text": "Retrait de PDS et FDS dans Service, car c'est inutile.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout de la page Tuto.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout d'une information sur toutes les données stockées ou non dans Informations.",
+        "type": "global"
+      },
+      {
+        "text": "Retrait de commentaires visibles sur les pages html, qui ne devaient pas être visibles",
+        "type": "secondaire"
+      },
+      {
+        "text": "Réglage d'un bug dans les paramètres ou ne pouvais pas sauvegarder les paramètres si on cliquait sur un bouton autre que ceux de la gestion des signatures.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.15.0",
     "date": "18/11/2025 - 00:00",
     "changes": [

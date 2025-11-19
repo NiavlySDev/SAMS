@@ -82,7 +82,7 @@
                 </div>
             </div>
 
-            <button class="btn" onclick="saveParams()"
+            <button type="button" id="save-params-btn" class="btn"
                 style="margin-top:24px;display:block;margin-left:auto;margin-right:auto;">💾 Enregistrer</button>
             <span id="save-status" style="margin-left:16px;color:#22c55e;display:none;">Enregistré !</span>
         </div>
@@ -149,7 +149,7 @@
                     </div>
                     
                     <div class="signature-save">
-                        <button class="btn" onclick="saveNewSignature()" style="background: #22c55e; font-size: 1.1em; padding: 12px 20px;">
+                        <button type="button" id="save-signature-btn" class="btn" style="background: #22c55e; font-size: 1.1em; padding: 12px 20px;">
                             💾 Sauvegarder comme signature principale
                         </button>
                         <p style="color: #666; font-size: 0.9em; margin-top: 10px; text-align: center;">
@@ -275,6 +275,19 @@
 
         loadParams();
         updateNavigation();
+
+        // ===== HANDLERS BOUTONS ISOLÉS =====
+        // Handler pour le bouton "Enregistrer" des paramètres
+        const saveParamsBtn = document.getElementById('save-params-btn');
+        if (saveParamsBtn) {
+            saveParamsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                saveParams();
+                return false;
+            }, true); // Capture phase pour intercepter avant les autres listeners
+        }
     </script>
     
     <script>
@@ -308,6 +321,18 @@
                 initSignatureCanvas();
                 loadSavedSignatures();
                 attachEventHandlers();
+                
+                // Handler pour le bouton "Sauvegarder signature"
+                const saveSignatureBtn = document.getElementById('save-signature-btn');
+                if (saveSignatureBtn) {
+                    saveSignatureBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        saveNewSignature();
+                        return false;
+                    }, true); // Capture phase
+                }
             }, maxWait);
         });
 
@@ -657,6 +682,11 @@
             
             // Gestionnaire de clic unique avec délégation pour tous les éléments
             document.addEventListener('click', function(e) {
+                // Ignorer les clics sur les inputs et les boutons standards (ne traiter que signature)
+                if (e.target.tagName === 'BUTTON' && !e.target.closest('.signature-manager')) {
+                    // Laisser les boutons normaux en dehors du signature-manager tranquilles
+                    return;
+                }
                 
                 // Afficher le chemin des parents pour déboguer
                 let path = [];

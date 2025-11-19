@@ -236,15 +236,8 @@
 </head>
 
 <body>
-    <!-- Header et navbar chargés automatiquement par sams-common.js -->
-    </div>
-
-
     <div class="sub-nav">
         <div class="sub-nav-left">
-            <button onclick="refreshData()" class="refresh-btn">🔄 Actualiser</button>
-        </div>
-        <div class="sub-nav-right">
             <button onclick="showSection('grades')" id="btn-grades" class="sub-nav-btn active">🏅 Direction Générale</button>
             <button onclick="showSection('specialites')" id="btn-specialites" class="sub-nav-btn">⚡ Directions Spécialités</button>
         </div>
@@ -333,7 +326,7 @@
                             </div>
                         </div>
                     `).join('')
-                    : '<div class="empty-state">Aucun membre assigné</div>';
+                    : '<div class="empty-state">Aucun membre</div>';
 
                 return `
                     <div class="grade-card">

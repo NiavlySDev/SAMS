@@ -98,33 +98,6 @@
             const s = services[currentService];
             const cards = [
                 {
-                    title: "🕒 Horaires du service",
-                    content: `
-                    <div class="form-group">
-                        <label>Date du service</label>
-                        <input type="date" id="serviceDate" value="${s.date || ''}" oninput="updateField('date',this.value)">
-                    </div>
-                    <div class="form-group">
-                        <label>Heure de Prise de Service (PDS)</label>
-                        <div style="display:flex;gap:8px;align-items:center;">
-                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${s.pdsHour || ''}" oninput="updateField('pdsHour',this.value)">
-                            <span>:</span>
-                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${s.pdsMinute || ''}" oninput="updateField('pdsMinute',this.value)">
-                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow('pds')">Maintenant</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Heure de Fin de Service (FDS)</label>
-                        <div style="display:flex;gap:8px;align-items:center;">
-                            <input type="number" min="0" max="23" placeholder="HH" style="width:65px" value="${s.fdsHour || ''}" oninput="updateField('fdsHour',this.value)">
-                            <span>:</span>
-                            <input type="number" min="0" max="59" placeholder="MM" style="width:65px" value="${s.fdsMinute || ''}" oninput="updateField('fdsMinute',this.value)">
-                            <button type="button" class="btn" style="padding:2px 8px;font-size:13px;" onclick="setNow('fds')">Maintenant</button>
-                        </div>
-                    </div>
-                `
-                },
-                {
                     title: "📝 Actions et Récapitulatif",
                     content: `
                     <div class="form-group">

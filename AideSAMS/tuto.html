@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuto SAMS</title>
+    <script src="js/sams-common.js"></script>
+    <script src="js/data-sync.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f10 0%, #1a1a1b 100%);
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: rgba(15, 15, 16, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(64, 64, 68, 0.3);
+            padding: 30px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #a8a8a8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: #a8a8a8;
+            font-size: 1.1em;
+        }
+
+        /* Main Container */
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Sommaire */
+        .sommaire {
+            background: rgba(35, 35, 36, 0.4);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sommaire h2 {
+            color: #4a9eff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .sommaire ul {
+            list-style: none;
+        }
+
+        .sommaire li {
+            margin: 10px 0;
+        }
+
+        .sommaire a {
+            color: #4a9eff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .sommaire a:hover {
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* Sous-sections du sommaire */
+        .sommaire ul ul {
+            margin-left: 20px;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px solid rgba(74, 158, 255, 0.4);
+        }
+
+        .sommaire ul ul li {
+            margin: 8px 0;
+            opacity: 0.85;
+        }
+
+        .sommaire ul ul a {
+            color: #7db8ff;
+            font-size: 0.95em;
+            font-weight: 400;
+        }
+
+        .sommaire ul ul a:hover {
+            color: #fff;
+            opacity: 1;
+        }
+
+        /* Cards Grid */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: rgba(35, 35, 36, 0.6);
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            max-height: 250px;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            border-color: #4a9eff;
+            background: rgba(35, 35, 36, 0.9);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(74, 158, 255, 0.15);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(35, 35, 36, 0), rgba(35, 35, 36, 0.8));
+            pointer-events: none;
+        }
+
+        .card-title {
+            color: #4a9eff;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card-text {
+            color: #d5d5d5;
+            font-size: 0.95em;
+            line-height: 1.8;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-text p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .card-text strong {
+            color: #4a9eff;
+            font-weight: 600;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .card-text strong:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body strong {
+            color: #4a9eff;
+            font-weight: 600;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .card-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 14px 0 12px 0;
+            border: 1px solid rgba(64, 64, 68, 0.3);
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .card-text img:hover {
+            border-color: #4a9eff;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+            border: 1px solid rgba(64, 64, 68, 0.3);
+        }
+
+        .modal-body img:hover {
+            border-color: #4a9eff;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+        }
+
+        .card-text p {
+            margin-bottom: 12px;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(25, 25, 26, 0.4);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(74, 158, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(74, 158, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                margin: 20px auto;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(25, 25, 26, 0.95) 0%, rgba(35, 35, 36, 0.95) 100%);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(64, 64, 68, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #4a9eff;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #a8a8a8;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #4a9eff;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            color: #d5d5d5;
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(64, 64, 68, 0.3);
+        }
+
+        .modal-body {
+            color: #d5d5d5;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+            border: 1px solid rgba(64, 64, 68, 0.3);
+        }
+
+        .modal-body img:hover {
+            border-color: #4a9eff;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Guide SAMS</h1>
+            <p>Découvrez comment utiliser toutes les fonctionnalités du système</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="sommaire">
+            <h2>Sommaire</h2>
+            <ul>
+                <li><a href="#pages">Pages principales</a></li>
+                <ul>
+                    <li><a href="#service">Service</a></li>
+                    <li><a href="#rapports">Rapports de soin</a></li>
+                    <li><a href="#refus">Refus de Soin</a></li>
+                    <li><a href="#morgue">Morgue</a></li>
+                    <li><a href="#impayes">Impayés</a></li>
+                    <li><a href="#lspd">LSPD</a></li>
+                    <li><a href="#carte">Carte</a></li>
+                    <li><a href="#manuels">Manuels</a></li>
+                    <li><a href="#suggestions">Suggestions/Bugs/Questions</a></li>
+                    <li><a href="#hierarchie">Hierarchie</a></li>
+                    <li><a href="#parametres">Paramètres</a></li>
+                    <li><a href="#ph">PH</a></li>
+                    <li><a href="#prof">Professeur</a></li>
+                    <li><a href="#informations">Informations et Notifications</a></li>
+                </ul>
+                <li><a href="#questions">Questions Fréquentes</a></li>
+                <ul>
+                    <li><a href="#que_deviennent_mes_donnees">Que deviennent mes données?</a></li>
+                    <li><a href="#autres_questions">Autres Questions à venir...</a></li>
+                </ul>
+            </ul>
+        </section>
+
+        <h2 style="color: #4a9eff; margin-bottom: 20px; font-size: 1.8em;" id="pages">Pages Principales</h2>
+        <div class="cards">
+        <div class="card" id="service">
+            <h2 class="card-title">Service</h2>
+            <p class="card-text">
+                Cette page est la page d'accueil de ce site. 
+                Elle ne sert pas a grand chose a part pour noter vos différentes actions pendant votre service (10-17 etc...) 
+                afin que vous puissiez copier coller dans le récapitulatif a la fin de votre service.
+            </p>
+        </div>
+        <div class="card" id="rapports">
+            <h2 class="card-title">Rapports de Soin</h2>
+            <p class="card-text">
+                Cette page sert à rentrer toutes les informations de vos patients pour l'envoyer dans le salon #Rapports.
+                <br>
+                <strong>Zone d'aperçu :</strong> Visualisez votre rapport en temps réel.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/apercu.png" alt="Apercu">
+                <br>
+                <strong>Informations SAMS :</strong> Votre nom et prénom.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/nom_sams.png" alt="Nom_SAMS">
+                <br>
+                <strong>Infos patient :</strong> Nom, prénom, date de naissance, profession.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/infos_patients.png" alt="Infos_Patients">
+                <br>
+                <strong>Historique médical :</strong> Antécédents, blessures constatées, raisons de l'hospitalisation (avec recherche auto Trello).
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/historique_medical.png" alt="Historique_Medical">
+                <br>
+                <strong>Examens :</strong> Détails des actes effectués.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/examens.png" alt="Examens">
+                <br>
+                <strong>Coûts :</strong> Récapitulatif financier.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/couts.png" alt="Couts">
+                <br>
+                <strong>Accès Trello :</strong> Boutons rapides vers les différents Trello.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/trellos.png" alt="Trellos">
+                <br>
+                <strong>Recherche automatique :</strong> Permet de trouver les antécédents directement sur Trello.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/recherche_auto.png" alt="Recherche_Auto">
+                <br>
+                <strong>Détail facturation :</strong> Affiche tous les coûts avec leurs détails.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/activer_detail.png" alt="Activer_Detail">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Créer/Réinitialiser :</strong> Créez plusieurs rapports pour les finir ultérieurement ou réinitialisez le formulaire.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+            </p>
+        </div>
+        <div class="card" id="refus">
+            <h2 class="card-title">Refus de Soins</h2>
+            <p class="card-text">
+                Cette page sert à rentrer les informations des personnes refusant les soins lors des interventions.
+                <br>
+                <strong>Zone d'aperçu :</strong> Visualisez votre rapport en temps réel.
+                <br>
+                <img src="images/tuto/pages/refus_de_soin/apercu.png" alt="Apercu">
+                <br>
+                <strong>Informations SAMS :</strong> Votre nom et prénom.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/nom_sams.png" alt="Nom_SAMS">
+                <br>
+                <strong>Infos patient :</strong> Nom, prénom, date et heure du refus.
+                <br>
+                <img src="images/tuto/pages/refus_de_soin/infos_patients.png" alt="Infos_Patients">
+                <br>
+                <strong>Détails du refus :</strong> Blessures constatées et raison du refus de soins.
+                <br>
+                <img src="images/tuto/pages/refus_de_soin/refus.png" alt="Refus">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Gérer les rapports :</strong> Créez plusieurs rapports ou réinitialisez le formulaire.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+            </p>
+        </div>
+        <div class="card" id="morgue">
+            <h2 class="card-title">Morgue</h2>
+            <p class="card-text">
+                Cette page sert à rentrer les informations des personnes décédées à la morgue (Coma, pas C.K.).
+                <br>
+                <strong>Zone d'aperçu :</strong> Visualisez votre rapport en temps réel.
+                <br>
+                <img src="images/tuto/pages/morgue/apercu.png" alt="Apercu">
+                <br>
+                <strong>Informations :</strong> Votre nom et prénom, nom et prénom du patient.
+                <br>
+                <img src="images/tuto/pages/morgue/informations.png" alt="Informations">
+                <br>
+                <strong>Prise en charge :</strong> Date, heure du décès et raison du coma.
+                <br>
+                <img src="images/tuto/pages/refus_de_soin/pec_raison.png" alt="Prise_en_Charge_et_Raison">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Gérer les rapports :</strong> Créez plusieurs rapports ou réinitialisez le formulaire.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+            </p>
+        </div>
+        <div class="card" id="impayes">
+            <h2 class="card-title">Impayés</h2>
+            <p class="card-text">
+                Cette page sert à rentrer les informations des personnes ayant des impayés.
+                <br>
+                <strong>Zone d'aperçu :</strong> Visualisez votre rapport en temps réel.
+                <br>
+                <img src="images/tuto/pages/impayes/apercu.png" alt="Apercu">
+                <br>
+                <strong>Informations :</strong> Votre nom et prénom, nom et prénom du patient.
+                <br>
+                <img src="images/tuto/pages/morgue/informations.png" alt="Informations">
+                <br>
+                <strong>Détails impayé :</strong> Date et montant de l'impayé.
+                <br>
+                <img src="images/tuto/pages/impayes/impaye.png" alt="Impayes">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Gérer les rapports :</strong> Créez plusieurs rapports ou réinitialisez le formulaire.
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="lspd">
+            <h2 class="card-title">LSPD</h2>
+            <p class="card-text">
+                Cette page sert à rentrer les informations des LSPD se faisant soigner.
+                <br>
+                <strong>Zone d'aperçu :</strong> Visualisez votre rapport en temps réel.
+                <br>
+                <img src="images/tuto/pages/lspd/apercu.png" alt="Apercu">
+                <br>
+                <strong>Informations :</strong> Le nom et prénom du LSPD, ainsi que le montant.
+                <br>
+                <img src="images/tuto/pages/lspd/informations.png" alt="Informations">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Gérer les rapports :</strong> Créez plusieurs rapports ou réinitialisez le formulaire.
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="carte">
+            <h2 class="card-title">Carte</h2>
+            <p class="card-text">
+                Cette page est une belle nouveauté, elle vous permet de connaitre les zones et endroits de la carte
+                à connaitre.
+                <br>
+            </p>
+        </div>
+        <div class="card" id="manuels">
+            <h2 class="card-title">Manuels</h2>
+            <p class="card-text">
+                Cette page sert à recenser tous les manuels utilisés pour toutes les formations de la SAMS.
+                Que ce soit les manuels des formations, ou des cours.
+                <br>
+                <strong>Système de Tri :</strong> Utilisez les filtres pour trouver rapidement le manuel souhaité.
+                <br>
+                <img src="images/tuto/pages/manuels/filtres.png" alt="Apercu">
+                <br>
+                <strong>Tous les cours référencés en "cartes" :</strong> Interface facilitant la recherche de manuels.
+                <br>
+                <img src="images/tuto/pages/manuels/cartes.png" alt="Cartes">
+                <br>
+                <strong>Système d'importance :</strong> Apprenez quels manuels sont les plus importants à connaître.
+                <br>
+                <img src="images/tuto/pages/manuels/importances.png" alt="Importances">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="suggestions">
+            <h2 class="card-title">Suggestions/Bugs/Questions</h2>
+            <p class="card-text">
+                Cette page sert à recueillir vos suggestions, signaler des bugs ou poser des questions concernant la SAMS, ou bien a poser vos questions.
+                <br>
+                <strong>Suggestions :</strong> Ici envoyer toutes vos suggestions d'améliorations pour le système.
+                <br>
+                <img src="images/tuto/pages/suggestions_bugs_questions/suggestions.png" alt="Apercu">
+                <br>
+                <strong>Bugs :</strong> Envoyez tous les bugs trouvés pendant l'utilisation de ce site.
+                <br>
+                <img src="images/tuto/pages/suggestions_bugs_questions/bugs.png" alt="Bugs">
+                <br>
+                <strong>Questions (A Venir) :</strong> Posez toutes vos questions concernant ce site (Je suis le seul a répondre (niavlysdev / Jason Parker), je réponds en général dans les 30mn a 2h).
+                <br>
+                <img src="images/tuto/pages/suggestions_bugs_questions/questions.png" alt="Questions">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="hierarchie">
+            <h2 class="card-title">Hiérarchie</h2>
+            <p class="card-text">
+                Cette page sert à recenser tous les membres de la hiérarchie de la SAMS, ainsi que des spécialités.
+                <br>
+                <strong>Hiérarchie Générale :</strong> Vous y retrouverez tous les membres de la direction générale.
+                <br>
+                <img src="images/tuto/pages/hierarchie/direction.png" alt="Apercu">
+                <br>
+                <strong>Spécialités :</strong> Vous y retrouverez tous les membres des différentes spécialités.
+                <br>
+                <img src="images/tuto/pages/hierarchie/specialites.png" alt="Specialites">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="parametres">
+            <h2 class="card-title">Paramètres</h2>
+            <p class="card-text">
+                Cette page sert à régler tous les paramètres de ce site. 
+                Cette page est très importante car elle permet de configurer le site selon vos préférences et surtout
+                gérer vos spécialités et vos grades (ce qui vous débloqueras des pages (comme la page PH ou la page Professeur)).
+                <br>
+                <strong>Paramètres Personnels :</strong> Vous pourrez y mettre votre nom, prénom, id, grade, spécialité etc...
+                Toutes ces informations seront utilisées dans les rapports de soin et autres pages (automatiquement).
+                <br>
+                <img src="images/tuto/pages/parametres/perso.png" alt="Apercu">
+                <br>
+                <strong>Signatures :</strong> Vous pourrez y gérer vos signatures personnelles (en texte ou en dessin).
+                <br>
+                <img src="images/tuto/pages/parametres/signatures.png" alt="Signatures">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="ph">
+            <h2 class="card-title">Pilote Héliporté</h2>
+            <p class="card-text">
+                Cette page sert à rentrer les informations de vos interventions en tant que Pilote Héliporté.
+                <br>
+                <strong>Apercu :</strong> Vous y verrez votre rapport.
+                <br>
+                <img src="images/tuto/pages/ph/apercu.png" alt="Apercu">
+                <br>
+                <strong>Equipage :</strong> Vous pourrez y renseigner les membres qui vous ont accompagné.
+                <br>
+                <img src="images/tuto/pages/ph/equipage.png" alt="Equipage">
+                <br>
+                <strong>Informations Sur L'intervention :</strong> Vous y renseignerez la raison de l'intervention ainsi que la date et l'heure de celle-ci.
+                <br>
+                <img src="images/tuto/pages/ph/infos.png" alt="Informations_Sur_Lintervention">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+                <strong>Gérer les rapports :</strong> Créez plusieurs rapports ou réinitialisez le formulaire.
+                <img src="images/tuto/pages/rapports_de_soin/ajouter_rapport.png" alt="Ajouter_Rapport">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="prof">
+            <h2 class="card-title">Professeur - Rapport et Note</h2>
+            <p class="card-text">
+                Cette page sert à rentrer toutes les informations pour vos rapports de Formations.
+                <br>
+                <strong>Apercu :</strong> Vous y verrez votre rapport.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/apercu.png" alt="Apercu">
+                <br>
+                <strong>Formateurs :</strong> Vous y renseignerez les formateurs présents lors de la formation.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/formateurs.png" alt="Formateurs">
+                <br>
+                <strong>Eleve :</strong> Vous y renseignerez le nom, le prénom et l'id discord de l'élève.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/eleve.png" alt="Copier">
+                <br>
+                <strong>Note Manuel SAMS :</strong> Vous y renseignerez la note obtenue par l'élève pour chaque sous-catégorie.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/note_manuel.png" alt="Note_Manuel">
+                <br>
+                <strong>Note Mise en Situation :</strong> Vous y renseignerez la note obtenue par l'élève pour chaque sous-catégorie.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/note_mes.png" alt="Note_Mise_en_Situation">
+                <br>
+                <strong>Résultat :</strong> Vous y verrez la note final de l'élève ainsi que si il est apte ou non.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/resultat.png" alt="Resultat">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+            </p>
+        </div>
+        <div class="card">
+            <h2 class="card-title">Professeur - Demande de Points</h2>
+            <p class="card-text">
+                Cette page sert à rentrer toutes les informations pour vos demandes de points.
+                <br>
+                <strong>Apercu :</strong> Vous y verrez votre demande.
+                <br>
+                <img src="images/tuto/pages/prof/demande_points/apercu.png" alt="Apercu">
+                <br>
+                <strong>Formateurs :</strong> Vous y renseignerez les formateurs présents lors de la formation.
+                <br>
+                <img src="images/tuto/pages/prof/rapport_note/formateurs.png" alt="Formateurs">
+                <br>
+                <strong>Participants :</strong> Vous y renseignerez les noms, prénoms et id des participants de la formation.
+                <br>
+                <img src="images/tuto/pages/prof/demande_points/participants.png" alt="Copier">
+                <br>
+                <strong>Details de la Formation :</strong> Vous y renseignerez le titre, la date, l'heure et les points a attribuer pour la formation.
+                <br>
+                <img src="images/tuto/pages/prof/demande_points/details.png" alt="Resultat">
+                <br>
+                <strong>Copier :</strong> Copiez le rapport pour le partager.
+                <br>
+                <img src="images/tuto/pages/rapports_de_soin/copier.png" alt="Copier">
+                <br>
+            </p>
+        </div>
+        <div class="card" id="informations">
+            <h2 class="card-title">Informations et Notifications</h2>
+            <p class="card-text">
+                Ces fonctionnalités vous permettrons de vous tenir au courant de toutes les dernières nouveautés du site et de ses changements.
+                <br>
+                <strong>Version Actuelle :</strong> Vous y verrez la version actuelle du site.
+                <br>
+                <img src="images/tuto/pages/informations/version.png" alt="Apercu">
+                <br>
+                <strong>Informations :</strong> Vous pourrez cliquer sur ce bouton pour accéder a toutes les informations des changements et les informations sur le projet.
+                <br>
+                <strong>Informations Générales :</strong> Vous y verrez toutes les informations générales du projet.
+                <br>
+                <img src="images/tuto/pages/informations/generales.png" alt="Generales">
+                <br>
+                <strong>Données :</strong> Vous y verrez toutes les informations sur données stockées ou non.
+                <br>
+                <img src="images/tuto/pages/informations/donnees.png" alt="Donnees">
+                <br>
+                <strong>Changelog :</strong> Vous y verrez toutes les informations sur les changements apportés au projet.
+                <br>
+                <img src="images/tuto/pages/informations/changelog.png" alt="Changelog">
+                <br>
+            </p>
+        </div>
+    </div>
+
+    
+    <br><br>
+    <h2 style="color: #4a9eff; margin-bottom: 20px; font-size: 1.8em;" id="pages">Pages Principales</h2>
+        <div class="cards">
+        <div class="card" id="que_deviennent_mes_donnees">
+            <h2 class="card-title">Que deviennent mes données?</h2>
+            <p class="card-text">
+                <strong>Données :</strong> Vous y verrez toutes les informations sur données stockées ou non.
+                <br>
+                <strong>Stockage des données :</strong> Toutes les données que vous créez et sauvegardez (paramètres personnels, rapports, signatures, etc.) sont exclusivement stockées dans le localStorage de votre navigateur. Aucune donnée personnelle ne quitte votre appareil sans votre consentement explicite.
+                <br>
+                <strong>Conformité RGPD :</strong> Cette application respecte strictement les réglementations RGPD en vigueur en France. En tant que créateur, je n'ai accès qu'aux données publiques rentrées par l'administration (carte, manuels, hiérarchie). Vos données personnelles ne transitent jamais par mes serveurs.
+                <br>
+                <strong>Informations sensibles :</strong> Les informations sensibles telles que votre nom, prénom, ID, grade, spécialités et signatures ne sont jamais envoyées à des tiers. Elles restent exclusivement dans votre navigateur et ne sont utilisées que localement pour générer vos documents.
+                <br>
+                <strong>Accès administrateur :</strong> Seules les données publiques suivantes sont accessibles via l'administration : la carte GTA5 (zones et points d'intérêt), les manuels de formation, et la hiérarchie de la SAMS. Tout le reste reste confidentialité garantie.
+                <br>
+                <strong>Transparence :</strong> Vous avez le contrôle total de vos données. Vous pouvez à tout moment effacer vos données locales via les boutons "Effacer Local" disponibles dans les différentes pages, ou contacter le développeur pour toute demande relative à vos données.
+                <br>
+                <strong>Chiffrement :</strong> Les données stockées localement sont en texte brut dans votre navigateur. Pour une sécurité maximale, assurez-vous de ne jamais partager votre profil de navigateur ou de ne pas laisser votre ordinateur déverrouillé lorsque vous l'utilisez.
+                <br>
+                <strong>Contact et demandes :</strong> Pour toute question concernant vos données personnelles, une demande d'accès, de rectification ou de suppression, vous pouvez contacter le développeur à : <b>niavlys.dev@proton.me</b>
+            </p>
+        </div>
+        <div class="card" id="autres_questions">
+            <h2 class="card-title">Autres Questions a venir...</h2>
+            <p class="card-text">
+                <strong>Questions :</strong> N'hésitez pas a aller dans la page 
+                <button class="btn" onclick="location.href='informations.html'" style="background:#181818;color:#22c55e;border:1px solid #22c55e;">
+                    ℹ️ Informations
+                </button>
+                Pour poser vos questions, elles seront ici par la suite si elles sont intéressantes.
+                <br>
+            </p>
+        </div>
+    </div>
+    </main>
+
+    <!-- Modal for card expansion -->
+    <div id="cardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('cardModal');
+            const modalClose = document.querySelector('.modal-close');
+            const cards = document.querySelectorAll('.card');
+
+            // Open modal on card click
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Use the visible card title (h2.card-title) as modal title
+                    const title = this.querySelector('.card-title')?.textContent?.trim() || 'Titre';
+
+                    // Clone the card-text node so we keep images in place and avoid duplicates
+                    const cardTextNode = this.querySelector('.card-text');
+                    let clone = null;
+                    if (cardTextNode) {
+                        clone = cardTextNode.cloneNode(true);
+
+                        // Remove any leading/trailing <br> inside clone
+                        clone.querySelectorAll('br').forEach(br => {
+                            // keep single separators but remove consecutive br
+                            const prev = br.previousSibling;
+                            const next = br.nextSibling;
+                            // if br is the first or last child, leave as small spacer
+                            // nothing to do here; we rely on CSS spacing
+                        });
+                    }
+
+                    document.getElementById('modalTitle').textContent = title;
+                    const modalBody = document.getElementById('modalBody');
+                    modalBody.innerHTML = '';
+                    if (clone) modalBody.appendChild(clone);
+
+                    modal.classList.add('active');
+                });
+            });
+
+            // Handle sommaire navigation links
+            const sommairesLinks = document.querySelectorAll('.sommaire a[href^="#"]');
+            sommairesLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const cardId = this.getAttribute('href').substring(1); // Remove #
+                    const card = document.getElementById(cardId);
+                    if (card) {
+                        // Simulate card click to open modal
+                        card.click();
+                    }
+                });
+            });
+
+            // Close modal on close button
+            modalClose.addEventListener('click', function(e) {
+                e.stopPropagation();
+                modal.classList.remove('active');
+            });
+
+            // Close modal on outside click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
