@@ -1,5 +1,31 @@
 [ 
   {
+    "version": "v1.16.2.0",
+    "date" : "21/11/2025 - 10:00",
+    "changes" : [
+      {
+        "text": "En Cours: Tentative de règlage du bug de déconnexion panel admin.",
+        "type": "global"
+      },
+      {
+        "text": "Ajout d'une section 'Tuto' dans le site, qui explique le fonctionnement du site en détail.",
+        "type": "global"
+      },
+      {
+        "text": "En Cours: Tentative de règlage du bug de connexion au panel admin.",
+        "type": "global"
+      },
+      {
+        "text": "Correction du bug de css dans la carte dans le header.",
+        "type": "global"
+      },
+      {
+        "text": "En Cours: Tentative de suppression globale de local storage dans les pages hierarchie.html, manuels.html, gta5-map.html, et admin.html.",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.1.1",
     "date" : "19/11/2025 - 13:30",
     "changes" : [

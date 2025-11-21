@@ -19,8 +19,26 @@ class AdminPanelV2 {
             await this.waitForAppReady();
             
             await this.loadAdminConfig();
-            // Vérifier s'il y a une session active
-            if (this.checkActiveSession(false)) {
+            
+            // Vérification robuste de la session
+            const isValidSession = this.checkActiveSession(false);
+            
+            if (isValidSession) {
+                // Vérifier aussi que la session n'est pas expirée côté BDD
+                try {
+                    const verifyResponse = await fetch('api/db.php?action=verify-session');
+                    if (!verifyResponse.ok) {
+                        // Session invalide - forcer logout
+                        console.warn('⚠️ Session invalide côté BDD, forçage du logout');
+                        this.clearSession();
+                        this.showLoginScreen();
+                        this.setupEventListeners();
+                        return;
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Impossible de vérifier la session (BDD down?), gardant la session locale');
+                }
+                
                 this.isAuthenticated = true;
                 this.showAdminInterface();
             } else {
@@ -30,6 +48,7 @@ class AdminPanelV2 {
         } catch (error) {
             console.error('Erreur lors de l\'initialisation:', error);
             this.showNotification('Erreur lors de l\'initialisation', 'error');
+            this.showLoginScreen();
         }
     }
 
@@ -222,6 +241,13 @@ class AdminPanelV2 {
     logout() {
         this.isAuthenticated = false;
         this.clearSession(); // Supprimer la session
+        // Nettoyage complet de tous les données stockées
+        try {
+            localStorage.removeItem('sams_admin_session');
+            localStorage.removeItem('sams_admin_config_backup');
+        } catch (error) {
+            console.error('Erreur lors du nettoyage:', error);
+        }
         this.showLoginScreen();
     }
 
