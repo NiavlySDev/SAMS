@@ -1,5 +1,19 @@
 [ 
   {
+    "version": "v1.16.5.3",
+    "date" : "21/11/2025 - 17:20",
+    "changes" : [
+      {
+        "text": "Correction finale du tri des grades - l'API trie maintenant correctement par ID au lieu de par ordre alphabétique",
+        "type": "global"
+      },
+      {
+        "text": "L'API ne trie plus par 'order' et 'grade' (qui causait un tri alphabétique non désiré)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.5.2",
     "date" : "21/11/2025 - 17:15",
     "changes" : [

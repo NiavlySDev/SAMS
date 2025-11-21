@@ -293,7 +293,8 @@ function loadFromDB($type) {
                 
             case 'grades':
                 // Récupérer les grades avec leurs membres
-                $result = $db->query("SELECT g.id, g.grade, g.`order` FROM grades g ORDER BY g.`order`, g.grade");
+                // Trier par ID (ignorer order qui est toujours 0)
+                $result = $db->query("SELECT g.id, g.grade, g.`order` FROM grades g ORDER BY g.id");
                 if (!$result) throw new Exception($db->error);
                 
                 $data = [];
