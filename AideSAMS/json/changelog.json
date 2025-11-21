@@ -1,7 +1,43 @@
 [ 
   {
+    "version": "v1.16.4.4",
+    "date" : "21/11/2025 - 12:15",
+    "changes" : [
+      {
+        "text": "Ajout de l'auto-save périodique: Les zones et blippers sont maintenant sauvegardés automatiquement toutes les 30 secondes",
+        "type": "global"
+      },
+      {
+        "text": "L'auto-save ne sauvegarde que s'il y a eu des changements (optimisation)",
+        "type": "secondaire"
+      },
+      {
+        "text": "Confirmé: Le load automatique de toutes les données (zones + blippers) fonctionne déjà correctement",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.4.3",
+    "date" : "21/11/2025 - 12:13",
+    "changes" : [
+      {
+        "text": "Amélioration du système de couleur des blippers: Quand on place un bliper, il utilise automatiquement la couleur définie dans le panel admin",
+        "type": "global"
+      },
+      {
+        "text": "Ajout d'un preview de couleur: Quand on change le type de bliper dans le select, le champ couleur se met à jour automatiquement",
+        "type": "secondaire"
+      },
+      {
+        "text": "Le champ 'Couleur' du bliper permet maintenant de personnaliser la couleur si désiré (override de la couleur par défaut)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.2",
-    "date" : "21/11/2025 - 14:00",
+    "date" : "21/11/2025 - 12:10",
     "changes" : [
       {
         "text": "Ajout d'un bouton 'Recharger BDD' flottant dans la barre supérieure (toujours visible)",
@@ -15,7 +51,7 @@
   },
   {
     "version": "v1.16.4.1",
-    "date" : "21/11/2025 - 13:50",
+    "date" : "21/11/2025 - 12:05",
     "changes" : [
       {
         "text": "Amélioration du bouton 'Recharger BDD': Recharge maintenant TOUTES les données (zones, instances blippers, ET types de blippers du panel admin)",

@@ -501,9 +501,31 @@
                 this.setupEvents();
                 this.loop(); // Démarrer boucle de rendu
                 
+                // AUTO-SAVE: Sauvegarder automatiquement toutes les 30 secondes
+                this.setupAutoSave();
+                
                 // Charger les données EN PARALLÈLE (ne bloquent pas l'affichage)
                 this.loadBlippers().catch(() => console.warn('Blippers fallback'));
                 this.loadSavedData().catch(() => console.warn('SavedData fallback'));
+            }
+            
+            /**
+             * Configurer l'auto-save périodique
+             * Sauvegarde les zones et blippers toutes les 30 secondes si des changements ont été faits
+             */
+            setupAutoSave() {
+                let lastSaveState = JSON.stringify(this.elements);
+                
+                setInterval(() => {
+                    const currentState = JSON.stringify(this.elements);
+                    
+                    // Ne sauvegarder que s'il y a eu des changements
+                    if (currentState !== lastSaveState) {
+                        console.log('💾 Auto-save: Sauvegarde périodique des données...');
+                        this.saveToDB();
+                        lastSaveState = currentState;
+                    }
+                }, 30000); // 30 secondes
             }
 
             async loadBlippers() {
@@ -581,6 +603,16 @@
                 document.getElementById('mapStyle').addEventListener('change', (e) => {
                     this.mapStyle = e.target.value;
                     this.loadMapImage(false); // Ne pas réinitialiser la vue pour garder le zoom
+                });
+                
+                // Changement du type de bliper: mettre à jour la couleur preview
+                document.getElementById('bliperType').addEventListener('change', (e) => {
+                    const selectedType = e.target.value;
+                    const selectedBliper = this.blippers.find(b => b.id === selectedType);
+                    if (selectedBliper && selectedBliper.color) {
+                        // Mettre à jour le champ couleur pour avoir un preview
+                        document.getElementById('bliperColor').value = selectedBliper.color;
+                    }
                 });
 
                 // Actions
@@ -813,14 +845,21 @@
                     // Placer un bliper au mouseUp
                     const pos = this.getMousePos(e);
                     const worldPos = this.screenToWorld(pos);
+                    
+                    // Récupérer le type de bliper sélectionné
+                    const selectedType = document.getElementById('bliperType').value;
+                    
+                    // Chercher la couleur du bliper dans la liste des types disponibles
+                    const selectedBliper = this.blippers.find(b => b.id === selectedType);
+                    const bliperColor = selectedBliper ? selectedBliper.color : document.getElementById('bliperColor').value;
 
                     this.elements.push({
                         id: Date.now(),
                         type: 'bliper',
                         x: worldPos.x,
                         y: worldPos.y,
-                        bliperType: document.getElementById('bliperType').value,
-                        color: document.getElementById('bliperColor').value,
+                        bliperType: selectedType,
+                        color: bliperColor, // Utilise la couleur du type de bliper ou le champ manuel
                         name: document.getElementById('bliperName').value || `Bliper ${this.elements.filter(e => e.type === 'bliper').length + 1}`
                     });
                     this.saveToHistory();
@@ -1025,7 +1064,6 @@
                         // localStorage supprimé - tout passe par BDD
                         this.requestRedraw(); // OPTIMISATION
                         console.log('✅ Données effacées de la BDD');
-                        alert('✅ Toutes les données ont été effacées de la BDD!');
                     } else {
                         console.error('❌ Erreur lors de l\'effacement BDD:', result.message);
                         alert('❌ Erreur: ' + (result.message || 'Impossible d\'effacer la BDD'));
