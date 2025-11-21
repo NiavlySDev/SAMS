@@ -3,7 +3,7 @@ class WelcomeNotifier {
     constructor() {
         this.storageKey = 'aidesams_welcome_shown';
         this.isFirstVisit = !localStorage.getItem(this.storageKey);
-        this.debug = true;
+        this.debug = false;
     }
 
     init() {

@@ -1,7 +1,35 @@
 [ 
   {
+    "version": "v1.16.6.5",
+    "date" : "21/11/2025 - 17:55",
+    "changes" : [
+      {
+        "text": "Désactivation du debug mode dans welcome-notifier.js pour la version finale",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.6.4",
+    "date" : "21/11/2025 - 17:55",
+    "changes" : [
+      {
+        "text": "Image urgence.png appliquée en arrière-plan CSS global via body::before",
+        "type": "global"
+      },
+      {
+        "text": "Maintenant, TOUTES les pages (y compris celles sans welcome-notifier.js) ont l'image d'urgence en background",
+        "type": "secondaire"
+      },
+      {
+        "text": "L'image est gérée par le CSS pour meilleure performance et couverture complète du site",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.6.3",
-    "date" : "21/11/2025 - 18:05",
+    "date" : "21/11/2025 - 17:50",
     "changes" : [
       {
         "text": "Image urgence.png appliquée en arrière-plan CSS global via body::before",
@@ -19,7 +47,7 @@
   },
   {
     "version": "v1.16.6.2",
-    "date" : "21/11/2025 - 18:00",
+    "date" : "21/11/2025 - 17:45",
     "changes" : [
       {
         "text": "Image urgence.png appliquée comme arrière-plan à TOUTES les pages du site",
@@ -37,7 +65,7 @@
   },
   {
     "version": "v1.16.6.1",
-    "date" : "21/11/2025 - 17:50",
+    "date" : "21/11/2025 - 17:40",
     "changes" : [
       {
         "text": "Amélioration visuelle du popup de bienvenue - l'image urgence.png est maintenant bien visible en entière",
