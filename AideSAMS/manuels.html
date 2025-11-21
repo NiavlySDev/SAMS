@@ -182,7 +182,7 @@
             });
 
             const groupHtml = Object.entries(grouped).map(([cat, cards]) => {
-                const color = cards[0].catColor || categories[cat] || "#22c55e";
+                const color = cards[0].cat_color || categories[cat] || "#22c55e";
                 return `
         <div class="category-group">
             <div style="display:flex;align-items:center;margin-bottom:18px;">
@@ -210,7 +210,7 @@
                             title="Importance ${m.importance} / 10"
                         >${m.importance}</div>
                         <div class="manual-title">${m.title}</div>
-                        <div class="manual-desc">${m.desc}</div>
+                        <div class="manual-desc">${m.description}</div>
                         <a class="manual-link" href="${m.link}" target="_blank">Ouvrir le manuel</a>
                         ${m.auteur ? `<div style="position:absolute;bottom:10px;right:16px;font-size:0.95em;color:#aaa;font-style:italic;">${m.auteur}</div>` : ""}
                     </div>

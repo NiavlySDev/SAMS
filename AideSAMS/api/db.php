@@ -288,7 +288,7 @@ function loadFromDB($type) {
                 break;
                 
             case 'manuels':
-                $result = $db->query("SELECT id, title, description as desc, link, importance, categorie, cat_color as catColor, auteur FROM manuels ORDER BY importance DESC, id");
+                $result = $db->query("SELECT id, title, description, link, importance, categorie, cat_color, auteur FROM manuels ORDER BY importance DESC, id");
                 break;
                 
             case 'grades':

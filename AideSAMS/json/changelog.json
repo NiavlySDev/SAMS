@@ -1,5 +1,23 @@
 [ 
   {
+    "version": "v1.16.5.5",
+    "date" : "21/11/2025 - 17:30",
+    "changes" : [
+      {
+        "text": "Correction du mapping des colonnes manuels - l'API retourne maintenant 'description' et 'cat_color' sans alias SQL problématiques",
+        "type": "global"
+      },
+      {
+        "text": "manuels.html et admin-panel-v2.js mises à jour pour utiliser les noms de colonnes corrects (description au lieu de desc, cat_color au lieu de catColor)",
+        "type": "secondaire"
+      },
+      {
+        "text": "saveManuels() normalise automatiquement les données avant envoi à la BDD pour compatibilité",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.5.4",
     "date" : "21/11/2025 - 17:25",
     "changes" : [

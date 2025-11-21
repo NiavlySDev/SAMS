@@ -199,18 +199,23 @@ class DataSyncManager {
      */
     async loadFromDB(type) {
         const url = `api/db.php?action=load&type=${type}`;
+        console.log(`🔗 Appel API: ${url}`);
         const response = await fetch(url);
         
         if (!response.ok) {
+            console.error(`❌ HTTP ${response.status}: ${response.statusText}`);
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
         
         const result = await response.json();
+        console.log(`📦 Réponse API pour ${type}:`, result);
         
         if (result.success && result.data) {
+            console.log(`✅ Données reçues: ${Array.isArray(result.data) ? result.data.length : '?'} éléments`);
             return result.data;
         }
         
+        console.error(`⚠️ API retourne success=false:`, result.error || result);
         throw new Error(result.error || 'Erreur inconnue');
     }
 

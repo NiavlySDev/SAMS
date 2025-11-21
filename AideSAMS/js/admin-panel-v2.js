@@ -660,7 +660,7 @@ class AdminPanelV2 {
 
         container.innerHTML = Object.keys(manuelsByCategory).map(categoryName => {
             const manuels = manuelsByCategory[categoryName];
-            const categoryColor = manuels[0].catColor || '#22c55e';
+            const categoryColor = manuels[0].cat_color || '#22c55e';
             
             return `
                 <div class="manuel-category-item">
@@ -684,7 +684,7 @@ class AdminPanelV2 {
                                                 ${manuel.importance}/10
                                             </div>
                                         </div>
-                                        <div class="manuel-desc">${manuel.desc}</div>
+                                        <div class="manuel-desc">${manuel.description}</div>
                                         <div class="manuel-meta">
                                             <span><strong>Auteur:</strong> ${manuel.auteur}</span>
                                             <a href="${manuel.link}" target="_blank" style="color: #22c55e; text-decoration: none;">🔗 Ouvrir</a>
@@ -730,7 +730,19 @@ class AdminPanelV2 {
 
     async saveManuels() {
         try {
-            const result = await dataSyncManager.save('manuels', this.manuels);
+            // Normaliser les données: mapper desc → description, catColor → cat_color
+            const normalizedManuels = this.manuels.map(m => ({
+                id: m.id,
+                title: m.title,
+                description: m.description || m.desc,  // Support ancien format
+                link: m.link,
+                importance: m.importance,
+                categorie: m.categorie,
+                cat_color: m.cat_color || m.catColor,  // Support ancien format
+                auteur: m.auteur
+            }));
+            
+            const result = await dataSyncManager.save('manuels', normalizedManuels);
             console.log(`✅ Manuels sauvegardés (source: ${result.savedTo.join(', ')})`);
             this.showNotification('✅ Manuels sauvegardés en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
