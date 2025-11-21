@@ -1019,15 +1019,16 @@
                 }
             }
 
-            loadSavedData() {
+            async loadSavedData() {
                 // Charger UNIQUEMENT depuis la BDD via dataSyncManager
                 if (window.dataSyncManager) {
-                    // Charger à la fois zones et blippers instances
-                    Promise.all([
-                        window.dataSyncManager.load('gta5-zones').catch(() => []),
-                        window.dataSyncManager.load('gta5-blippers').catch(() => [])
-                    ])
-                    .then(([zonesData, blippersData]) => {
+                    try {
+                        // Charger à la fois zones et blippers instances
+                        const [zonesData, blippersData] = await Promise.all([
+                            window.dataSyncManager.load('gta5-zones').catch(() => []),
+                            window.dataSyncManager.load('gta5-blippers').catch(() => [])
+                        ]);
+                        
                         const allElements = [];
                         
                         // Ajouter les zones
@@ -1055,15 +1056,15 @@
                         this.updateHistoryButtons();
                         
                         this.requestRedraw(); // OPTIMISATION
-                    })
-                    .catch(err => {
+                    } catch (err) {
                         console.error('❌ Erreur chargement BDD:', err);
                         this.elements = [];
                         this.history = [[]];
                         this.historyIndex = 0;
                         this.updateHistoryButtons();
                         this.requestRedraw(); // OPTIMISATION
-                    });
+                        throw err; // Re-throw pour que le caller puisse le gérer
+                    }
                 } else {
                     console.warn('⚠️ dataSyncManager non disponible - impossible de charger les données');
                     this.elements = [];
