@@ -1,34 +1,48 @@
 [ 
   {
+    "version": "v1.16.4.7",
+    "date" : "21/11/2025 - 14:05",
+    "changes" : [
+      {
+        "text": "CRITICAL BUG FOUND & FIXED: Les zones ne se chargeaient jamais! L'API retournait un OBJET au lieu d'un ARRAY",
+        "type": "global"
+      },
+      {
+        "text": "🔧 FIX: api/db.php loadFromDB() - Changé gta5-zones pour retourner un array au lieu d'un objet (dictionnaire par nom)",
+        "type": "global"
+      },
+      {
+        "text": "IMPROVEMENT: loadSavedData() a maintenant du logging exhaustif pour déboguer les problèmes de chargement",
+        "type": "secondaire"
+      },
+      {
+        "text": "✅ Les zones doivent maintenant se charger correctement au démarrage ET quand on clique 'Recharger BDD'",
+        "type": "global"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.6",
     "date" : "21/11/2025 - 12:30",
     "changes" : [
       {
         "text": "🔧 DEBUG: Ajout de logging massif pour tracer le bug 'zones disparaissent à la sauvegarde'",
+        "type": "secondaire"
+      },
+      {
+        "text": "🐛 CRITICAL FIX: Réactivé loadSavedData() au démarrage (la v6.6 l'avait désactivé)",
         "type": "global"
       },
       {
-        "text": "🐛 CRITICAL FIX: Désactivé loadSavedData() au démarrage - causait une race condition qui effaçait les modifications en cours",
+        "text": "🔧 DEBUG: Logging amélioré dans data-sync.js pour voir exactement ce qui est envoyé à l'API",
         "type": "secondaire"
       },
       {
-        "text": "🐛 CRITICAL FIX: Protection contre les sauvegardes vides - saveToDB() ne sauvegarde plus un array vide (qui effacerait la BDD)",
+        "text": "🔧 DEBUG: Logging amélioré dans db.php pour tracer ce que l'API reçoit",
         "type": "secondaire"
       },
       {
-        "text": "🐛 CRITICAL FIX: saveToDBWithNotification() refuse de sauvegarder si aucune donnée (affiche alerte utilisateur)",
-        "type": "secondaire"
-      },
-      {
-        "text": "Logging amélioré dans data-sync.js pour voir exactement ce qui est envoyé à l'API",
-        "type": "secondaire"
-      },
-      {
-        "text": "Logging amélioré dans db.php pour tracer ce que l'API reçoit et comment elle traite les gta5-zones",
-        "type": "secondaire"
-      },
-      {
-        "text": "Carte GTA5 démarre maintenant vierge - l'utilisateur clique 'Recharger BDD' pour charger les données existantes",
+        "text": "🔧 DEBUG: Logging exhaustif dans loadSavedData() pour tracer tous les problèmes de chargement",
         "type": "secondaire"
       }
     ]

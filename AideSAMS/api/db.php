@@ -354,7 +354,8 @@ function loadFromDB($type) {
                 $data = [];
                 while ($row = $result->fetch_assoc()) {
                     $zoneData = json_decode($row['zone_data'], true);
-                    $data[$row['name']] = $zoneData ?: $row['zone_data'];
+                    // Retourner un array, pas un objet!
+                    $data[] = $zoneData ?: json_decode($row['zone_data'], true);
                 }
                 return $data;
                 
