@@ -385,7 +385,10 @@
                     <option value="road">🛣️ Route</option>
                 </select>
             </div>
-            <button class="mode-btn" id="reloadBDDFloatingBtn" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.08) 100%); border-color: #2196F3; color: #2196F3;">🔄 Recharger BDD</button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="mode-btn" id="reloadBDDFloatingBtn" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.08) 100%); border-color: #2196F3; color: #2196F3; flex: 1;">🔄 Recharger BDD</button>
+                <div id="autoLoadTimer" style="min-width: 50px; text-align: center; padding: 8px 10px; background: rgba(35, 35, 36, 0.8); border: 1px solid rgba(64, 64, 68, 0.3); border-radius: 8px; color: #4a9eff; font-size: 0.9em; font-weight: 500;">30s</div>
+            </div>
             <button class="mode-btn active" id="viewModeBtn">👁️ Consultation</button>
             <button class="mode-btn" id="editModeBtn">✏️ Édition</button>
         </div>
@@ -508,9 +511,11 @@
                 this.loadSavedData().then(() => {
                     console.log('✅ Données initiales chargées');
                     this.setupAutoSave();
+                    this.setupAutoLoad(); // Auto-load toutes les 30s
                 }).catch((err) => {
                     console.warn('⚠️ Erreur chargement initial:', err);
                     this.setupAutoSave();
+                    this.setupAutoLoad();
                 });
             }
             
@@ -531,6 +536,64 @@
                         lastSaveState = currentState;
                     }
                 }, 30000); // 30 secondes
+            }
+
+            setupAutoLoad() {
+                // Auto-load toutes les 30 secondes, MAIS sans écraser les modifications en cours
+                let lastLoadedState = JSON.stringify(this.elements);
+                let timeUntilNextLoad = 30;
+                
+                const updateTimer = () => {
+                    const timerDisplay = document.getElementById('autoLoadTimer');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = timeUntilNextLoad + 's';
+                        
+                        // Changer la couleur du timer selon le temps restant
+                        if (timeUntilNextLoad <= 5) {
+                            timerDisplay.style.color = '#ff6b6b'; // Rouge si proche du reload
+                        } else if (timeUntilNextLoad <= 10) {
+                            timerDisplay.style.color = '#ffa500'; // Orange si moyen
+                        } else {
+                            timerDisplay.style.color = '#4a9eff'; // Bleu sinon
+                        }
+                    }
+                };
+                
+                // Mettre à jour le timer chaque seconde
+                setInterval(() => {
+                    timeUntilNextLoad--;
+                    if (timeUntilNextLoad <= 0) {
+                        timeUntilNextLoad = 30;
+                    }
+                    updateTimer();
+                }, 1000);
+                
+                // Auto-load toutes les 30 secondes
+                setInterval(async () => {
+                    const currentState = JSON.stringify(this.elements);
+                    
+                    // Vérifier si l'utilisateur a modifié quelque chose
+                    if (currentState !== lastLoadedState) {
+                        console.log('⚠️ Auto-load SKIPPED: Modifications en cours détectées');
+                        console.log('Utilisateur: ' + this.elements.length + ' éléments | BDD: sera chargée au prochain cycle');
+                        // Réinitialiser lastLoadedState pour la prochaine fois
+                        lastLoadedState = currentState;
+                        return; // Ne pas recharger si modifications
+                    }
+                    
+                    // Pas de modifications → recharger depuis la BDD
+                    console.log('🔄 Auto-load: Rechargement automatique depuis la BDD...');
+                    try {
+                        await this.reloadFromBDD();
+                        lastLoadedState = JSON.stringify(this.elements);
+                        console.log('✅ Auto-load réussi - ' + this.elements.length + ' éléments chargés');
+                    } catch (err) {
+                        console.warn('⚠️ Auto-load échoué:', err.message);
+                    }
+                }, 30000); // 30 secondes
+                
+                // Afficher le timer initial
+                updateTimer();
             }
 
             async loadBlippers() {

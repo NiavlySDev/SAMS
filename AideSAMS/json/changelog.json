@@ -1,5 +1,35 @@
 [ 
   {
+    "version": "v1.16.4.8",
+    "date" : "21/11/2025 - 14:10",
+    "changes" : [
+      {
+        "text": "✨ Ajout de l'Auto-Load toutes les 30 secondes avec détection intelligente des modifications en cours",
+        "type": "global"
+      },
+      {
+        "text": "🎯 Auto-Load ne recharge que si AUCUNE modification en cours - protège les édits de l'utilisateur",
+        "type": "global"
+      },
+      {
+        "text": "⏱️ Ajout d'un timer visuel (30s → 0s) à côté du bouton 'Recharger BDD' - montre le temps avant prochain reload",
+        "type": "secondaire"
+      },
+      {
+        "text": "🎨 Timer change de couleur: Bleu (normal) → Orange (10s) → Rouge (5s) pour plus de visibilité",
+        "type": "secondaire"
+      },
+      {
+        "text": "📊 Auto-Load + Auto-Save fonctionnent en parallèle: Auto-Save toutes les 30s ET Auto-Load toutes les 30s",
+        "type": "secondaire"
+      },
+      {
+        "text": "🔍 Logging détaillé pour chaque Auto-Load: montre si chargement fait, skippé, ou échoué",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.7",
     "date" : "21/11/2025 - 14:05",
     "changes" : [
