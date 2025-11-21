@@ -7,9 +7,28 @@
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #0a0a0b 0%, #1a1a1b 100%);
+    background-attachment: fixed;
     color: #e5e5e5;
     font-size: 14px;
     min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('images/urgence.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    opacity: 0.08;
+    z-index: -1;
+    pointer-events: none;
 }
 
 .header {
@@ -682,5 +701,229 @@ body {
     color: #fff;
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
     border-bottom: 2px solid #22c55e;
+}
+
+/* === WELCOME POPUP STYLES === */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.welcome-overlay.show {
+    opacity: 1;
+}
+
+.welcome-modal {
+    background: rgba(24, 24, 24, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(34, 197, 94, 0.1);
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    background-attachment: fixed;
+    z-index: 10001;
+}
+
+.welcome-content {
+    position: relative;
+    padding: 40px 35px;
+    background: linear-gradient(180deg, rgba(24, 24, 24, 0.98) 0%, rgba(20, 20, 20, 0.95) 100%);
+}
+
+.welcome-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.welcome-close:hover {
+    background: rgba(34, 197, 94, 0.3);
+    transform: rotate(90deg) scale(1.1);
+}
+
+.welcome-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.welcome-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+    animation: bounce 0.6s ease-out;
+}
+
+@keyframes bounce {
+    0% { transform: translateY(-20px); opacity: 0; }
+    60% { transform: translateY(5px); }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.welcome-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.welcome-body {
+    margin-bottom: 25px;
+}
+
+.welcome-intro {
+    color: #c5c5c5;
+    font-size: 15px;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.welcome-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.feature {
+    display: flex;
+    gap: 15px;
+    padding: 16px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.15);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.feature:hover {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.3);
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.feature div {
+    flex: 1;
+}
+
+.feature strong {
+    display: block;
+    color: #22c55e;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.feature p {
+    color: #a8a8a8;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.welcome-cta {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcome-cta p {
+    color: #e5e5e5;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.welcome-button {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.welcome-button-primary {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #181818;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.welcome-button-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(34, 197, 94, 0.4);
+}
+
+.welcome-footer {
+    text-align: center;
+    color: #707070;
+    font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .welcome-modal {
+        max-width: 95vw;
+        max-height: 90vh;
+    }
+    
+    .welcome-content {
+        padding: 30px 20px;
+    }
+    
+    .welcome-header h1 {
+        font-size: 24px;
+    }
+    
+    .welcome-icon {
+        font-size: 40px;
+    }
+    
+    .feature {
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .feature-icon {
+        font-size: 24px;
+    }
 }
 

@@ -1,5 +1,85 @@
 [ 
   {
+    "version": "v1.16.6.3",
+    "date" : "21/11/2025 - 18:05",
+    "changes" : [
+      {
+        "text": "Image urgence.png appliquée en arrière-plan CSS global via body::before",
+        "type": "global"
+      },
+      {
+        "text": "Maintenant, TOUTES les pages (y compris celles sans welcome-notifier.js) ont l'image d'urgence en background",
+        "type": "secondaire"
+      },
+      {
+        "text": "L'image est gérée par le CSS pour meilleure performance et couverture complète du site",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.6.2",
+    "date" : "21/11/2025 - 18:00",
+    "changes" : [
+      {
+        "text": "Image urgence.png appliquée comme arrière-plan à TOUTES les pages du site",
+        "type": "global"
+      },
+      {
+        "text": "Un pseudo-élément fixed est inséré dans le body avec l'image (opacité: 0.08 pour discrétion)",
+        "type": "secondaire"
+      },
+      {
+        "text": "L'image reste visible en fond de chaque page sans interférer avec le contenu (z-index: -1, pointerEvents: none)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.6.1",
+    "date" : "21/11/2025 - 17:50",
+    "changes" : [
+      {
+        "text": "Amélioration visuelle du popup de bienvenue - l'image urgence.png est maintenant bien visible en entière",
+        "type": "global"
+      },
+      {
+        "text": "Image urgence.png ajoutée aux pages tuto.html et informations.html comme décoration de header",
+        "type": "secondaire"
+      },
+      {
+        "text": "backgroundSize changé de 'cover' à 'contain' pour afficher l'image entière sans la couper",
+        "type": "secondaire"
+      },
+      {
+        "text": "Opacité du fond du popup réduite de 0.88 à 0.72 pour meilleure visibilité de l'image",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.6.0",
+    "date" : "21/11/2025 - 17:35",
+    "changes" : [
+      {
+        "text": "Ajout d'un popup de bienvenue pour les nouveaux utilisateurs",
+        "type": "global"
+      },
+      {
+        "text": "À la première visite, les utilisateurs voient un message de bienvenue expliquant brièvement le site avec l'image urgence.png en arrière-plan (transparente)",
+        "type": "secondaire"
+      },
+      {
+        "text": "Le popup inclut des boutons pour accéder à chaque section principale (Manuels, Hiérarchie, Carte, Admin) et un lien vers le tutoriel complet",
+        "type": "secondaire"
+      },
+      {
+        "text": "welcome-notifier.js intégré à toutes les pages pour afficher le popup une seule fois (stocké en localStorage)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.5.5",
     "date" : "21/11/2025 - 17:30",
     "changes" : [
