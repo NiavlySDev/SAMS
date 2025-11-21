@@ -303,10 +303,10 @@
                 return;
             }
 
-            // Tri par ID ou order pour respecter l'ordre de la base de données
+            // Tri par ID de la base de données (ou order si défini et non-zéro)
             const sortedGrades = [...gradesData].sort((a, b) => {
-                const orderA = a.order ?? a.id ?? 999;
-                const orderB = b.order ?? b.id ?? 999;
+                const orderA = (a.order && a.order !== 0) ? a.order : a.id;
+                const orderB = (b.order && b.order !== 0) ? b.order : b.id;
                 return orderA - orderB;
             });
 
