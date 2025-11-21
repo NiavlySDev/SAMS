@@ -1,5 +1,27 @@
 [ 
   {
+    "version": "v1.16.4.5",
+    "date" : "21/11/2025 - 12:20",
+    "changes" : [
+      {
+        "text": "BUG FIX: Bouton 'Sauvegarder' ne fonctionnait pas - créé nouvelle fonction saveToDBWithNotification() qui attend vraiment",
+        "type": "global"
+      },
+      {
+        "text": "BUG FIX: Auto-save ne sauvegardait les zones correctement - l'auto-save démarre maintenant APRÈS le chargement initial",
+        "type": "global"
+      },
+      {
+        "text": "Amélioration: Le bouton Sauvegarder affiche maintenant un alert de confirmation avec le nombre de zones et blippers sauvegardés",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration: Meilleur système de promises pour la sauvegarde (attend les deux saves avant de confirmer)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.4",
     "date" : "21/11/2025 - 12:15",
     "changes" : [

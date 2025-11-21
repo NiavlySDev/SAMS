@@ -501,12 +501,12 @@
                 this.setupEvents();
                 this.loop(); // Démarrer boucle de rendu
                 
-                // AUTO-SAVE: Sauvegarder automatiquement toutes les 30 secondes
-                this.setupAutoSave();
-                
                 // Charger les données EN PARALLÈLE (ne bloquent pas l'affichage)
                 this.loadBlippers().catch(() => console.warn('Blippers fallback'));
-                this.loadSavedData().catch(() => console.warn('SavedData fallback'));
+                this.loadSavedData().then(() => {
+                    // AUTO-SAVE: Sauvegarder automatiquement toutes les 30 secondes (APRÈS chargement)
+                    this.setupAutoSave();
+                }).catch(() => console.warn('SavedData fallback'));
             }
             
             /**
@@ -616,7 +616,10 @@
                 });
 
                 // Actions
-                document.getElementById('saveBtn').addEventListener('click', () => this.saveToDB());
+                document.getElementById('saveBtn').addEventListener('click', () => {
+                    console.log('💾 Sauvegarde manuelle en cours...');
+                    this.saveToDBWithNotification();
+                });
                 document.getElementById('resetViewBtn').addEventListener('click', () => this.resetView());
                 document.getElementById('undoBtn').addEventListener('click', () => this.undo());
                 document.getElementById('redoBtn').addEventListener('click', () => this.redo());
@@ -1048,6 +1051,60 @@
                 }
             }
 
+            /**
+             * Sauvegarder avec notification - version qui attend vraiment et affiche une notification
+             */
+            async saveToDBWithNotification() {
+                if (!window.dataSyncManager) {
+                    alert('❌ dataSyncManager non disponible');
+                    return;
+                }
+
+                try {
+                    // Séparer les zones et les blippers instances
+                    const zones = this.elements.filter(e => e.type === 'zone');
+                    const blippersInstances = this.elements.filter(e => e.type === 'bliper');
+
+                    const promises = [];
+
+                    // Sauvegarder les zones
+                    promises.push(
+                        window.dataSyncManager.save('gta5-zones', zones)
+                            .then(() => {
+                                console.log('✅ Zones sauvegardées en BDD:', zones.length);
+                                return { type: 'zones', count: zones.length };
+                            })
+                            .catch(err => {
+                                console.error('❌ Erreur save zones:', err);
+                                throw err;
+                            })
+                    );
+
+                    // Sauvegarder les blippers instances
+                    promises.push(
+                        window.dataSyncManager.save('gta5-blippers', blippersInstances)
+                            .then(() => {
+                                console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length);
+                                return { type: 'blippers', count: blippersInstances.length };
+                            })
+                            .catch(err => {
+                                console.error('❌ Erreur save blippers:', err);
+                                throw err;
+                            })
+                    );
+
+                    // Attendre les deux saves
+                    const results = await Promise.all(promises);
+                    
+                    console.log('✅ Tous les changements ont été sauvegardés!');
+                    const message = `✅ Sauvegarde réussie!\n🗺️ Zones: ${zones.length}\n📍 Blippers: ${blippersInstances.length}`;
+                    alert(message);
+                } catch (error) {
+                    console.error('❌ Erreur lors de la sauvegarde:', error);
+                    alert('❌ Erreur lors de la sauvegarde: ' + error.message);
+                }
+            }
+
             async clearDatabase() {
                 // Efface vraiment la BDD en appelant l'API
                 try {
@@ -1156,9 +1213,6 @@
                         console.log(`   - Éléments sur la carte: ${this.elements.length}`);
                         
                         // Optionnel: afficher une notification
-                        if (window.SAMSCommon && window.SAMSCommon.showNotification) {
-                            window.SAMSCommon.showNotification('✅ Toutes les données rechargées depuis la BDD', 'success');
-                        }
                     } catch (error) {
                         console.error('❌ Erreur lors du rechargement:', error);
                         if (window.SAMSCommon && window.SAMSCommon.showNotification) {
