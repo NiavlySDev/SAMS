@@ -905,14 +905,17 @@
                 
                 // OPTIMISATION: Vérifier le cache d'abord
                 if (this.mapImageCache[fileName]) {
+                    // L'image est déjà en cache et chargée
                     this.mapImage = this.mapImageCache[fileName];
                     this.mapImageLoaded = true;
                     if (resetView) this.resetView();
                     this.requestRedraw();
-                    console.log(`✓ Carte ${this.mapStyle} chargée depuis cache`);
+                    console.log(`✓ Carte ${this.mapStyle} chargée depuis cache (instantané)`);
                     return;
                 }
                 
+                // Créer une nouvelle Image pour charger
+                this.mapImage = new Image();
                 const paths = [`./images/${fileName}`, `images/${fileName}`];
                 
                 const tryLoad = (i) => {
@@ -923,7 +926,7 @@
                         this.mapImageCache[fileName] = this.mapImage;
                         if (resetView) this.resetView();
                         this.requestRedraw();
-                        console.log(`✓ Carte ${this.mapStyle} chargée`);
+                        console.log(`✓ Carte ${this.mapStyle} chargée et mise en cache`);
                     };
                     this.mapImage.onerror = () => tryLoad(i + 1);
                     this.mapImage.src = paths[i];
@@ -1270,6 +1273,7 @@
                     this.draw();
                     this.needsRedraw = false;
                 }
+                // Toujours continuer la boucle (pas de condition)
                 requestAnimationFrame(() => this.loop());
             }
 
