@@ -1,5 +1,19 @@
 [ 
   {
+    "version": "v1.16.5.4",
+    "date" : "21/11/2025 - 17:25",
+    "changes" : [
+      {
+        "text": "Correction du chargement des manuels - accepte maintenant les données vides depuis la BDD",
+        "type": "secondaire"
+      },
+      {
+        "text": "loadOnlyFromDB() accepte désormais les arrays vides au lieu de lancer une erreur",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.5.3",
     "date" : "21/11/2025 - 17:20",
     "changes" : [

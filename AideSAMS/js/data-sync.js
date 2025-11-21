@@ -113,12 +113,13 @@ class DataSyncManager {
         try {
             console.log(`📡 Chargement STRICT depuis la BDD pour ${type}...`);
             const data = await this.loadFromDB(type);
-            if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+            // Accepter même un array vide, tant que c'est un array ou un objet valide
+            if (data !== null && data !== undefined && (Array.isArray(data) || typeof data === 'object')) {
                 console.log(`✅ ${type} CHARGÉ DEPUIS LA BDD (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
                 this.cache[type] = data;
                 return data;
             } else {
-                throw new Error(`La BDD a retourné des données vides pour ${type}`);
+                throw new Error(`La BDD a retourné des données invalides pour ${type}`);
             }
         } catch (error) {
             console.error(`❌ ERREUR CRITIQUE BDD (${type}):`, error.message);
