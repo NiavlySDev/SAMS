@@ -1,5 +1,39 @@
 [ 
   {
+    "version": "v1.16.4.6",
+    "date" : "21/11/2025 - 12:30",
+    "changes" : [
+      {
+        "text": "🔧 DEBUG: Ajout de logging massif pour tracer le bug 'zones disparaissent à la sauvegarde'",
+        "type": "global"
+      },
+      {
+        "text": "🐛 CRITICAL FIX: Désactivé loadSavedData() au démarrage - causait une race condition qui effaçait les modifications en cours",
+        "type": "secondaire"
+      },
+      {
+        "text": "🐛 CRITICAL FIX: Protection contre les sauvegardes vides - saveToDB() ne sauvegarde plus un array vide (qui effacerait la BDD)",
+        "type": "secondaire"
+      },
+      {
+        "text": "🐛 CRITICAL FIX: saveToDBWithNotification() refuse de sauvegarder si aucune donnée (affiche alerte utilisateur)",
+        "type": "secondaire"
+      },
+      {
+        "text": "Logging amélioré dans data-sync.js pour voir exactement ce qui est envoyé à l'API",
+        "type": "secondaire"
+      },
+      {
+        "text": "Logging amélioré dans db.php pour tracer ce que l'API reçoit et comment elle traite les gta5-zones",
+        "type": "secondaire"
+      },
+      {
+        "text": "Carte GTA5 démarre maintenant vierge - l'utilisateur clique 'Recharger BDD' pour charger les données existantes",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.5",
     "date" : "21/11/2025 - 12:20",
     "changes" : [

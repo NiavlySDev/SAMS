@@ -21,16 +21,14 @@ class SAMSCommon {
     /**
      * Système de sync en temps réel: recharger les données quand la page reprend le focus
      * (après un switch depuis l'admin qui a modifié les données)
+     * NOTE: Ne pas recharger pour gta5-map car c'est une page éditable!
      */
     setupRealTimeSyncOnFocus() {
         window.addEventListener('focus', () => {
             console.log(`🔄 Page reprend le focus - Sync BDD pour: ${this.currentPage}`);
             
-            // Pour chaque page, notifier le gestionnaire de données de recharger
-            if (window.mapApp && this.currentPage === 'gta5-map' && window.mapApp.reloadFromBDD) {
-                // Utiliser la fonction reloadFromBDD qui gère le cache clearing et le reload
-                window.mapApp.reloadFromBDD().catch(() => console.warn('Recharger BDD fallback'));
-            }
+            // gta5-map: NE PAS recharger automatiquement (page éditable)
+            // L'utilisateur peut cliquer sur le bouton "Recharger BDD" s'il veut
             
             if (this.currentPage === 'hierarchie' && window.performHierarchyRefresh) {
                 window.performHierarchyRefresh();

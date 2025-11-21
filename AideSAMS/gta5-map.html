@@ -503,10 +503,13 @@
                 
                 // Charger les données EN PARALLÈLE (ne bloquent pas l'affichage)
                 this.loadBlippers().catch(() => console.warn('Blippers fallback'));
-                this.loadSavedData().then(() => {
-                    // AUTO-SAVE: Sauvegarder automatiquement toutes les 30 secondes (APRÈS chargement)
-                    this.setupAutoSave();
-                }).catch(() => console.warn('SavedData fallback'));
+                
+                // ⚠️ IMPORTANT: Ne PAS charger loadSavedData() au démarrage
+                // Raison: Cela écrase les modifications en cours et cause des races conditions
+                // Résultat: Les zones créées disparaissent après sauvegarde
+                // Solution: L'utilisateur clique "Recharger BDD" quand il en a besoin
+                // Démarrer auto-save même avec carte vierge
+                this.setupAutoSave();
             }
             
             /**
@@ -1023,28 +1026,28 @@
                     const zones = this.elements.filter(e => e.type === 'zone');
                     const blippersInstances = this.elements.filter(e => e.type === 'bliper');
                     
-                    // Sauvegarder les zones
+                    console.log('💾 saveToDB() called - elements:', this.elements.length, 'zones:', zones.length, 'blippers:', blippersInstances.length);
+                    
+                    // ⚠️ IMPORTANT: Ne JAMAIS sauvegarder un array vide!
+                    // Cela effacerait les données précédentes de la BDD!
+                    // On ne sauvegarde que s'il y a du contenu
                     if (zones.length > 0) {
+                        console.log('📤 Envoi zones vers BDD:', zones);
                         window.dataSyncManager.save('gta5-zones', zones)
                             .then(() => console.log('✅ Zones sauvegardées en BDD:', zones.length))
                             .catch(err => console.warn('❌ Erreur save zones BDD:', err.message));
                     } else {
-                        // Si pas de zones, sauvegarder un tableau vide pour effacer les anciennes
-                        window.dataSyncManager.save('gta5-zones', [])
-                            .then(() => console.log('✅ Zones BDD vidées'))
-                            .catch(err => console.warn('❌ Erreur clear zones BDD:', err.message));
+                        console.warn('⚠️ Pas de zones à sauvegarder - ne pas vider la BDD!');
                     }
                     
                     // Sauvegarder les blippers instances
                     if (blippersInstances.length > 0) {
+                        console.log('📤 Envoi blippers vers BDD:', blippersInstances);
                         window.dataSyncManager.save('gta5-blippers', blippersInstances)
                             .then(() => console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length))
                             .catch(err => console.warn('❌ Erreur save blippers BDD:', err.message));
                     } else {
-                        // Si pas de blippers, sauvegarder un tableau vide pour effacer les anciens
-                        window.dataSyncManager.save('gta5-blippers', [])
-                            .then(() => console.log('✅ Blippers BDD vidés'))
-                            .catch(err => console.warn('❌ Erreur clear blippers BDD:', err.message));
+                        console.warn('⚠️ Pas de blippers à sauvegarder');
                     }
                 } else {
                     console.warn('⚠️ dataSyncManager non disponible - impossible de sauvegarder en BDD');
@@ -1064,34 +1067,51 @@
                     // Séparer les zones et les blippers instances
                     const zones = this.elements.filter(e => e.type === 'zone');
                     const blippersInstances = this.elements.filter(e => e.type === 'bliper');
+                    
+                    // DEBUG: Vérifier ce qu'on va sauvegarder
+                    console.log('🔍 AVANT SAUVEGARDE:');
+                    console.log(`   - Total elements: ${this.elements.length}`);
+                    console.log(`   - Zones à sauvegarder: ${zones.length}`, zones);
+                    console.log(`   - Blippers à sauvegarder: ${blippersInstances.length}`, blippersInstances);
+
+                    // ⚠️ PROTECTION: Ne pas sauvegarder des données vides!
+                    if (zones.length === 0 && blippersInstances.length === 0) {
+                        alert('⚠️ Aucune donnée à sauvegarder!\n\nVérifie que tu as créé des zones ou blippers.');
+                        console.warn('❌ Tentative de sauvegarde avec zéro données');
+                        return;
+                    }
 
                     const promises = [];
 
                     // Sauvegarder les zones
-                    promises.push(
-                        window.dataSyncManager.save('gta5-zones', zones)
-                            .then(() => {
-                                console.log('✅ Zones sauvegardées en BDD:', zones.length);
-                                return { type: 'zones', count: zones.length };
-                            })
-                            .catch(err => {
-                                console.error('❌ Erreur save zones:', err);
-                                throw err;
-                            })
-                    );
+                    if (zones.length > 0) {
+                        promises.push(
+                            window.dataSyncManager.save('gta5-zones', zones)
+                                .then(() => {
+                                    console.log('✅ Zones sauvegardées en BDD:', zones.length);
+                                    return { type: 'zones', count: zones.length };
+                                })
+                                .catch(err => {
+                                    console.error('❌ Erreur save zones:', err);
+                                    throw err;
+                                })
+                        );
+                    }
 
                     // Sauvegarder les blippers instances
-                    promises.push(
-                        window.dataSyncManager.save('gta5-blippers', blippersInstances)
-                            .then(() => {
-                                console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length);
-                                return { type: 'blippers', count: blippersInstances.length };
-                            })
-                            .catch(err => {
-                                console.error('❌ Erreur save blippers:', err);
-                                throw err;
-                            })
-                    );
+                    if (blippersInstances.length > 0) {
+                        promises.push(
+                            window.dataSyncManager.save('gta5-blippers', blippersInstances)
+                                .then(() => {
+                                    console.log('✅ Blippers sauvegardés en BDD:', blippersInstances.length);
+                                    return { type: 'blippers', count: blippersInstances.length };
+                                })
+                                .catch(err => {
+                                    console.error('❌ Erreur save blippers:', err);
+                                    throw err;
+                                })
+                        );
+                    }
 
                     // Attendre les deux saves
                     const results = await Promise.all(promises);

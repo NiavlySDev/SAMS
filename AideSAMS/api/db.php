@@ -576,12 +576,19 @@ function saveToDB($type, $data) {
             case 'gta5-zones':
                 // Sauvegarder les zones GTA5
                 if (!is_array($data)) {
+                    error_log("SAMS - gta5-zones: data is not an array");
                     throw new Exception('gta5-zones data must be an array');
                 }
                 
+                error_log("SAMS - gta5-zones: processing " . count($data) . " items");
+                
                 // Truncate et recharger les zones
                 $db->query("TRUNCATE TABLE gta5_zones");
+                $zonesSaved = 0;
+                
                 foreach ($data as $item) {
+                    error_log("SAMS - Processing zone item, type: " . (isset($item['type']) ? $item['type'] : 'NO TYPE'));
+                    
                     if ($item['type'] === 'zone') {
                         $name = $db->real_escape_string($item['name'] ?? 'Zone');
                         $zoneData = json_encode($item);
@@ -589,10 +596,14 @@ function saveToDB($type, $data) {
                         
                         $sql = "INSERT INTO gta5_zones (name, zone_data) VALUES ('$name', '$zoneData')";
                         if (!$db->query($sql)) {
+                            error_log("SAMS - Zone save error: " . $db->error);
                             throw new Exception($db->error);
                         }
+                        $zonesSaved++;
                     }
                 }
+                
+                error_log("SAMS - gta5-zones: Successfully saved $zonesSaved zones");
                 break;
                 
             case 'gta5-blippers':
@@ -729,6 +740,9 @@ switch ($action) {
         // Sauvegarder les données dans la BDD
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
+        
+        error_log("SAMS - Save action for type: $type, data items: " . (is_array($data) ? count($data) : 'non-array'));
+        error_log("SAMS - Save data preview: " . substr($input, 0, 500));
         
         connectDB();
         if ($dbConnected) {

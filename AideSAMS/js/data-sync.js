@@ -193,6 +193,22 @@ class DataSyncManager {
             console.error(`❌ Tentative de sauvegarde avec données vides pour ${type}`);
             return { success: false, error: 'Données vides' };
         }
+        
+        // SUPER IMPORTANT: Vérifier exactement ce qu'on va sauvegarder
+        if (Array.isArray(data)) {
+            console.log(`💾 save() called for ${type} with ${data.length} items`);
+            if (data.length === 0) {
+                console.warn(`⚠️ ⚠️ ⚠️ ATTENTION: save() called with EMPTY array for ${type}!`);
+                console.warn('Cette opération va EFFACER les données précédentes dans la BDD!');
+                console.warn('Stack trace:', new Error().stack);
+            }
+            // Afficher premier item pour vérifier la structure
+            if (data.length > 0) {
+                console.log(`First item: type=${data[0].type}`, data[0]);
+            }
+        } else {
+            console.log(`💾 save() called for ${type} with non-array data:`, data);
+        }
 
         this.cache[type] = data;
         const saveResults = [];
@@ -200,6 +216,7 @@ class DataSyncManager {
         // 1. Sauvegarder en BDD (priorité haute)
         if (this.dbAvailable) {
             try {
+                console.log(`🔹 Attempting to save ${type} to database...`);
                 const success = await this.saveToDB(type, data);
                 if (success) {
                     console.log(`✅ ${type} sauvegardé en BDD`);
@@ -244,6 +261,7 @@ class DataSyncManager {
      */
     async saveToDB(type, data) {
         const url = `api/db.php?action=save&type=${type}`;
+        console.log(`🌐 Sending to API: ${url}`, 'Data length:', Array.isArray(data) ? data.length : 'non-array');
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -257,6 +275,7 @@ class DataSyncManager {
         }
         
         const result = await response.json();
+        console.log(`📡 API response for ${type}:`, result);
         return result.success || false;
     }
 
