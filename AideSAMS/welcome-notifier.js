@@ -3,7 +3,7 @@ class WelcomeNotifier {
     constructor() {
         this.storageKey = 'aidesams_welcome_shown';
         this.isFirstVisit = !localStorage.getItem(this.storageKey);
-        this.debug = false;
+        this.debug = true;
     }
 
     init() {
@@ -33,7 +33,7 @@ class WelcomeNotifier {
         bgLayer.style.right = '0';
         bgLayer.style.bottom = '0';
         bgLayer.style.backgroundImage = 'url("images/background/urgence.png")';
-        bgLayer.style.backgroundSize = 'contain';
+        bgLayer.style.backgroundSize = 'cover';
         bgLayer.style.backgroundPosition = 'center';
         bgLayer.style.backgroundRepeat = 'no-repeat';
         bgLayer.style.borderRadius = '20px';
