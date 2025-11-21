@@ -32,8 +32,8 @@ class WelcomeNotifier {
         bgLayer.style.left = '0';
         bgLayer.style.right = '0';
         bgLayer.style.bottom = '0';
-        bgLayer.style.backgroundImage = 'url("images/urgence.png")';
-        bgLayer.style.backgroundSize = 'cover';
+        bgLayer.style.backgroundImage = 'url("images/background/urgence.png")';
+        bgLayer.style.backgroundSize = 'contain';
         bgLayer.style.backgroundPosition = 'center';
         bgLayer.style.backgroundRepeat = 'no-repeat';
         bgLayer.style.borderRadius = '20px';

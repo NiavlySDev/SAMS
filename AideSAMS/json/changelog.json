@@ -1,5 +1,31 @@
 [ 
   {
+    "version": "v1.16.7.0",
+    "date" : "21/11/2025 - 18:10",
+    "changes" : [
+      {
+        "text": "Images déplacées dans le dossier images/background/ avec structure organisée",
+        "type": "global"
+      },
+      {
+        "text": "Système de randomisation des arrière-plans ajouté - background-randomizer.js",
+        "type": "global"
+      },
+      {
+        "text": "Toutes les pages affichent maintenant un arrière-plan aléatoire parmi 9 images (1.png à 8.png + urgence.png)",
+        "type": "secondaire"
+      },
+      {
+        "text": "Le popup de bienvenue garde toujours urgence.png pour cohérence",
+        "type": "secondaire"
+      },
+      {
+        "text": "Tous les chemins mis à jour vers images/background/",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.6.5",
     "date" : "21/11/2025 - 17:55",
     "changes" : [
