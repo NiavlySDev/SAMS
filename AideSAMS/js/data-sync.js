@@ -80,31 +80,69 @@ class DataSyncManager {
     }
 
     /**
+     * Charger UNIQUEMENT depuis la BDD - Pas de fallback !
+     * Mode strict pour les pages principales (hierarchie, manuels, gta5-map, admin)
+     */
+    async loadOnlyFromDB(type) {
+        // Si déjà en cache, retourner
+        if (this.cache[type] && Array.isArray(this.cache[type])) {
+            console.log(`🔄 ${type} récupéré depuis le cache (${this.cache[type].length} éléments)`);
+            return this.cache[type];
+        }
+
+        // 1. OBLIGATOIRE: Charger depuis la BDD uniquement
+        if (!this.dbAvailable) {
+            console.error(`🚫 ERREUR CRITIQUE: BDD indisponible pour ${type} - Mode strict activé!`);
+            throw new Error(`Impossible de charger ${type}: Base de données indisponible`);
+        }
+
+        try {
+            console.log(`📡 Chargement STRICT depuis la BDD pour ${type}...`);
+            const data = await this.loadFromDB(type);
+            if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
+                console.log(`✅ ${type} CHARGÉ DEPUIS LA BDD (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
+                this.cache[type] = data;
+                return data;
+            } else {
+                throw new Error(`La BDD a retourné des données vides pour ${type}`);
+            }
+        } catch (error) {
+            console.error(`❌ ERREUR CRITIQUE BDD (${type}):`, error.message);
+            throw error;  // Propager l'erreur, pas de fallback!
+        }
+    }
+
+    /**
      * Charger les données avec priorité: BDD > LocalStorage > JSON
      * Utilise un système intelligent de fallback
      */
     async load(type) {
         // Si déjà en cache, retourner
         if (this.cache[type] && Array.isArray(this.cache[type])) {
-            console.log(`🔄 ${type} récupéré depuis le cache`);
+            console.log(`🔄 ${type} récupéré depuis le cache (${this.cache[type].length} éléments)`);
             return this.cache[type];
         }
 
         // 1. Essayer de charger depuis la BDD en priorité
         if (this.dbAvailable) {
             try {
+                console.log(`📡 Tentative de chargement ${type} depuis la BDD...`);
                 const data = await this.loadFromDB(type);
                 if (data && (Array.isArray(data) ? data.length > 0 : Object.keys(data).length > 0)) {
-                    console.log(`📊 ${type} chargé depuis la BDD (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
+                    console.log(`✅ ${type} CHARGÉ DEPUIS LA BDD (${Array.isArray(data) ? data.length : 'objet'} éléments)`);
                     this.cache[type] = data;
                     // Aussi sauvegarder en localStorage pour plus tard
                     this.saveToLocalStorage(type, data);
                     return data;
+                } else {
+                    console.warn(`⚠️ La BDD a retourné des données vides pour ${type}`);
                 }
             } catch (error) {
-                console.warn(`⚠️ Erreur chargement BDD (${type}):`, error.message);
+                console.error(`❌ ERREUR chargement BDD (${type}):`, error.message);
                 // Continuer avec les fallbacks
             }
+        } else {
+            console.warn(`⚠️ BDD indisponible - passage au fallback pour ${type}`);
         }
 
         // 2. Essayer de charger depuis localStorage (données locales)

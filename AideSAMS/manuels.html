@@ -222,17 +222,17 @@
             container.innerHTML = `<div class="category-group-container">${groupHtml}</div>`;
         }
 
-        // Charger les manuels via dataSyncManager (avec fallback JSON)
+        // Charger les manuels uniquement depuis la BDD (mode strict)
         async function loadManuals() {
-            dataSyncManager.load('manuels')
+            dataSyncManager.loadOnlyFromDB('manuels')
                 .then(data => {
                     manuals = data || [];
                     renderCategoryFilters("all");
                     renderManuals("all");
                 })
                 .catch(error => {
-                    console.error('Erreur lors du chargement des manuels:', error);
-                    document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">Impossible de charger les manuels.</div>';
+                    console.error('❌ ERREUR CRITIQUE lors du chargement des manuels depuis la BDD:', error);
+                    document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">❌ ERREUR: Impossible de charger les manuels depuis la BDD.</div>';
                 });
         }
         

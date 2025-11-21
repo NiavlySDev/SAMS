@@ -1,5 +1,23 @@
 [ 
   {
+    "version": "v1.16.5.0",
+    "date" : "21/11/2025 - 17:00",
+    "changes" : [
+      {
+        "text": "Les pages (Hiérarchie, Manuels, Carte GTA5, Admin) chargent maintenant UNIQUEMENT depuis la base de données",
+        "type": "global"
+      },
+      {
+        "text": "Les données ne proviennent plus du localStorage ni des fichiers JSON pour ces pages",
+        "type": "global"
+      },
+      {
+        "text": "Ajout d'une nouvelle fonction loadOnlyFromDB() qui refuse les fallbacks",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.9",
     "date" : "21/11/2025 - 16:35",
     "changes" : [

@@ -275,22 +275,22 @@
         // Chargement des données
         async function loadData() {
             try {
-                // Chargement des grades via dataSyncManager (avec fallback JSON)
-                document.getElementById('grades-container').innerHTML = '<div class="loading-state">🔄 Chargement des grades...</div>';
-                gradesData = await dataSyncManager.load('grades');
+                // Chargement des grades uniquement depuis la BDD (mode strict)
+                document.getElementById('grades-container').innerHTML = '<div class="loading-state">🔄 Chargement des grades depuis la BDD...</div>';
+                gradesData = await dataSyncManager.loadOnlyFromDB('grades');
 
-                // Chargement des spécialités via dataSyncManager (avec fallback JSON)
-                document.getElementById('specialites-container').innerHTML = '<div class="loading-state">🔄 Chargement des spécialités...</div>';
-                specialitesData = await dataSyncManager.load('specialites');
+                // Chargement des spécialités uniquement depuis la BDD (mode strict)
+                document.getElementById('specialites-container').innerHTML = '<div class="loading-state">🔄 Chargement des spécialités depuis la BDD...</div>';
+                specialitesData = await dataSyncManager.loadOnlyFromDB('specialites');
 
                 // Affichage des données
                 renderGrades();
                 renderSpecialites();
                 
             } catch (error) {
-                console.error('Erreur lors du chargement des données:', error);
-                document.getElementById('grades-container').innerHTML = '<div class="error-state">❌ Erreur de chargement des grades</div>';
-                document.getElementById('specialites-container').innerHTML = '<div class="error-state">❌ Erreur de chargement des spécialités</div>';
+                console.error('❌ ERREUR CRITIQUE lors du chargement des données:', error);
+                document.getElementById('grades-container').innerHTML = '<div class="error-state">❌ ERREUR: Impossible de charger les grades depuis la BDD</div>';
+                document.getElementById('specialites-container').innerHTML = '<div class="error-state">❌ ERREUR: Impossible de charger les spécialités depuis la BDD</div>';
             }
         }
 

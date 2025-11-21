@@ -318,26 +318,26 @@ class AdminPanelV2 {
     }
 
     async loadManuels() {
-        this.manuels = await dataSyncManager.load('manuels');
+        this.manuels = await dataSyncManager.loadOnlyFromDB('manuels');
     }
 
     async loadGrades() {
-        this.grades = await dataSyncManager.load('grades');
+        this.grades = await dataSyncManager.loadOnlyFromDB('grades');
     }
 
     async loadSpecialites() {
-        this.specialites = await dataSyncManager.load('specialites');
+        this.specialites = await dataSyncManager.loadOnlyFromDB('specialites');
     }
 
     async loadCategories() {
-        this.categories = await dataSyncManager.load('categories');
+        this.categories = await dataSyncManager.loadOnlyFromDB('categories');
     }
 
     async loadBlippers() {
         try {
-            this.blippers = await dataSyncManager.load('blippers');
+            this.blippers = await dataSyncManager.loadOnlyFromDB('blippers');
         } catch (error) {
-            console.error('Erreur lors du chargement des blippers:', error);
+            console.error('❌ ERREUR CRITIQUE: Impossible de charger les blippers depuis la BDD:', error);
             this.blippers = [];
         }
     }

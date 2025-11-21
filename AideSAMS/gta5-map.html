@@ -598,18 +598,19 @@
 
             async loadBlippers() {
                 try {
-                    // Essayer de charger depuis la BDD d'abord (pour avoir les nouveaux types de blippers du panel admin)
+                    // Charger UNIQUEMENT depuis la BDD (mode strict) - pas de fallback
                     if (window.dataSyncManager) {
                         try {
-                            const bippersFromDB = await window.dataSyncManager.load('blippers');
+                            const bippersFromDB = await window.dataSyncManager.loadOnlyFromDB('blippers');
                             if (bippersFromDB && Array.isArray(bippersFromDB) && bippersFromDB.length > 0) {
                                 this.blippers = bippersFromDB;
-                                console.log(`✅ Blippers chargés depuis BDD: ${this.blippers.length} items`);
+                                console.log(`✅ Blippers chargés UNIQUEMENT depuis la BDD: ${this.blippers.length} items`);
                                 this.populateBliperSelect();
                                 return;
                             }
                         } catch (e) {
-                            console.warn('BDD indisponible, fallback sur JSON:', e);
+                            console.error('❌ ERREUR CRITIQUE: Impossible de charger les blippers depuis la BDD:', e);
+                            throw e;  // Propager l'erreur, pas de fallback
                         }
                     }
                     
@@ -1217,20 +1218,20 @@
                 }
                 
                 try {
-                    // Charger à la fois zones et blippers instances
-                    console.log('⏳ Fetching gta5-zones from dataSyncManager...');
-                    const zonesData = await window.dataSyncManager.load('gta5-zones').catch(err => {
-                        console.error('❌ Error loading gta5-zones:', err);
+                    // Charger à la fois zones et blippers instances UNIQUEMENT depuis la BDD (mode strict)
+                    console.log('⏳ Chargement gta5-zones UNIQUEMENT depuis la BDD...');
+                    const zonesData = await window.dataSyncManager.loadOnlyFromDB('gta5-zones').catch(err => {
+                        console.error('❌ ERREUR CRITIQUE chargement gta5-zones depuis BDD:', err);
                         return [];
                     });
-                    console.log('✅ gta5-zones loaded:', zonesData);
+                    console.log('✅ gta5-zones chargées depuis la BDD:', zonesData);
                     
-                    console.log('⏳ Fetching gta5-blippers from dataSyncManager...');
-                    const blippersData = await window.dataSyncManager.load('gta5-blippers').catch(err => {
-                        console.error('❌ Error loading gta5-blippers:', err);
+                    console.log('⏳ Chargement gta5-blippers UNIQUEMENT depuis la BDD...');
+                    const blippersData = await window.dataSyncManager.loadOnlyFromDB('gta5-blippers').catch(err => {
+                        console.error('❌ ERREUR CRITIQUE chargement gta5-blippers depuis BDD:', err);
                         return [];
                     });
-                    console.log('✅ gta5-blippers loaded:', blippersData);
+                    console.log('✅ gta5-blippers chargées depuis la BDD:', blippersData);
                     
                     const allElements = [];
                     
