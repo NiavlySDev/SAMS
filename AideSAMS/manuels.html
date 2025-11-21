@@ -223,18 +223,32 @@
         }
 
         // Charger les manuels via dataSyncManager (avec fallback JSON)
-        dataSyncManager.load('manuels')
-            .then(data => {
-                manuals = data || [];
-                renderCategoryFilters("all");
-                renderManuals("all");
-            })
-            .catch(error => {
-                console.error('Erreur lors du chargement des manuels:', error);
-                document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">Impossible de charger les manuels.</div>';
-            });
-
+        async function loadManuals() {
+            dataSyncManager.load('manuels')
+                .then(data => {
+                    manuals = data || [];
+                    renderCategoryFilters("all");
+                    renderManuals("all");
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des manuels:', error);
+                    document.getElementById('manuals-list').innerHTML = '<div style="color:#ef4444;">Impossible de charger les manuels.</div>';
+                });
+        }
+        
+        // Fonction globale pour sync en temps réel (appelée au focus de la page)
+        window.performManuelsRefresh = function() {
+            console.log('🔄 Rafraîchissement manuels depuis BDD');
+            if (window.dataSyncManager) {
+                // Effacer le cache pour forcer recharge depuis BDD
+                window.dataSyncManager.cache['manuels'] = undefined;
+                window.dataSyncManager.cache['categories'] = undefined;
+            }
+            loadManuals();
+        }
+        
         // Gestion de l'affichage des onglets selon les spécialités
+        loadManuals();
         
         // Appel au chargement de la page
         

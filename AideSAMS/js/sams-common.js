@@ -12,9 +12,39 @@ class SAMSCommon {
             this.updateVersion();
             this.updateSpecialityTabs();
             this.setActiveTab();
+            this.setupRealTimeSyncOnFocus();
         } catch (error) {
             console.error('Erreur lors de l\'initialisation SAMS Common:', error);
         }
+    }
+
+    /**
+     * Système de sync en temps réel: recharger les données quand la page reprend le focus
+     * (après un switch depuis l'admin qui a modifié les données)
+     */
+    setupRealTimeSyncOnFocus() {
+        window.addEventListener('focus', () => {
+            console.log(`🔄 Page reprend le focus - Sync BDD pour: ${this.currentPage}`);
+            
+            // Pour chaque page, notifier le gestionnaire de données de recharger
+            if (window.mapApp && this.currentPage === 'gta5-map' && window.mapApp.reloadFromBDD) {
+                // Utiliser la fonction reloadFromBDD qui gère le cache clearing et le reload
+                window.mapApp.reloadFromBDD().catch(() => console.warn('Recharger BDD fallback'));
+            }
+            
+            if (this.currentPage === 'hierarchie' && window.performHierarchyRefresh) {
+                window.performHierarchyRefresh();
+            }
+            
+            if (this.currentPage === 'manuels' && window.performManuelsRefresh) {
+                window.performManuelsRefresh();
+            }
+            
+            // Admin panel se rafraîchit automatiquement au focus
+            if (this.currentPage === 'admin' && window.adminPanel) {
+                window.adminPanel.waitForAppReady();
+            }
+        });
     }
 
     getCurrentPage() {

@@ -1,5 +1,51 @@
 [ 
   {
+    "version": "v1.16.4.0",
+    "date" : "21/11/2025 - 12:00",
+    "changes" : [
+      {
+        "text": "✅ Implémentation du système de synchronisation en temps réel des données BDD",
+        "type": "global"
+      },
+      {
+        "text": "Ajout du système de focus/refresh: Quand l'utilisateur bascule d'une page à une autre, les données se rechargent automatiquement depuis la BDD",
+        "type": "global"
+      },
+      {
+        "text": "Amélioration des notifications admin: Chaque sauvegarde (manuels, grades, catégories, spécialités, blippers) affiche maintenant une notification confirmant la sync BDD",
+        "type": "admin"
+      },
+      {
+        "text": "Ajout du bouton '🔄 Recharger BDD' dans la carte (mode édition) pour forcer un reload des données",
+        "type": "gta5-map"
+      },
+      {
+        "text": "Auto-reload au chargement: La page carte se recharge automatiquement depuis la BDD au chargement pour avoir les données fraîches",
+        "type": "gta5-map"
+      },
+      {
+        "text": "Optimisation: Ajout de la fonction reloadFromBDD() qui efface le cache et force une recharge depuis la BDD",
+        "type": "gta5-map"
+      },
+      {
+        "text": "Intégration de setupRealTimeSyncOnFocus() pour tous les pages (hierarchie, manuels, gta5-map): Auto-refresh au focus",
+        "type": "global"
+      },
+      {
+        "text": "Modification de performHierarchyRefresh() pour effacer le cache et recharger depuis la BDD",
+        "type": "hierarchie"
+      },
+      {
+        "text": "Modification de performManuelsRefresh() pour effacer le cache et recharger depuis la BDD",
+        "type": "manuels"
+      },
+      {
+        "text": "Amélioration des messages de log: Chaque action affiche maintenant les détails des sources de données (BDD/localStorage/JSON)",
+        "type": "global"
+      }
+    ]
+  },
+  {
     "version": "v1.16.3.2",
     "date" : "21/11/2025 - 10:20",
     "changes" : [

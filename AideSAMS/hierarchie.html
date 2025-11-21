@@ -414,6 +414,18 @@
         function refreshData() {
             loadData();
         }
+        
+        // Fonction globale pour sync en temps réel (appelée au focus de la page)
+        window.performHierarchyRefresh = function() {
+            console.log('🔄 Rafraîchissement hiérarchie depuis BDD');
+            if (window.dataSyncManager) {
+                // Effacer le cache pour forcer recharge depuis BDD
+                window.dataSyncManager.cache['grades'] = undefined;
+                window.dataSyncManager.cache['specialites'] = undefined;
+            }
+            refreshData();
+        }
+        
         // Gestion de l'affichage des onglets selon les spécialités
 
         // Initialisation

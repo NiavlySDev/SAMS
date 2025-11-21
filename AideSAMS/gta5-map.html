@@ -443,6 +443,7 @@
                         <button class="action-btn" id="redoBtn" style="flex: 1; background: linear-gradient(135deg, rgba(100, 150, 255, 0.2) 0%, rgba(100, 150, 255, 0.1) 100%); border-color: #6496FF; color: #6496FF;">↷ Redo</button>
                     </div>
                     <button class="action-btn" id="saveBtn" style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%); border-color: #4CAF50; color: #4CAF50;">💾 Sauvegarder</button>
+                    <button class="action-btn" id="reloadFromBDDBtn" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%); border-color: #2196F3; color: #2196F3;">🔄 Recharger BDD</button>
                     <button class="action-btn" id="resetViewBtn">🔄 Reset Vue</button>
                     <button class="action-btn" id="clearLocalBtn" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%); border-color: #FF9800; color: #FF9800;">🗑️ Effacer Local</button>
                     <button class="action-btn" id="clearDBBtn" style="background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%); border-color: #F44336; color: #F44336;">🔴 Effacer BDD</button>
@@ -597,6 +598,12 @@
                     if (confirm('⚠️ ATTENTION! Ceci va effacer TOUS les éléments de la BDD pour tous les utilisateurs!')) {
                         this.clearDatabase();
                     }
+                });
+                
+                // NOUVEAU: Bouton de reload depuis la BDD
+                document.getElementById('reloadFromBDDBtn').addEventListener('click', () => {
+                    console.log('🔄 Rechargement des données depuis la BDD');
+                    this.reloadFromBDD();
                 });
 
                 // Opacity
@@ -1078,6 +1085,38 @@
                 }
             }
 
+            /**
+             * Fonction pour recharger les données depuis la BDD (appelée par le bouton ou au chargement)
+             * Efface le cache et force une recharge des données à partir de la BDD
+             */
+            async reloadFromBDD() {
+                console.log('🔄 Rechargement des données depuis la BDD...');
+                
+                if (window.dataSyncManager) {
+                    try {
+                        // Effacer le cache pour forcer une recharge depuis la BDD
+                        window.dataSyncManager.cache['gta5-zones'] = undefined;
+                        window.dataSyncManager.cache['gta5-blippers'] = undefined;
+                        
+                        // Charger les données fraîches depuis la BDD
+                        await this.loadSavedData();
+                        
+                        console.log('✅ Données rechargées depuis la BDD avec succès!');
+                        // Optionnel: afficher une notification
+                        if (window.SAMSCommon && window.SAMSCommon.showNotification) {
+                            window.SAMSCommon.showNotification('✅ Données rechargées depuis la BDD', 'success');
+                        }
+                    } catch (error) {
+                        console.error('❌ Erreur lors du rechargement:', error);
+                        if (window.SAMSCommon && window.SAMSCommon.showNotification) {
+                            window.SAMSCommon.showNotification('❌ Erreur lors du rechargement', 'error');
+                        }
+                    }
+                } else {
+                    console.warn('⚠️ dataSyncManager non disponible');
+                }
+            }
+
             draw() {
                 this.ctx.fillStyle = '#000';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -1297,7 +1336,17 @@
             }, 100);
             
             // Initialiser la map
-            new GTA5MapBuilder();
+            window.mapApp = new GTA5MapBuilder();
+            
+            // Auto-recharger les données depuis la BDD au page load
+            // (attendre que tout soit initialisé)
+            setTimeout(() => {
+                if (window.mapApp && window.mapApp.reloadFromBDD) {
+                    window.mapApp.reloadFromBDD().catch(() => {
+                        console.warn('Auto-reload initial échoué, fallback sur les données mises en cache');
+                    });
+                }
+            }, 500);
         });
     </script>
 </body>

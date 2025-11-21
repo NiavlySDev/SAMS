@@ -55,9 +55,10 @@ class AdminPanelV2 {
     /**
      * Attendre que l'app soit prête
      */
-    async waitForAppReady(timeout = 10000) {
+    async waitForAppReady(timeout = 2000) {
         return new Promise((resolve, reject) => {
             if (window.appInitializer?.ready) {
+                console.log('✅ AppInitializer déjà prêt');
                 resolve();
                 return;
             }
@@ -65,12 +66,13 @@ class AdminPanelV2 {
             const handleAppReady = () => {
                 window.removeEventListener('appReady', handleAppReady);
                 clearTimeout(timeoutId);
+                console.log('✅ AppInitializer événement reçu');
                 resolve();
             };
 
             const timeoutId = setTimeout(() => {
                 window.removeEventListener('appReady', handleAppReady);
-                console.warn('⚠️ AppInitializer timeout - continuant sans attendre');
+                console.warn('⏱️ Timeout AppInitializer - continuant sans attendre (2s)');
                 resolve();
             }, timeout);
 
@@ -188,9 +190,12 @@ class AdminPanelV2 {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('admin-interface').style.display = 'none';
         
-        // Masquer l'indicateur de session
+        // Masquer l'indicateur de session et le bouton logout
         const indicator = document.getElementById('session-indicator');
         if (indicator) indicator.style.display = 'none';
+        
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) logoutBtn.style.display = 'none';
     }
 
     showAdminInterface() {
@@ -446,6 +451,7 @@ class AdminPanelV2 {
     updateSessionIndicator() {
         const indicator = document.getElementById('session-indicator');
         const timeSpan = document.getElementById('session-time');
+        const logoutBtn = document.getElementById('logout-btn');
         
         if (!indicator || !timeSpan) return;
 
@@ -454,6 +460,7 @@ class AdminPanelV2 {
         if (remainingSeconds > 0) {
             timeSpan.textContent = this.formatSessionTime(remainingSeconds);
             indicator.style.display = 'block';
+            if (logoutBtn) logoutBtn.style.display = 'block'; // Montrer le bouton logout
             
             // Changer la couleur selon le temps restant
             if (remainingSeconds < 60) { // Moins d'une minute
@@ -724,7 +731,8 @@ class AdminPanelV2 {
     async saveManuels() {
         try {
             const result = await dataSyncManager.save('manuels', this.manuels);
-            console.log(`✅ Manuels sauvegardés (source: ${result.source})`);
+            console.log(`✅ Manuels sauvegardés (source: ${result.savedTo.join(', ')})`);
+            this.showNotification('✅ Manuels sauvegardés en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -883,7 +891,8 @@ class AdminPanelV2 {
     async saveCategories() {
         try {
             const result = await dataSyncManager.save('categories', this.categories);
-            console.log(`✅ Catégories sauvegardées (source: ${result.source})`);
+            console.log(`✅ Catégories sauvegardées (source: ${result.savedTo.join(', ')})`);
+            this.showNotification('✅ Catégories sauvegardées en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -1000,7 +1009,8 @@ class AdminPanelV2 {
     async saveGrades() {
         try {
             const result = await dataSyncManager.save('grades', this.grades);
-            console.log(`✅ Grades sauvegardés (source: ${result.source})`);
+            console.log(`✅ Grades sauvegardés (source: ${result.savedTo.join(', ')})`);
+            this.showNotification('✅ Grades sauvegardés en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -1081,7 +1091,8 @@ class AdminPanelV2 {
     async saveSpecialites() {
         try {
             const result = await dataSyncManager.save('specialites', this.specialites);
-            console.log(`✅ Spécialités sauvegardées (source: ${result.source})`);
+            console.log(`✅ Spécialités sauvegardées (source: ${result.savedTo.join(', ')})`);
+            this.showNotification('✅ Spécialités sauvegardées en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
@@ -1211,8 +1222,8 @@ class AdminPanelV2 {
     async saveBlippers() {
         try {
             const result = await dataSyncManager.save('blippers', this.blippers);
-            console.log(`✅ Blippers sauvegardés (source: ${result.source})`);
-            this.showNotification('Blippers sauvegardés ✓', 'success');
+            console.log(`✅ Blippers sauvegardés (source: ${result.savedTo.join(', ')})`);
+            this.showNotification('✅ Blippers sauvegardés en BDD - Sync en temps réel activée', 'success');
         } catch (error) {
             console.error('Erreur lors de la sauvegarde:', error);
             this.showNotification('Erreur lors de la sauvegarde', 'error');
