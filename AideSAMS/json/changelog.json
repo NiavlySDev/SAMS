@@ -1,30 +1,36 @@
 [ 
   {
+    "version": "v1.16.4.9",
+    "date" : "21/11/2025 - 16:35",
+    "changes" : [
+      {
+        "text": "Les grades s'affichent maintenant dans le bon ordre (comme dans la base de données)",
+        "type": "global"
+      },
+      {
+        "text": "Correction des hiérarchie et panel admin pour respecter l'ordre des grades",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.8",
     "date" : "21/11/2025 - 14:10",
     "changes" : [
       {
-        "text": "✨ Ajout de l'Auto-Load toutes les 30 secondes avec détection intelligente des modifications en cours",
+        "text": "Auto-rafraîchissement toutes les 30 secondes pour avoir les données à jour",
         "type": "global"
       },
       {
-        "text": "🎯 Auto-Load ne recharge que si AUCUNE modification en cours - protège les édits de l'utilisateur",
+        "text": "Les données ne se rechargent que si vous n'êtes pas en train de les modifier",
         "type": "global"
       },
       {
-        "text": "⏱️ Ajout d'un timer visuel (30s → 0s) à côté du bouton 'Recharger BDD' - montre le temps avant prochain reload",
+        "text": "Ajout d'une horloge visuelle qui montre le temps avant le prochain rafraîchissement",
         "type": "secondaire"
       },
       {
-        "text": "🎨 Timer change de couleur: Bleu (normal) → Orange (10s) → Rouge (5s) pour plus de visibilité",
-        "type": "secondaire"
-      },
-      {
-        "text": "📊 Auto-Load + Auto-Save fonctionnent en parallèle: Auto-Save toutes les 30s ET Auto-Load toutes les 30s",
-        "type": "secondaire"
-      },
-      {
-        "text": "🔍 Logging détaillé pour chaque Auto-Load: montre si chargement fait, skippé, ou échoué",
+        "text": "L'horloge change de couleur pour vous avertir quand le rafraîchissement approche",
         "type": "secondaire"
       }
     ]
@@ -34,20 +40,12 @@
     "date" : "21/11/2025 - 14:05",
     "changes" : [
       {
-        "text": "CRITICAL BUG FOUND & FIXED: Les zones ne se chargeaient jamais! L'API retournait un OBJET au lieu d'un ARRAY",
+        "text": "Les zones GTA5 ne s'affichaient pas du tout - maintenant c'est corrigé",
         "type": "global"
       },
       {
-        "text": "🔧 FIX: api/db.php loadFromDB() - Changé gta5-zones pour retourner un array au lieu d'un objet (dictionnaire par nom)",
-        "type": "global"
-      },
-      {
-        "text": "IMPROVEMENT: loadSavedData() a maintenant du logging exhaustif pour déboguer les problèmes de chargement",
+        "text": "L'API renvoyait les données au mauvais format - c'est réparé",
         "type": "secondaire"
-      },
-      {
-        "text": "✅ Les zones doivent maintenant se charger correctement au démarrage ET quand on clique 'Recharger BDD'",
-        "type": "global"
       }
     ]
   },
@@ -56,23 +54,11 @@
     "date" : "21/11/2025 - 12:30",
     "changes" : [
       {
-        "text": "🔧 DEBUG: Ajout de logging massif pour tracer le bug 'zones disparaissent à la sauvegarde'",
-        "type": "secondaire"
-      },
-      {
-        "text": "🐛 CRITICAL FIX: Réactivé loadSavedData() au démarrage (la v6.6 l'avait désactivé)",
+        "text": "Correction du bug où les zones disparaissaient après une sauvegarde",
         "type": "global"
       },
       {
-        "text": "🔧 DEBUG: Logging amélioré dans data-sync.js pour voir exactement ce qui est envoyé à l'API",
-        "type": "secondaire"
-      },
-      {
-        "text": "🔧 DEBUG: Logging amélioré dans db.php pour tracer ce que l'API reçoit",
-        "type": "secondaire"
-      },
-      {
-        "text": "🔧 DEBUG: Logging exhaustif dans loadSavedData() pour tracer tous les problèmes de chargement",
+        "text": "Meilleur diagnostic pour trouver les problèmes de chargement des données",
         "type": "secondaire"
       }
     ]

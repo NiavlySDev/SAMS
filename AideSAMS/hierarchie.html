@@ -303,8 +303,12 @@
                 return;
             }
 
-            // Tri par niveau si disponible
-            const sortedGrades = [...gradesData].sort((a, b) => (a.niveau || 999) - (b.niveau || 999));
+            // Tri par ID ou order pour respecter l'ordre de la base de données
+            const sortedGrades = [...gradesData].sort((a, b) => {
+                const orderA = a.order ?? a.id ?? 999;
+                const orderB = b.order ?? b.id ?? 999;
+                return orderA - orderB;
+            });
 
             const html = sortedGrades.map(grade => {
                 const membres = grade.membres || [];
