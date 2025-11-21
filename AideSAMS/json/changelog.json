@@ -1,5 +1,19 @@
 [ 
   {
+    "version": "v1.16.5.1",
+    "date" : "21/11/2025 - 17:10",
+    "changes" : [
+      {
+        "text": "Correction d'un bug où la BDD était jugée indisponible au démarrage",
+        "type": "global"
+      },
+      {
+        "text": "Le gestionnaire de données attend maintenant que l'initialisation soit terminée avant de charger",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.5.0",
     "date" : "21/11/2025 - 17:00",
     "changes" : [
@@ -32,7 +46,7 @@
     ]
   },
   {
-    "version": "v1.16.4.8",
+    "version": "v1.16.4.0",
     "date" : "21/11/2025 - 14:10",
     "changes" : [
       {

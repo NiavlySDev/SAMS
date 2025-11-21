@@ -10,12 +10,23 @@ class DataSyncManager {
         this.dbCheckUrl = 'api/db.php?action=check';
         this.cache = {};
         this.defaultTypes = ['manuels', 'grades', 'specialites', 'categories', 'blippers', 'gta5-zones'];
-        this.init();
+        this.initPromise = this.init();  // Garder la promesse d'initialisation
     }
 
     async init() {
         // Vérifier la disponibilité de la BDD
         await this.checkDatabaseConnection();
+        return true;  // Signal que l'initialisation est terminée
+    }
+
+    /**
+     * Attendre que l'initialisation soit complète
+     */
+    async ensureInitialized() {
+        if (!this.initPromise) {
+            this.initPromise = this.init();
+        }
+        await this.initPromise;
     }
 
     /**
@@ -84,6 +95,9 @@ class DataSyncManager {
      * Mode strict pour les pages principales (hierarchie, manuels, gta5-map, admin)
      */
     async loadOnlyFromDB(type) {
+        // IMPORTANT: Attendre que l'initialisation de DataSyncManager soit terminée
+        await this.ensureInitialized();
+
         // Si déjà en cache, retourner
         if (this.cache[type] && Array.isArray(this.cache[type])) {
             console.log(`🔄 ${type} récupéré depuis le cache (${this.cache[type].length} éléments)`);
@@ -117,6 +131,9 @@ class DataSyncManager {
      * Utilise un système intelligent de fallback
      */
     async load(type) {
+        // IMPORTANT: Attendre que l'initialisation de DataSyncManager soit terminée
+        await this.ensureInitialized();
+
         // Si déjà en cache, retourner
         if (this.cache[type] && Array.isArray(this.cache[type])) {
             console.log(`🔄 ${type} récupéré depuis le cache (${this.cache[type].length} éléments)`);
