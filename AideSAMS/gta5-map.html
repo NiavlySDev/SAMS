@@ -473,6 +473,8 @@
                 this.mapImage = new Image();
                 this.mapImageLoaded = false;
                 this.mapStyle = 'sattelite'; // Style de carte par défaut
+                this.mapImageCache = {}; // Cache pour les images
+                this.needsRedraw = true; // Flag de redraw optimisé
                 
                 this.isDrawing = false;
                 this.currentPath = [];
@@ -491,11 +493,15 @@
             init() {
                 this.resizeCanvas();
                 window.addEventListener('resize', () => this.resizeCanvas());
-                this.loadBlippers(); // Charger les blippers du JSON
-                this.setupEvents();
-                this.loadSavedData();
+                
+                // OPTIMISATION: Charger la carte d'abord pour affichage rapide
                 this.loadMapImage();
-                this.loop();
+                this.setupEvents();
+                this.loop(); // Démarrer boucle de rendu
+                
+                // Charger les données EN PARALLÈLE (ne bloquent pas l'affichage)
+                this.loadBlippers().catch(() => console.warn('Blippers fallback'));
+                this.loadSavedData().catch(() => console.warn('SavedData fallback'));
             }
 
             async loadBlippers() {
@@ -583,7 +589,7 @@
                 document.getElementById('clearLocalBtn').addEventListener('click', () => {
                     if (confirm('Effacer tous les éléments de la session?')) {
                         this.elements = [];
-                        this.draw();
+                        this.requestRedraw(); // OPTIMISATION
                         console.log('✅ Données effacées de la session');
                     }
                 });
@@ -720,11 +726,13 @@
                     this.panX = pos.x - this.panStartX;
                     this.panY = pos.y - this.panStartY;
                     this.constrainPan();
+                    this.requestRedraw(); // OPTIMISATION: requestRedraw au lieu de draw()
                     return;
                 }
 
                 if (this.isDrawing && this.currentTool === 'zone') {
                     this.currentPath.push(this.screenToWorld(pos));
+                    this.requestRedraw(); // OPTIMISATION: requestRedraw au lieu de draw()
                 }
             }
 
@@ -781,6 +789,7 @@
                         this.elements = this.elements.filter(el => el.id !== zoneToDelete.id);
                         this.saveToHistory();
                         this.saveToDB();
+                        this.requestRedraw(); // OPTIMISATION
                         console.log('✅ Zone supprimée');
                     }
                     return;
@@ -803,6 +812,7 @@
                     this.saveToHistory();
                     this.saveToDB();
                     document.getElementById('bliperName').value = '';
+                    this.requestRedraw(); // OPTIMISATION
                     return;
                 }
 
@@ -819,6 +829,7 @@
                     this.saveToHistory();
                     this.saveToDB();
                     document.getElementById('zoneName').value = '';
+                    this.requestRedraw(); // OPTIMISATION
                 }
 
                 this.isDrawing = false;
@@ -846,6 +857,7 @@
 
                 // Appliquer les contraintes de pan
                 this.constrainPan();
+                this.requestRedraw(); // OPTIMISATION
             }
 
             constrainPan() {
@@ -890,13 +902,27 @@
                     'road': 'gta5-map-road.png'
                 };
                 const fileName = mapNames[this.mapStyle] || 'gta5-map-atlas.png';
+                
+                // OPTIMISATION: Vérifier le cache d'abord
+                if (this.mapImageCache[fileName]) {
+                    this.mapImage = this.mapImageCache[fileName];
+                    this.mapImageLoaded = true;
+                    if (resetView) this.resetView();
+                    this.requestRedraw();
+                    console.log(`✓ Carte ${this.mapStyle} chargée depuis cache`);
+                    return;
+                }
+                
                 const paths = [`./images/${fileName}`, `images/${fileName}`];
                 
                 const tryLoad = (i) => {
                     if (i >= paths.length) return;
                     this.mapImage.onload = () => {
                         this.mapImageLoaded = true;
+                        // Stocker en cache
+                        this.mapImageCache[fileName] = this.mapImage;
                         if (resetView) this.resetView();
+                        this.requestRedraw();
                         console.log(`✓ Carte ${this.mapStyle} chargée`);
                     };
                     this.mapImage.onerror = () => tryLoad(i + 1);
@@ -980,7 +1006,7 @@
                     if (result.success) {
                         this.elements = [];
                         // localStorage supprimé - tout passe par BDD
-                        this.draw();
+                        this.requestRedraw(); // OPTIMISATION
                         console.log('✅ Données effacées de la BDD');
                         alert('✅ Toutes les données ont été effacées de la BDD!');
                     } else {
@@ -1028,7 +1054,7 @@
                         this.historyIndex = 0;
                         this.updateHistoryButtons();
                         
-                        this.draw();
+                        this.requestRedraw(); // OPTIMISATION
                     })
                     .catch(err => {
                         console.error('❌ Erreur chargement BDD:', err);
@@ -1036,7 +1062,7 @@
                         this.history = [[]];
                         this.historyIndex = 0;
                         this.updateHistoryButtons();
-                        this.draw();
+                        this.requestRedraw(); // OPTIMISATION
                     });
                 } else {
                     console.warn('⚠️ dataSyncManager non disponible - impossible de charger les données');
@@ -1044,7 +1070,7 @@
                     this.history = [[]];
                     this.historyIndex = 0;
                     this.updateHistoryButtons();
-                    this.draw();
+                    this.requestRedraw(); // OPTIMISATION
                 }
             }
 
@@ -1208,7 +1234,7 @@
                     this.elements = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
                     this.updateHistoryButtons();
                     console.log(`↶ Undo: ${this.historyIndex + 1}/${this.history.length}`);
-                    this.draw();
+                    this.requestRedraw(); // OPTIMISATION
                 }
             }
 
@@ -1218,7 +1244,7 @@
                     this.elements = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
                     this.updateHistoryButtons();
                     console.log(`↷ Redo: ${this.historyIndex + 1}/${this.history.length}`);
-                    this.draw();
+                    this.requestRedraw(); // OPTIMISATION
                 }
             }
 
@@ -1238,8 +1264,17 @@
             }
 
             loop() {
-                this.draw();
+                // OPTIMISATION: Ne redessiner que si nécessaire
+                if (this.needsRedraw) {
+                    this.draw();
+                    this.needsRedraw = false;
+                }
                 requestAnimationFrame(() => this.loop());
+            }
+
+            // Fonction helper pour demander un redraw
+            requestRedraw() {
+                this.needsRedraw = true;
             }
         }
 
