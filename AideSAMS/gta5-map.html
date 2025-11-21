@@ -385,6 +385,7 @@
                     <option value="road">🛣️ Route</option>
                 </select>
             </div>
+            <button class="mode-btn" id="reloadBDDFloatingBtn" style="background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(33, 150, 243, 0.08) 100%); border-color: #2196F3; color: #2196F3;">🔄 Recharger BDD</button>
             <button class="mode-btn active" id="viewModeBtn">👁️ Consultation</button>
             <button class="mode-btn" id="editModeBtn">✏️ Édition</button>
         </div>
@@ -603,6 +604,12 @@
                 // NOUVEAU: Bouton de reload depuis la BDD
                 document.getElementById('reloadFromBDDBtn').addEventListener('click', () => {
                     console.log('🔄 Rechargement des données depuis la BDD');
+                    this.reloadFromBDD();
+                });
+                
+                // Bouton flottant de reload (accessible en mode consultation ET édition)
+                document.getElementById('reloadBDDFloatingBtn').addEventListener('click', () => {
+                    console.log('🔄 Rechargement des données depuis la BDD (flottant)');
                     this.reloadFromBDD();
                 });
 
@@ -1088,23 +1095,31 @@
             /**
              * Fonction pour recharger les données depuis la BDD (appelée par le bouton ou au chargement)
              * Efface le cache et force une recharge des données à partir de la BDD
+             * Recharge TOUTES les données: zones, blippers instances, et types de blippers disponibles
              */
             async reloadFromBDD() {
-                console.log('🔄 Rechargement des données depuis la BDD...');
+                console.log('🔄 Rechargement de TOUTES les données depuis la BDD...');
                 
                 if (window.dataSyncManager) {
                     try {
                         // Effacer le cache pour forcer une recharge depuis la BDD
                         window.dataSyncManager.cache['gta5-zones'] = undefined;
                         window.dataSyncManager.cache['gta5-blippers'] = undefined;
+                        window.dataSyncManager.cache['blippers'] = undefined; // Types de blippers du panel admin
                         
-                        // Charger les données fraîches depuis la BDD
+                        // Recharger les types de blippers disponibles (ajoutés dans l'admin panel)
+                        await this.loadBlippers();
+                        
+                        // Charger les données fraîches depuis la BDD (zones et instances blippers)
                         await this.loadSavedData();
                         
-                        console.log('✅ Données rechargées depuis la BDD avec succès!');
+                        console.log('✅ Toutes les données rechargées depuis la BDD avec succès!');
+                        console.log(`   - Types de blippers: ${this.blippers.length}`);
+                        console.log(`   - Éléments sur la carte: ${this.elements.length}`);
+                        
                         // Optionnel: afficher une notification
                         if (window.SAMSCommon && window.SAMSCommon.showNotification) {
-                            window.SAMSCommon.showNotification('✅ Données rechargées depuis la BDD', 'success');
+                            window.SAMSCommon.showNotification('✅ Toutes les données rechargées depuis la BDD', 'success');
                         }
                     } catch (error) {
                         console.error('❌ Erreur lors du rechargement:', error);

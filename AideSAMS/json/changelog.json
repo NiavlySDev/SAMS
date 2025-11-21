@@ -1,5 +1,37 @@
 [ 
   {
+    "version": "v1.16.4.2",
+    "date" : "21/11/2025 - 14:00",
+    "changes" : [
+      {
+        "text": "Ajout d'un bouton 'Recharger BDD' flottant dans la barre supérieure (toujours visible)",
+        "type": "secondaire"
+      },
+      {
+        "text": "Le bouton est maintenant accessible en mode consultation ET mode édition",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
+    "version": "v1.16.4.1",
+    "date" : "21/11/2025 - 13:50",
+    "changes" : [
+      {
+        "text": "Amélioration du bouton 'Recharger BDD': Recharge maintenant TOUTES les données (zones, instances blippers, ET types de blippers du panel admin)",
+        "type": "global"
+      },
+      {
+        "text": "Le cache des blippers disponibles est maintenant effacé lors du reload pour avoir les derniers types ajoutés en admin",
+        "type": "secondaire"
+      },
+      {
+        "text": "Amélioration des logs: Plus de détails sur ce qui a été rechargé (nombre de types de blippers et éléments)",
+        "type": "secondaire"
+      }
+    ]
+  },
+  {
     "version": "v1.16.4.0",
     "date" : "21/11/2025 - 12:00",
     "changes" : [
@@ -13,35 +45,35 @@
       },
       {
         "text": "Amélioration des notifications admin: Chaque sauvegarde (manuels, grades, catégories, spécialités, blippers) affiche maintenant une notification confirmant la sync BDD",
-        "type": "admin"
+        "type": "secondaire"
       },
       {
         "text": "Ajout du bouton '🔄 Recharger BDD' dans la carte (mode édition) pour forcer un reload des données",
-        "type": "gta5-map"
+        "type": "global"
       },
       {
         "text": "Auto-reload au chargement: La page carte se recharge automatiquement depuis la BDD au chargement pour avoir les données fraîches",
-        "type": "gta5-map"
+        "type": "secondaire"
       },
       {
         "text": "Optimisation: Ajout de la fonction reloadFromBDD() qui efface le cache et force une recharge depuis la BDD",
-        "type": "gta5-map"
+        "type": "secondaire"
       },
       {
         "text": "Intégration de setupRealTimeSyncOnFocus() pour tous les pages (hierarchie, manuels, gta5-map): Auto-refresh au focus",
-        "type": "global"
+        "type": "secondaire"
       },
       {
         "text": "Modification de performHierarchyRefresh() pour effacer le cache et recharger depuis la BDD",
-        "type": "hierarchie"
+        "type": "secondaire"
       },
       {
         "text": "Modification de performManuelsRefresh() pour effacer le cache et recharger depuis la BDD",
-        "type": "manuels"
+        "type": "secondaire"
       },
       {
         "text": "Amélioration des messages de log: Chaque action affiche maintenant les détails des sources de données (BDD/localStorage/JSON)",
-        "type": "global"
+        "type": "secondaire"
       }
     ]
   },
